@@ -6,10 +6,10 @@ import joblib
 import matplotlib.pyplot as plt
 
 
-decisiontree_model = joblib.load('/workspaces/blank-app/SWIFT/Models/decision_tree_model.pkl')
-knn_model = joblib.load('/workspaces/blank-app/SWIFT/Models/knn_model.pkl')
-logistic_regression_model = joblib.load('/workspaces/blank-app/SWIFT/Models/logistic_regression_model.pkl')
-randomforest_model = joblib.load('/workspaces/blank-app/SWIFT/Models/random_forest_model.pkl')
+decisiontree_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/decision_tree_model.pkl')
+knn_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/knn_model.pkl')
+logistic_regression_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/logistic_regression_model.pkl')
+randomforest_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/random_forest_model.pkl')
 
 # Function to predict loan status
 def predict_loan_status(input_data):
