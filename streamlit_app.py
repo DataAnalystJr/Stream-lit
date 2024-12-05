@@ -63,7 +63,7 @@ def get_valid_input(prompt, data_type, allowed_values=None):
 
 # Streamlit app layout
 st.title("Loan Application Input Form")
-
+st.title("Loanloan")
 # Get input data from the user with validation
 gender = get_valid_input("Select Gender:", int, [0, 1])
 married = get_valid_input("Select Marital Status:", int, [0, 1])
