@@ -6,7 +6,7 @@ import joblib
 import matplotlib.pyplot as plt
 
 
-decisiontree_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/decision_tree_model.pkl')
+
 knn_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/knn_model.pkl')
 logistic_regression_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/logistic_regression_model.pkl')
 randomforest_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/random_forest_model.pkl')
@@ -115,10 +115,10 @@ if st.button("Submit"):
     # Display the input data in a row format using pandas DataFrame
     df = pd.DataFrame(row_data)
     st.write(df)
-        # Make prediction using decision tree
-    # Make prediction using decision tree
+
+    # Make prediction using KNN MODEL
     prediction = predict_loan_status(input_data)
-    probability = decisiontree_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+    probability = knn_model.predict_proba(pd.DataFrame([input_data]))[0][1]
 
 # Print the prediction with probability
     if prediction == 1:
@@ -128,8 +128,42 @@ if st.button("Submit"):
 
 # Visualization
     plt.figure(figsize=(6, 4))  # Optional: Set figure size
-    plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['green', 'red'])
+    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
     plt.title('Loan Repayment Probability')
     plt.ylabel('Probability')
-    st.pyplot(plt)  # Use st.pyplot to display the plot in Streamlit
-    plt.clf()  # Clear the figure after displaying # Clear the figure after displaying
+    st.pyplot(plt)
+    plt.clf()
+
+    prediction = predict_loan_status(input_data)
+    probability = logistic_regression_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+
+# Print the prediction with probability
+    if prediction == 1:
+        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+    else:
+        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+
+# Visualization
+    plt.figure(figsize=(6, 4))  # Optional: Set figure size
+    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
+    plt.title('Loan Repayment Probability')
+    plt.ylabel('Probability')
+    st.pyplot(plt)
+    plt.clf()
+
+    prediction = predict_loan_status(input_data)
+    probability = randomforest_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+
+# Print the prediction with probability
+    if prediction == 1:
+        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+    else:
+        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+
+# Visualization
+    plt.figure(figsize=(6, 4))  # Optional: Set figure size
+    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
+    plt.title('Loan Repayment Probability')
+    plt.ylabel('Probability')
+    st.pyplot(plt)
+    plt.clf()
