@@ -6,10 +6,21 @@ import joblib
 import matplotlib.pyplot as plt
 
 
+import joblib
+import os
 
-knn_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/knn_model.pkl')
-logistic_regression_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/logistic_regression_model.pkl')
-randomforest_model = joblib.load('/workspaces/Stream-lit/SWIFT/Models/random_forest_model.pkl')
+# Get the current directory of the script
+current_dir = os.path.dirname(__file__)
+
+# Construct the relative paths
+knn_model_path = os.path.join(current_dir,'SWIFT', 'Models', 'knn_model.pkl')
+logistic_regression_model_path = os.path.join(current_dir,'SWIFT', 'Models', 'logistic_regression_model.pkl')
+randomforest_model_path = os.path.join(current_dir,'SWIFT', 'Models', 'random_forest_model.pkl')
+
+# Load the models
+knn_model = joblib.load(knn_model_path)
+logistic_regression_model = joblib.load(logistic_regression_model_path)
+randomforest_model = joblib.load(randomforest_model_path)
 
 # Function to predict loan status
 def predict_loan_status(input_data):
