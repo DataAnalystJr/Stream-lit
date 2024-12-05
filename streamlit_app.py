@@ -13,11 +13,13 @@ import os
 current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
+decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_model.pkl')
 knn_model_path = os.path.join(current_dir,'SWIFT', 'Models', 'knn_model.pkl')
 logistic_regression_model_path = os.path.join(current_dir,'SWIFT', 'Models', 'logistic_regression_model.pkl')
 randomforest_model_path = os.path.join(current_dir,'SWIFT', 'Models', 'random_forest_model.pkl')
 
 # Load the models
+deicision_tree_model = joblib.load(decision_tree_model)
 knn_model = joblib.load(knn_model_path)
 logistic_regression_model = joblib.load(logistic_regression_model_path)
 randomforest_model = joblib.load(randomforest_model_path)
@@ -28,7 +30,7 @@ def predict_loan_status(input_data):
     input_df = pd.DataFrame([input_data])
 
     # Make prediction using the loaded model
-    prediction = decisiontree_model.predict(input_df)[0]
+    prediction = deicision_tree_model.predict(input_df)[0]
     prediction = knn_model.predict(input_df)[0]
     prediction = logistic_regression_model.predict(input_df)[0]
     prediction = randomforest_model.predict(input_df)[0]
@@ -63,7 +65,7 @@ def get_valid_input(prompt, data_type, allowed_values=None):
 
 # Streamlit app layout
 st.title("Loan Application Input Form")
-st.title("testtest")
+
 # Get input data from the user with validation
 gender = get_valid_input("Select Gender:", int, [0, 1])
 married = get_valid_input("Select Marital Status:", int, [0, 1])
@@ -126,7 +128,22 @@ if st.button("Submit"):
     # Display the input data in a row format using pandas DataFrame
     df = pd.DataFrame(row_data)
     st.write(df)
+    prediction = predict_loan_status(input_data)
+    probability = deicision_tree_model.predict_proba(pd.DataFrame([input_data]))[0][1]
 
+# Print the prediction with probability
+    if prediction == 1:
+        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+    else:
+        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+
+# Visualization
+    plt.figure(figsize=(6, 4))  # Optional: Set figure size
+    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
+    plt.title('Loan Repayment Probability')
+    plt.ylabel('Probability')
+    st.pyplot(plt)
+    plt.clf()
     # Make prediction using KNN MODEL
     prediction = predict_loan_status(input_data)
     probability = knn_model.predict_proba(pd.DataFrame([input_data]))[0][1]
