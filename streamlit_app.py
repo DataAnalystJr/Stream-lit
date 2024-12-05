@@ -67,131 +67,162 @@ def get_valid_input(prompt, data_type, allowed_values=None):
 st.title("Loan Application Input Form")
 
 # Get input data from the user with validation
-gender = get_valid_input("Select Gender [0 for Female, 1 for Male]:", int, [0, 1])
-married = get_valid_input("Select Marital Status [0 for Single, 1 for Married]:", int, [0, 1])
-dependents = get_valid_input("Enter Number of Dependents (e.g., 0, 1, 2):", int)  # Assume no fixed values
-education = get_valid_input("Select Education Level [0 for Graduate, 1 for Not a Graduate]:", int, [0, 1])
-self_employed = get_valid_input("Select Self Employment Status [0 for No, 1 for Yes]:", int, [0, 1])
-credit_history = get_valid_input("Select Credit History [0 for No History, 1 for Good History]:", float, [0, 1])
-property_area = get_valid_input("Select Property Area [0 for Rural, 1 for Semiurban, 2 for Urban]:", int, [0, 1, 2])
-applicant_income_log = get_valid_input("Enter Applicant Income (log-transformed value):", float)
-loan_amount_log = get_valid_input("Enter Loan Amount (log-transformed value):", float)
-loan_amount_term_log = get_valid_input("Enter Loan Amount Term (log-transformed value):", float)
-total_income_log = get_valid_input("Enter Total Income (log-transformed value):", float)
+gender = get_valid_input("Select Gender:(0 for FEMALE | 1 for MALE)", int, [0, 1])
+married = get_valid_input("Select Marital Status:(0 for SINGLE | 1 for MARRIED)", int, [0, 1])
+dependents = get_valid_input("Enter Number of Dependents (e.g., 0, 1, 2):", int) 
+education = get_valid_input("Select Education Level:(0 for College Graduate | 1 for Not College Graduate)", int, [0, 1])
+self_employed = get_valid_input("Select Employment Status:(0 for UNEMPLOYED | 1 for EMPLOYED)", int, [0, 1])
+credit_history = get_valid_input("Select Credit History:(0 for NO or BAD CREDIT HISTORY | 1 for GOOD HISTORY)", float, [0, 1])
+property_area = get_valid_input("Select Property Area:(0 for RURAL | 1 for SEMIURBAN | 2 for URBAN)", int, [0, 1, 2])
+applicant_income_log = get_valid_input("Enter Applicant Income (Monthly)", float)
+loan_amount_log = get_valid_input("Enter Loan Amount", float)
+loan_amount_term_log = get_valid_input("Enter Loan Amount Term (in Days)", float)
+total_income_log = get_valid_input("Enter Total Income (Payroll Amount)", float)
 
 # Output the collected and validated inputs
 if st.button("Submit"):
-    st.write("\nCollected Input Data:")
-    st.write(f"Gender: {gender}")
-    st.write(f"Marital Status: {married}")
-    st.write(f"Dependents: {dependents}")
-    st.write(f"Education: {education}")
-    st.write(f"Self-Employed: {self_employed}")
-    st.write(f"Credit History: {credit_history}")
-    st.write(f"Property Area: {property_area}")
-    st.write(f"Applicant Income (log): {applicant_income_log}")
-    st.write(f"Loan Amount (log): {loan_amount_log}")
-    st.write(f"Loan Amount Term (log): {loan_amount_term_log}")
-    st.write(f"Total Income (log): {total_income_log}")
-# Prepare input data for prediction
-    input_data = {
-        'Gender': gender,
-        'Married': married,
-        'Dependents': dependents,
-        'Education': education,
-        'Self_Employed': self_employed,
-        'Credit_History': credit_history,
-        'Property_Area': property_area,
-        'ApplicantIncomelog': applicant_income_log,
-        'LoanAmountlog': loan_amount_log,
-        'Loan_Amount_Term_log': loan_amount_term_log,
-        'Total_Income_log': total_income_log
-    }
-# Create a dictionary for mapping numerical values to textual representations
-    text_mapping = {
-    'Gender': {0: 'Female', 1: 'Male'},
-    'Married': {0: 'No', 1: 'Yes'},
-    'Education': {0: 'Graduate', 1: 'Not Graduate'},
-    'Self_Employed': {0: 'No', 1: 'Yes'},
-    'Property_Area': {0: 'Rural', 1: 'Semiurban', 2: 'Urban'}
-    }
+    if None in [gender, married, dependents, education, self_employed, credit_history, 
+                property_area, applicant_income_log, loan_amount_log, 
+                loan_amount_term_log, total_income_log]:
+        st.error("Please fill in all fields before submitting the form.")
+    else:
+        st.write("\nCollected Input Data:")
+        st.write(f"Gender: {gender}")
+        st.write(f"Marital Status: {married}")
+        st.write(f"Dependents: {dependents}")
+        st.write(f"Education: {education}")
+        st.write(f"Self-Employed: {self_employed}")
+        st.write(f"Credit History: {credit_history}")
+        st.write(f"Property Area: {property_area}")
+        st.write(f"Applicant Income (log): {applicant_income_log}")
+        st.write(f"Loan Amount (log): {loan_amount_log}")
+        st.write(f"Loan Amount Term (log): {loan_amount_term_log}")
+        st.write(f"Total Income (log): {total_income_log}")
+
+        # Prepare input data for prediction
+        input_data = {
+            'Gender': gender,
+            'Married': married,
+            'Dependents': dependents,
+            'Education': education,
+            'Self_Employed': self_employed,
+            'Credit_History': credit_history,
+            'Property_Area': property_area,
+            'ApplicantIncomelog': applicant_income_log,
+            'LoanAmountlog': loan_amount_log,
+            'Loan_Amount_Term_log': loan_amount_term_log,
+            'Total_Income_log': total_income_log
+        }
+
+        # Create a dictionary for mapping numerical values to textual representations
+        text_mapping = {
+            'Gender': {0: 'Female', 1: 'Male'},
+            'Married': {0: 'No', 1: 'Yes'},
+            'Education': {0: 'Graduate', 1: 'Not Graduate'},
+            'Self_Employed': {0: 'No', 1: 'Yes'},
+            'Property_Area': {0: 'Rural', 1: 'Semiurban', 2: 'Urban'}
+        }
+
         # Create a copy of input_data for display purposes
-    display_data = input_data.copy()
+        display_data = input_data.copy()
 
-    for key, value in display_data.items():
-        if key in text_mapping and value in text_mapping[key]:
-            display_data[key] = text_mapping[key][value]
+        for key, value in display_data.items():
+            if key in text_mapping and value in text_mapping[key]:
+                display_data[key] = text_mapping[key][value]
 
-    # Transform data into a row-based format for display
-    row_data = [{"Feature": key, "Value": value} for key, value in display_data.items()]
+        # Transform data into a row-based format for display
+        row_data = [{"Feature": key, "Value": value} for key, value in display_data.items()]
 
-    # Display the input data in a row format using pandas DataFrame
-    df = pd.DataFrame(row_data)
-    st.write(df)
-    prediction = predict_loan_status(input_data)
-    probability = deicision_tree_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+        # Display the input data in a row format using pandas DataFrame
+        df = pd.DataFrame(row_data)
+        st.write(df)
+        col1, col2 = st.columns(2)
+        with col1:
+        # Decision tree model
+            prediction = predict_loan_status(input_data)
+            probability = deicision_tree_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            st.title("DECISION TREE MODEL")
+            if prediction == 1:
+                st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            threshold = 0.7  # Define your threshold
 
-# Print the prediction with probability
-    if prediction == 1:
-        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-    else:
-        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            if probability > threshold:
+                st.write(f"The applicant is low risk. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is high risk. (Probability: {1 - probability:.2f})")
+            # Decision Tree Visualization
+            plt.figure(figsize=(6, 4))
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
+           
+            plt.ylabel('Probability')
+            st.pyplot(plt)
+            plt.clf()
+        
+            # KNN MODEL
+            prediction = predict_loan_status(input_data)
+            probability = knn_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            st.title("KNN MODEL")
+            if prediction == 1:
+                st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            threshold = 0.7  # Define your threshold
 
-# Visualization
-    plt.figure(figsize=(6, 4))  # Optional: Set figure size
-    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
-    plt.title('Loan Repayment Probability')
-    plt.ylabel('Probability')
-    st.pyplot(plt)
-    plt.clf()
-    # Make prediction using KNN MODEL
-    prediction = predict_loan_status(input_data)
-    probability = knn_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            if probability > threshold:
+                st.write(f"The applicant is low risk. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is high risk. (Probability: {1 - probability:.2f})")
+            # KNN VISUALIZATION
+            plt.figure(figsize=(6, 4))  # Optional: Set figure size
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
+           
+            plt.ylabel('Probability')
+            st.pyplot(plt)
+            plt.clf()
+        with col2:  
+            #Logistic Regression Model
+            prediction = predict_loan_status(input_data)
+            probability = logistic_regression_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            st.title("LOGISREG MODEL")
+            if prediction == 1:
+                st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            threshold = 0.7  # Define your threshold
 
-# Print the prediction with probability
-    if prediction == 1:
-        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-    else:
-        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            if probability > threshold:
+                st.write(f"The applicant is low risk. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is high risk. (Probability: {1 - probability:.2f})")
+            # LOGISTICS REGRESSION VISUALIZATION
+            plt.figure(figsize=(6, 4))  # Optional: Set figure size
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
+    
+            plt.ylabel('Probability')
+            st.pyplot(plt)
+            plt.clf()
 
-# Visualization
-    plt.figure(figsize=(6, 4))  # Optional: Set figure size
-    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
-    plt.title('Loan Repayment Probability')
-    plt.ylabel('Probability')
-    st.pyplot(plt)
-    plt.clf()
+        # Random Forest Model
+            prediction = predict_loan_status(input_data)
+            probability = randomforest_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            st.title("RANDOM FOREST MODEL")
+            if prediction == 1:
+                st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            # RANDOM FOREST VISUALIZATION
+            threshold = 0.7  # Define your threshold
 
-    prediction = predict_loan_status(input_data)
-    probability = logistic_regression_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            if probability > threshold:
+                st.write(f"The applicant is low risk. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is high risk. (Probability: {1 - probability:.2f})")
+            plt.figure(figsize=(6, 4))  # Optional: Set figure size
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
+            plt.ylabel('Probability')
+            st.pyplot(plt)
+            plt.clf()
+      
 
-# Print the prediction with probability
-    if prediction == 1:
-        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-    else:
-        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
-
-# Visualization
-    plt.figure(figsize=(6, 4))  # Optional: Set figure size
-    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
-    plt.title('Loan Repayment Probability')
-    plt.ylabel('Probability')
-    st.pyplot(plt)
-    plt.clf()
-
-    prediction = predict_loan_status(input_data)
-    probability = randomforest_model.predict_proba(pd.DataFrame([input_data]))[0][1]
-
-# Print the prediction with probability
-    if prediction == 1:
-        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-    else:
-        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
-
-# Visualization
-    plt.figure(figsize=(6, 4))  # Optional: Set figure size
-    plt.bar(['Repayment', 'Default'], [probability, 1 - probability])
-    plt.title('Loan Repayment Probability')
-    plt.ylabel('Probability')
-    st.pyplot(plt)
-    plt.clf()
