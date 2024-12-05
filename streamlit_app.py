@@ -40,7 +40,7 @@ def predict_loan_status(input_data):
 # Title of the app
 st.title("Loan Approval Prediction")
 
-
+st.title("eyyyy")
 def get_valid_input(prompt, data_type, allowed_values=None):
     # Streamlit does not require a loop for input; we can use the widgets directly
     if allowed_values is not None:
