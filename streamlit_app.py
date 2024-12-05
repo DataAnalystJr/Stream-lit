@@ -67,13 +67,13 @@ def get_valid_input(prompt, data_type, allowed_values=None):
 st.title("Loan Application Input Form")
 
 # Get input data from the user with validation
-gender = get_valid_input("Select Gender:", int, [0, 1])
-married = get_valid_input("Select Marital Status:", int, [0, 1])
+gender = get_valid_input("Select Gender [0 for Female, 1 for Male]:", int, [0, 1])
+married = get_valid_input("Select Marital Status [0 for Single, 1 for Married]:", int, [0, 1])
 dependents = get_valid_input("Enter Number of Dependents (e.g., 0, 1, 2):", int)  # Assume no fixed values
-education = get_valid_input("Select Education Level:", int, [0, 1])
-self_employed = get_valid_input("Select Self Employment Status:", int, [0, 1])
-credit_history = get_valid_input("Select Credit History:", float, [0, 1])
-property_area = get_valid_input("Select Property Area:", int, [0, 1, 2])
+education = get_valid_input("Select Education Level [0 for Graduate, 1 for Not a Graduate]:", int, [0, 1])
+self_employed = get_valid_input("Select Self Employment Status [0 for No, 1 for Yes]:", int, [0, 1])
+credit_history = get_valid_input("Select Credit History [0 for No History, 1 for Good History]:", float, [0, 1])
+property_area = get_valid_input("Select Property Area [0 for Rural, 1 for Semiurban, 2 for Urban]:", int, [0, 1, 2])
 applicant_income_log = get_valid_input("Enter Applicant Income (log-transformed value):", float)
 loan_amount_log = get_valid_input("Enter Loan Amount (log-transformed value):", float)
 loan_amount_term_log = get_valid_input("Enter Loan Amount Term (log-transformed value):", float)
