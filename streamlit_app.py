@@ -62,20 +62,23 @@ if (gender == "" or married == "" or education == "" or self_employed == "" or c
     st.error("Please fill in all the required fields before submitting.")
 if st.button("Submit"):
     # Prepare input data for prediction
-    input_data = {
-        'Gender': gender_options[gender],
-        'Married': marital_status_options[married],
-        'Dependents': dependents,
-        'Education': education_options[education],
-        'Self_Employed': employment_status_options[self_employed],
-        'Credit_History': credit_history_options[credit_history],
-        'Property_Area': property_area_options[property_area],
-        'ApplicantIncomelog': applicant_income_log,
-        'LoanAmountlog': loan_amount_log,
-        'Loan_Amount_Term_log': loan_amount_term_log,
-        'Total_Income_log': total_income_log
-    }
-
+    try:
+        input_data = {
+            'Gender': gender_options[gender],
+            'Married': marital_status_options[married],
+            'Dependents': dependents,
+            'Education': education_options[education],
+            'Self_Employed': employment_status_options[self_employed],
+            'Credit_History': credit_history_options[credit_history],
+            'Property_Area': property_area_options[property_area],
+            'ApplicantIncomelog': applicant_income_log,
+            'LoanAmountlog': loan_amount_log,
+            'Loan_Amount_Term_log': loan_amount_term_log,
+            'Total_Income_log': total_income_log
+        }
+    except KeyError as e:
+    st.error(f"An error occurred: {str(e)}. Please ensure all fields are filled correctly.")
+    st.stop()  # Stop further execution if there's an error
     # Display the input data in a user-friendly format
     st.write("Collected Input Data:")
     for key, value in input_data.items():
