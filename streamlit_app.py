@@ -29,8 +29,8 @@ def predict_loan_status(input_data):
     # Make prediction using the loaded model
     prediction = deicision_tree_model.predict(input_df)[0]
     return prediction
-logo_url = "https://raw.githubusercontent.com/DataAnalystJr/Stream-lit/main/SWIFT/swft.png"
-st.image(logo_url, width=295)  # Adjust the width as needed
+"""logo_url = "https://raw.githubusercontent.com/DataAnalystJr/Stream-lit/main/SWIFT/swft.png"
+st.image(logo_url, width=295)  # Adjust the width as needed"""
 # Title of the app
 st.title("Loan Approval Prediction")
 
