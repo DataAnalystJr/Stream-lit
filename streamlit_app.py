@@ -31,7 +31,12 @@ def predict_loan_status(input_data):
     return prediction
 
 # Center the title using HTML
-st.markdown("<h1 style='text-align: center;'>Loan Approval Prediction</h1>", unsafe_allow_html=True)
+# Center the title with a border using HTML and CSS
+st.markdown("""
+    <div style='text-align: center; border: 2px solid black; padding: 10px; border-radius: 5px;'>
+        <h1>Loan Approval Prediction</h1>
+    </div>
+""", unsafe_allow_html=True)
 
 # Streamlit app layout
 st.title(" ")
