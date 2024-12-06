@@ -58,9 +58,11 @@ loan_amount_term_log = st.number_input("Enter Loan Amount Term (in Days):", min_
 total_income_log = st.number_input("Enter Total Income (Payroll Amount):", min_value=0.0, value=0.0)
 # Output the collected and validated inputs
 # Check for empty inputs
+# Check for empty inputs and zero values
 if (gender == "" or married == "" or education == "" or self_employed == "" or credit_history == "" or property_area == "" or
     applicant_income_log <= 0 or loan_amount_log <= 0 or loan_amount_term_log <= 0 or total_income_log <= 0):
     st.error("Please fill in all the required fields with valid values (greater than 0) before submitting.")
+    st.stop()  # Stop further execution if there's an error
 
 if st.button("Submit"):
     # Prepare input data for prediction
