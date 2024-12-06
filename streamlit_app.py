@@ -77,8 +77,8 @@ if st.button("Submit"):
             'Total_Income_log': total_income_log
         }
     except KeyError as e:
-    st.error(f"An error occurred: {str(e)}. Please ensure all fields are filled correctly.")
-    st.stop()  # Stop further execution if there's an error
+        st.error(f"An error occurred: {str(e)}. Please ensure all fields are filled correctly.")
+        st.stop()  # Stop further execution if there's an error
     # Display the input data in a user-friendly format
     st.write("Collected Input Data:")
     for key, value in input_data.items():
