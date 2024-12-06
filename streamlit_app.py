@@ -31,7 +31,7 @@ def predict_loan_status(input_data):
     return prediction
 
 # Title of the app
-st.title("Loan Approval Prediction")
+st.markdown("<h1 style='text-align: center;'>Loan Approval Prediction</h1>", unsafe_allow_html=True)
 
 # Streamlit app layout
 st.title("Loan Application Input Form")
