@@ -152,7 +152,7 @@ with col1:
 
             # Visualization
             plt.figure(figsize=(6, 4))
-            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['green', 'blue'])
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['green', 'red'])
             plt.ylabel('Probability')
             st.pyplot(plt)
             plt.clf()
