@@ -34,6 +34,7 @@ def predict_loan_status(input_data):
 st.markdown("<h1 style='text-align: center;'>Loan Approval Prediction</h1>", unsafe_allow_html=True)
 
 # Streamlit app layout
+st.title(" ")
 st.title("Loan Application Input Form")
 
 # Create a mapping for user-friendly labels
