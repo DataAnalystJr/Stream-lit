@@ -30,11 +30,11 @@ def predict_loan_status(input_data):
     prediction = deicision_tree_model.predict(input_df)[0]
     return prediction
 
-# Title of the app
+# Center the title using HTML
 st.markdown("<h1 style='text-align: center;'>Loan Approval Prediction</h1>", unsafe_allow_html=True)
 
 # Streamlit app layout
-st.title("Loan Application Input Form")
+st.markdown("<h2 style='text-align: center;'>Loan Application Input Form</h2>", unsafe_allow_html=True)
 
 # Create a mapping for user-friendly labels
 gender_options = {'Female': 0, 'Male': 1}
