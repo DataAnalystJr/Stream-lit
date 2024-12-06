@@ -29,7 +29,7 @@ def predict_loan_status(input_data):
     # Make prediction using the loaded model
     prediction = deicision_tree_model.predict(input_df)[0]
     return prediction
-st.image('./SWIFT/swft.png')
+
 # Title of the app
 st.title("Loan Approval Prediction")
 
