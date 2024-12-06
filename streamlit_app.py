@@ -33,8 +33,8 @@ def predict_loan_status(input_data):
 # Center the title using HTML
 # Center the title with a border using HTML and CSS
 st.markdown("""
-    <div style='text-align: center; border: 2px solid black; padding: 10px; border-radius: 5px;'>
-        <h1>Loan Approval Prediction</h1>
+    <div style='text-align: center; border: 2px solid white; padding: 10px; border-radius: 15px; background-color: #333;'>
+        <h1 style='color: white;'>Loan Approval Prediction</h1>
     </div>
 """, unsafe_allow_html=True)
 
