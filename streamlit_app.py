@@ -75,7 +75,7 @@ st.markdown("""
 
 with st.container():
     st.markdown('<div class="loan-amount-container">', unsafe_allow_html=True)
-    loan_amount_log = st.number_input("Enter Loan Amount:", min_value=0.0, value=None, format="%d")
+    loan_amount_log = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
     st.markdown('</div>', unsafe_allow_html=True)
 
 loan_amount_term_log = st.number_input("Enter Loan Amount Term (in Days):", min_value=0.0, value=None)
