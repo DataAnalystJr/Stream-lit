@@ -6,6 +6,88 @@ import joblib
 import matplotlib.pyplot as plt
 import os
 
+# Set page config
+st.set_page_config(
+    page_title="Loan Approval Prediction",
+    page_icon="💰",
+    layout="wide"
+)
+
+# Custom CSS for styling
+st.markdown("""
+<style>
+    .main {
+        padding: 2rem;
+        background-color: #f9f9f9;
+    }
+    .title-container {
+        text-align: center;
+        border: 2px solid #4CAF50;
+        padding: 15px;
+        border-radius: 15px;
+        background-color: #1E1E1E;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .loan-slider-container {
+        padding: 15px;
+        background-color: #e8f5e9;
+        border-radius: 8px;
+        margin: 0;
+        border-left: 4px solid #4CAF50;
+    }
+    .stButton button {
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+    }
+    /* Default button style (for Clear button) */
+    .stButton button {
+        background-color: #4CAF50;
+    }
+    .stButton button:hover {
+        background-color: #45a049;
+    }
+    /* Submit button style */
+    div[data-testid="column"]:nth-of-type(1) .stButton button {
+        background-color: #2196F3;
+    }
+    div[data-testid="column"]:nth-of-type(1) .stButton button:hover {
+        background-color: #0b7dda;
+    }
+    h1, h2, h3 {
+        color: #2E7D32;
+    }
+    .result-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        border-left: 4px solid #2196F3;
+    }
+    label {
+        font-weight: 500;
+        color: #333;
+    }
+    .highlight {
+        background-color: #f1f8e9;
+        padding: 10px;
+        border-radius: 5px;
+        border-left: 3px solid #4CAF50;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
@@ -30,17 +112,13 @@ def predict_loan_status(input_data):
     prediction = deicision_tree_model.predict(input_df)[0]
     return prediction
 
-# Center the title using HTML
 # Center the title with a border using HTML and CSS
 st.markdown("""
-    <div style='text-align: center; border: 2px solid white; padding: 10px; border-radius: 15px; background-color: #333;'>
+    <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
+        <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
     </div>
 """, unsafe_allow_html=True)
-
-# Streamlit app layout
-st.title(" ")
-st.title("Loan Application Input Form")
 
 # Create a mapping for user-friendly labels
 gender_options = {'Female': 0, 'Male': 1}
@@ -50,18 +128,64 @@ employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
 
-# Input Fields
-gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
-married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
-dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None)
-education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
-self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
-credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
-property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
-applicant_income_log = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
-loan_amount_log = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
-loan_amount_term_log = st.number_input("Enter Loan Amount Term (in Days):", min_value=0.0, value=None)
-total_income_log = st.number_input("Enter Total Income (Payroll Amount):", min_value=0.0, value=None)
+# Create two columns for the input form
+col1, col2 = st.columns(2)
+
+# Card for personal information
+with col1:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("Personal Information")
+    gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
+    married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
+    dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None, min_value=0, step=1)
+    education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("Property Information")
+    property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Card for financial information
+with col2:
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.subheader("Financial Information")
+    self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
+    credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
+    applicant_income_log = st.number_input("Enter Applicant Income (Monthly in ₱):", min_value=0.0, value=None)
+    total_income_log = st.number_input("Enter Total Income (Payroll Amount in ₱):", min_value=0.0, value=None)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Loan details card - full width
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("Loan Details")
+
+# Loan amount slider with better styling
+st.markdown('<div class="loan-slider-container">', unsafe_allow_html=True)
+st.write("**Enter Loan Amount:**")
+loan_amount_log = st.slider("", 
+                           min_value=1000.0, 
+                           max_value=1000000.0, 
+                           value=100000.0, 
+                           step=1000.0,
+                           format="₱ %d")
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Space between sliders
+st.write("")
+
+# Loan term slider
+st.markdown('<div class="loan-slider-container">', unsafe_allow_html=True)
+st.write("**Enter Loan Amount Term (in Months):**")
+loan_amount_term_log = st.slider("", 
+                                min_value=1.0, 
+                                max_value=360.0, 
+                                value=60.0, 
+                                step=1.0,
+                                format="%d months")
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Validation function
 def is_valid_input():
@@ -97,73 +221,117 @@ def clear_fields():
     # Set the flag for triggering a rerun
     st.session_state.clear_triggered = True
 
+# Action buttons - centered and styled
+button_col1, button_col2, button_col3 = st.columns([1, 2, 1])
+with button_col2:
+    col1, col2 = st.columns(2)
+    with col1:
+        submit_button = st.button("Submit", disabled=not is_valid_input(), use_container_width=True)
+    with col2:
+        clear_button = st.button("Clear", use_container_width=True)
+
+# Handle clear button
+if clear_button:
+    clear_fields()
+
+# Results section    
+if submit_button:
+    # Prepare input data for prediction
+    input_data = {
+        'Gender': gender_options[gender],
+        'Married': marital_status_options[married],
+        'Dependents': dependents,
+        'Education': education_options[education],
+        'Self_Employed': employment_status_options[self_employed],
+        'Credit_History': credit_history_options[credit_history],
+        'Property_Area': property_area_options[property_area],
+        'ApplicantIncomelog': applicant_income_log,
+        'LoanAmountlog': loan_amount_log,
+        'Loan_Amount_Term_log': loan_amount_term_log,
+        'Total_Income_log': total_income_log
+    }
+
+    # Summary card with collected data
+    st.markdown('<div class="card highlight">', unsafe_allow_html=True)
+    st.subheader("Loan Application Summary")
     
-# Action buttons
-col1, col2 = st.columns(2)
+    # Create two columns for the summary data
+    sum_col1, sum_col2 = st.columns(2)
+    
+    with sum_col1:
+        st.write("**Personal Details:**")
+        st.write(f"• Gender: {gender}")
+        st.write(f"• Marital Status: {married}")
+        st.write(f"• Number of Dependents: {dependents}")
+        st.write(f"• Education: {education}")
+        st.write(f"• Employment Status: {self_employed}")
+        
+    with sum_col2:
+        st.write("**Financial Details:**")
+        st.write(f"• Credit History: {credit_history}")
+        st.write(f"• Property Area: {property_area}")
+        st.write(f"• Monthly Income: ₱{applicant_income_log:,.2f}")
+        st.write(f"• Loan Amount: ₱{loan_amount_log:,.2f}")
+        st.write(f"• Loan Term: {loan_amount_term_log} months")
+        st.write(f"• Total Income: ₱{total_income_log:,.2f}")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with col1:
-    # Submit button
-    if st.button("Submit", disabled=not is_valid_input()):
-        # Prepare input data for prediction
-        input_data = {
-            'Gender': gender_options[gender],
-            'Married': marital_status_options[married],
-            'Dependents': dependents,
-            'Education': education_options[education],
-            'Self_Employed': employment_status_options[self_employed],
-            'Credit_History': credit_history_options[credit_history],
-            'Property_Area': property_area_options[property_area],
-            'ApplicantIncomelog': applicant_income_log,
-            'LoanAmountlog': loan_amount_log,
-            'Loan_Amount_Term_log': loan_amount_term_log,
-            'Total_Income_log': total_income_log
-        }
+    # Make predictions with each model
+    models = {
+        "Decision Tree": deicision_tree_model,
+        "KNN": knn_model,
+        "Logistic Regression": logistic_regression_model,
+        "Random Forest": randomforest_model
+    }
 
-        # Display the input data as text
-        st.write("Collected Input Data:")
-        st.write(f"Gender: {gender}")
-        st.write(f"Marital Status: {married}")
-        st.write(f"Number of Dependents: {dependents}")
-        st.write(f"Education: {education}")
-        st.write(f"Employment Status: {self_employed}")
-        st.write(f"Credit History: {credit_history}")
-        st.write(f"Property Area: {property_area}")
-        st.write(f"Applicant Income: {applicant_income_log}")
-        st.write(f"Loan Amount: {loan_amount_log}")
-        st.write(f"Loan Amount Term (in Days): {loan_amount_term_log}")
-        st.write(f"Total Income: {total_income_log}")
-
-        # Make predictions
-        models = {
-            "Decision Tree": deicision_tree_model,
-            "KNN": knn_model,
-            "Logistic Regression": logistic_regression_model,
-            "Random Forest": randomforest_model
-        }
-
-        for model_name, model in models.items():
-            prediction = predict_loan_status(input_data)
-            probability = model.predict_proba(pd.DataFrame([input_data]))[0][1]
-            st.title(f"{model_name} Model")
-            if prediction == 1:
-                st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-            else:
-                st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
-
+    for model_name, model in models.items():
+        prediction = predict_loan_status(input_data)
+        probability = model.predict_proba(pd.DataFrame([input_data]))[0][1]
+        
+        # Result card for each model
+        st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
+        st.subheader(f"{model_name} Model Prediction")
+        
+        # Create columns for text and visualization
+        res_col1, res_col2 = st.columns([3, 2])
+        
+        with res_col1:
             threshold = 0.7  # Define your threshold
-            if probability > threshold:
-                st.write(f"The applicant is classified as low risk. (Probability: {probability:.2f})")
+            
+            if prediction == 1:
+                st.markdown(f"<h3 style='color: #4CAF50;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
+                st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
             else:
-                st.write(f"The applicant is classified as high risk. (Probability: {1 - probability:.2f})")
+                st.markdown(f"<h3 style='color: #F44336;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
+                st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
 
-            # Visualization
-            plt.figure(figsize=(6, 4))
-            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
-            plt.ylabel('Probability')
-            st.pyplot(plt)
-            plt.clf()
+            if probability > threshold:
+                st.write(f"**Risk Assessment:** Low risk applicant (Score: {probability:.2f})")
+            else:
+                st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
 
-with col2:
-    if st.button("Clear"):
-        clear_fields()
+        with res_col2:
+            # Visualization with better colors and spacing
+            fig, ax = plt.subplots(figsize=(4, 4.5))
+            
+            # Add more space at the top for labels
+            plt.subplots_adjust(top=0.8)
+            
+            bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
+                   color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
+            ax.set_ylim(0, 1)
+            ax.set_ylabel('Probability')
+            ax.set_title(f'{model_name} Prediction', pad=20)
+            
+            # Add percentage labels with more vertical spacing
+            for bar in bars:
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height + 0.05,
+                        f'{height:.1%}', ha='center', va='bottom')
+                
+            st.pyplot(fig)
+            plt.close(fig)
+            
+        st.markdown('</div>', unsafe_allow_html=True)
         
