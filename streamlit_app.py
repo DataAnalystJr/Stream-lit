@@ -59,7 +59,25 @@ self_employed = st.selectbox("Select Employment Status:", options=[""] + list(em
 credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
 property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
 applicant_income_log = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
-loan_amount_log = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
+
+# Create a container for loan amount with horizontal scrolling
+st.markdown("""
+    <style>
+    .loan-amount-container {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 10px;
+        background-color: #f0f2f6;
+        border-radius: 5px;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+with st.container():
+    st.markdown('<div class="loan-amount-container">', unsafe_allow_html=True)
+    loan_amount_log = st.number_input("Enter Loan Amount:", min_value=0.0, value=None, format="%d")
+    st.markdown('</div>', unsafe_allow_html=True)
+
 loan_amount_term_log = st.number_input("Enter Loan Amount Term (in Days):", min_value=0.0, value=None)
 total_income_log = st.number_input("Enter Total Income (Payroll Amount):", min_value=0.0, value=None)
 
