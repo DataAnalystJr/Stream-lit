@@ -302,18 +302,22 @@ if submit_button:
                 st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
 
         with res_col2:
-            # Visualization with better colors
-            fig, ax = plt.subplots(figsize=(4, 3))
+            # Visualization with better colors and spacing
+            fig, ax = plt.subplots(figsize=(4, 3.5))
+            
+            # Add more space at the top for labels
+            plt.subplots_adjust(top=0.85)
+            
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
                    color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
             ax.set_ylim(0, 1)
             ax.set_ylabel('Probability')
-            ax.set_title(f'{model_name} Prediction')
+            ax.set_title(f'{model_name} Prediction', pad=15)
             
-            # Add percentage labels on top of bars
+            # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2., height + 0.02,
+                ax.text(bar.get_x() + bar.get_width()/2., height + 0.05,
                         f'{height:.1%}', ha='center', va='bottom')
                 
             st.pyplot(fig)
