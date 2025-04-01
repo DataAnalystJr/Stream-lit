@@ -245,7 +245,7 @@ if submit_button:
             # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2., height + 0.05,
+                ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
                         f'{height:.1%}', ha='center', va='bottom')
                 
             st.pyplot(fig)
