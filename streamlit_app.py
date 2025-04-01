@@ -233,20 +233,30 @@ if submit_button:
             # Visualization with better colors and spacing
             fig, ax = plt.subplots(figsize=(4, 4.5))
             
-            # Add more space at the top for labels
-            plt.subplots_adjust(top=0.8)
+            # Add more space at the top for labels and adjust font sizes
+            plt.subplots_adjust(top=0.75, bottom=0.15)
+            
+            # Set smaller font size for title
+            plt.rcParams.update({'font.size': 10})
             
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
                    color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
             ax.set_ylim(0, 1)
             ax.set_ylabel('Probability')
-            ax.set_title(f'{model_name} Prediction', pad=20)
+            ax.set_title(f'{model_name} Prediction', pad=30, fontsize=11)
             
-            # Add percentage labels with more vertical spacing
+            # Add percentage labels with proper spacing - moved below the bars
             for bar in bars:
                 height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
-                        f'{height:.1%}', ha='center', va='bottom')
+                # Position labels at the middle of the bar horizontally
+                # and just above the top of the bar vertically
+                ax.text(bar.get_x() + bar.get_width()/2., 
+                       height - 0.15 if height > 0.3 else height + 0.05,
+                       f'{height:.1%}', 
+                       ha='center', 
+                       va='center',
+                       fontsize=9,
+                       color='white' if height > 0.3 else 'black')
                 
             st.pyplot(fig)
             plt.close(fig)
