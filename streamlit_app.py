@@ -67,7 +67,7 @@ st.markdown("""
         padding: 10px;
         background-color: #f0f2f6;
         border-radius: 5px;
-        margin: 10px 0;
+        margin: 0;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -79,7 +79,7 @@ loan_amount_log = st.slider("",
                            max_value=1000000.0, 
                            value=100000.0, 
                            step=1000.0,
-                           format="₹ %d")
+                           format="₱ %d")
 st.markdown('</div>', unsafe_allow_html=True)
 
 loan_amount_term_log = st.number_input("Enter Loan Amount Term (in Days):", min_value=0.0, value=None)
