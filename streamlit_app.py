@@ -49,26 +49,23 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .card {
-        background-color: #ffffff;
+        background-color: transparent;
         padding: 1.5rem;
         border-radius: 15px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e0e0e0;
     }
     .result-card {
-        background-color: #ffffff;
+        background-color: transparent;
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border: 1px solid #e0e0e0;
     }
     .highlight {
         border-left: 5px solid #1E3D59;
+        background-color: rgba(30, 61, 89, 0.05);
     }
     .loan-slider-container {
-        background-color: #f8f9fa;
+        background-color: transparent;
         padding: 1.5rem;
         border-radius: 10px;
         margin-bottom: 1rem;
