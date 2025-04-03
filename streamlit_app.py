@@ -231,7 +231,7 @@ if submit_button:
 
         with res_col2:
             # Visualization with better colors and spacing
-            fig, ax = plt.subplots(figsize=(4, 4.5))
+            fig, ax = plt.subplots(figsize=(6, 3))
             
             # Add more space at the top for labels and adjust font sizes
             plt.subplots_adjust(top=0.75, bottom=0.15)
