@@ -32,30 +32,6 @@ def predict_loan_status(input_data):
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
-    <style>
-    .title-container {
-        padding: 1rem;
-        text-align: center;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, #1E3D59, #1E3D59);
-    }
-    .card {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .result-card {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .loan-slider-container {
-        padding: 0.5rem;
-        margin-bottom: 0.5rem;
-    }
-    div[data-testid="stHorizontalBlock"] {
-        gap: 1rem;
-        padding: 0 1rem;
-    }
-    </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
         <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
@@ -70,64 +46,43 @@ employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Urban': 1}
 
-# Create two columns for the input form with adjusted ratio
-col1, col2 = st.columns([1, 1])
+# Create two columns for the input form
+col1, col2 = st.columns(2)
 
 # Card for personal information
 with col1:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("Personal Information")
     gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
     married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
     dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None, min_value=0, step=1)
     education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
-    st.markdown('</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("Property Information")
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # Card for financial information
 with col2:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
     st.subheader("Financial Information")
     self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     applicant_income_log = st.number_input("Enter Applicant Income (Monthly in ₱):", min_value=0.0, value=None)
     total_income_log = st.number_input("Enter Total Income (Payroll Amount in ₱):", min_value=0.0, value=None)
-    st.markdown('</div>', unsafe_allow_html=True)
 
-# Loan details card - full width
-st.markdown('<div class="card">', unsafe_allow_html=True)
+# Loan details
 st.subheader("Loan Details")
-
-# Loan amount slider with better styling
-st.markdown('<div class="loan-slider-container">', unsafe_allow_html=True)
-st.write("**Enter Loan Amount:**")
-loan_amount_log = st.slider("", 
+loan_amount_log = st.slider("Enter Loan Amount:", 
                            min_value=1000.0, 
                            max_value=1000000.0, 
                            value=100000.0, 
                            step=1000.0,
                            format="₱ %d")
-st.markdown('</div>', unsafe_allow_html=True)
 
-# Space between sliders
-st.write("")
-
-# Loan term slider
-st.markdown('<div class="loan-slider-container">', unsafe_allow_html=True)
-st.write("**Enter Loan Amount Term (in Months):**")
-loan_amount_term_log = st.slider("", 
+loan_amount_term_log = st.slider("Enter Loan Amount Term (in Months):", 
                                 min_value=1.0, 
                                 max_value=360.0, 
                                 value=60.0, 
                                 step=1.0,
                                 format="%d months")
-st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # Validation function
 def is_valid_input():
