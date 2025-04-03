@@ -69,8 +69,8 @@ st.markdown("""
         margin: 0 !important;
     }
     .block-container {
-        padding-left: 2rem !important;
-        padding-right: 20rem !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
         max-width: 64rem !important;
     }
     section[data-testid="stSidebar"] {
