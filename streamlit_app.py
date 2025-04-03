@@ -212,7 +212,7 @@ if submit_button:
         st.subheader(f"{model_name} Model Prediction")
         
         # Create columns for text and visualization
-        res_col1, res_col2 = st.columns([3, 2])
+        res_col1, res_col2 = st.columns([2, 1.5])
         
         with res_col1:
             threshold = 0.7  # Define your threshold
@@ -231,10 +231,10 @@ if submit_button:
 
         with res_col2:
             # Visualization with better colors and spacing
-            fig, ax = plt.subplots(figsize=(4, 4.5))
+            fig, ax = plt.subplots(figsize=(6, 3))
             
             # Add more space at the top for labels and adjust font sizes
-            plt.subplots_adjust(top=0.75, bottom=0.15)
+            plt.subplots_adjust(top=0.75, bottom=0.15, left=0.1, right=0.95)
             
             # Set smaller font size for title
             plt.rcParams.update({'font.size': 10})
