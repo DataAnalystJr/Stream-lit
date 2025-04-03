@@ -70,7 +70,7 @@ st.markdown("""
     }
     .block-container {
         padding-left: 2rem !important;
-        padding-right: 2rem !important;
+        padding-right: 20rem !important;
         max-width: 64rem !important;
     }
     section[data-testid="stSidebar"] {
