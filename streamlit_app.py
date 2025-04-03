@@ -32,6 +32,16 @@ def predict_loan_status(input_data):
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
+    <style>
+    .title-container {
+        padding: 2rem 1rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #1E3D59, #1E3D59);
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
         <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
