@@ -6,6 +6,78 @@ import joblib
 import matplotlib.pyplot as plt
 import os
 
+# Set page config
+st.set_page_config(
+    page_title="Loan Approval Prediction",
+    page_icon="💰",
+    layout="wide"
+)
+
+# Custom CSS for styling
+st.markdown("""
+<style>
+    .main {
+        padding: 2rem;
+        background-color: #f9f9f9;
+    }
+    .title-container {
+        text-align: center;
+        border: 2px solid #4CAF50;
+        padding: 15px;
+        border-radius: 15px;
+        background-color: #1E1E1E;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+    .loan-slider-container {
+        padding: 15px;
+        background-color: #e8f5e9;
+        border-radius: 8px;
+        margin: 0;
+        border-left: 4px solid #4CAF50;
+    }
+    .stButton button {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+    }
+    .stButton button:hover {
+        background-color: #45a049;
+    }
+    h1, h2, h3 {
+        color: #2E7D32;
+    }
+    .result-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        border-left: 4px solid #2196F3;
+    }
+    label {
+        font-weight: 500;
+        color: #333;
+    }
+    .highlight {
+        background-color: #f1f8e9;
+        padding: 10px;
+        border-radius: 5px;
+        border-left: 3px solid #4CAF50;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
@@ -32,35 +104,6 @@ def predict_loan_status(input_data):
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
-    <style>
-    .title-container {
-        padding: 2rem 1rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, #1E3D59, #1E3D59);
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .card {
-        background-color: transparent;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .result-card {
-        background-color: transparent;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .loan-slider-container {
-        background-color: transparent;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-    }
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0;
-        padding: 0;
-    }
-    </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
         <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
@@ -75,8 +118,8 @@ employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
 
-# Create two columns for the input form with adjusted ratio
-col1, col2 = st.columns([1, 1])
+# Create two columns for the input form
+col1, col2 = st.columns(2)
 
 # Card for personal information
 with col1:
@@ -262,30 +305,20 @@ if submit_button:
             # Visualization with better colors and spacing
             fig, ax = plt.subplots(figsize=(4, 4.5))
             
-            # Add more space at the top for labels and adjust font sizes
-            plt.subplots_adjust(top=0.75, bottom=0.15)
-            
-            # Set smaller font size for title
-            plt.rcParams.update({'font.size': 10})
+            # Add more space at the top for labels
+            plt.subplots_adjust(top=0.8)
             
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
                    color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
             ax.set_ylim(0, 1)
             ax.set_ylabel('Probability')
-            ax.set_title(f'{model_name} Prediction', pad=30, fontsize=11)
+            ax.set_title(f'{model_name} Prediction', pad=20)
             
-            # Add percentage labels with proper spacing - moved below the bars
+            # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
-                # Position labels at the middle of the bar horizontally
-                # and just above the top of the bar vertically
-                ax.text(bar.get_x() + bar.get_width()/2., 
-                       height - 0.15 if height > 0.3 else height + 0.05,
-                       f'{height:.1%}', 
-                       ha='center', 
-                       va='center',
-                       fontsize=9,
-                       color='white' if height > 0.3 else 'black')
+                ax.text(bar.get_x() + bar.get_width()/2., height + 0.05,
+                        f'{height:.1%}', ha='center', va='bottom')
                 
             st.pyplot(fig)
             plt.close(fig)
