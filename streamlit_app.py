@@ -41,6 +41,28 @@ st.markdown("""
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
+    .card {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .result-card {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .loan-slider-container {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
     </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
