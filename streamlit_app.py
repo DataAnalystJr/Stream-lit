@@ -32,9 +32,66 @@ def predict_loan_status(input_data):
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
+    <style>
+    .title-container {
+        padding: 2rem 1rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #1E3D59, #1E3D59);
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        background-color: #ffffff;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+    }
+    .result-card {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+    }
+    .highlight {
+        border-left: 5px solid #1E3D59;
+    }
+    .loan-slider-container {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+    }
+    .stButton > button {
+        background-color: #1E3D59;
+        color: white;
+        border-radius: 10px;
+        padding: 0.5rem 2rem;
+        border: none;
+        font-weight: 500;
+    }
+    .stButton > button:hover {
+        background-color: #2E4D69;
+    }
+    div[data-testid="stSelectbox"] {
+        margin-bottom: 1rem;
+    }
+    div[data-testid="stNumberInput"] {
+        margin-bottom: 1rem;
+    }
+    .subheader {
+        color: #1E3D59;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    </style>
     <div class="title-container">
-        <h1 style='color: #FFFFFF;'>Loan Approval Prediction</h1>
-        <p style='color: #666; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
+        <h1 style='color: white; font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem;'>Loan Approval Prediction</h1>
+        <p style='color: #e0e0e0; font-size: 1.1rem;'>Predict your loan approval chances with machine learning</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -52,7 +109,7 @@ col1, col2 = st.columns(2)
 # Card for personal information
 with col1:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("Personal Information")
+    st.markdown('<div class="subheader">Personal Information</div>', unsafe_allow_html=True)
     gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
     married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
     dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None, min_value=0, step=1)
@@ -60,14 +117,14 @@ with col1:
     st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("Property Information")
+    st.markdown('<div class="subheader">Property Information</div>', unsafe_allow_html=True)
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Card for financial information
 with col2:
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("Financial Information")
+    st.markdown('<div class="subheader">Financial Information</div>', unsafe_allow_html=True)
     self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     applicant_income_log = st.number_input("Enter Applicant Income (Monthly in ₱):", min_value=0.0, value=None)
@@ -76,7 +133,7 @@ with col2:
 
 # Loan details card - full width
 st.markdown('<div class="card">', unsafe_allow_html=True)
-st.subheader("Loan Details")
+st.markdown('<div class="subheader">Loan Details</div>', unsafe_allow_html=True)
 
 # Loan amount slider with better styling
 st.markdown('<div class="loan-slider-container">', unsafe_allow_html=True)
@@ -171,13 +228,13 @@ if submit_button:
 
     # Summary card with collected data
     st.markdown('<div class="card highlight">', unsafe_allow_html=True)
-    st.subheader("Loan Application Summary")
+    st.markdown('<div class="subheader">Loan Application Summary</div>', unsafe_allow_html=True)
     
     # Create two columns for the summary data
     sum_col1, sum_col2 = st.columns(2)
     
     with sum_col1:
-        st.write("**Personal Details:**")
+        st.markdown('<p style="color: #1E3D59; font-weight: 500; margin-bottom: 0.5rem;">Personal Details:</p>', unsafe_allow_html=True)
         st.write(f"• Gender: {gender}")
         st.write(f"• Marital Status: {married}")
         st.write(f"• Number of Dependents: {dependents}")
@@ -185,7 +242,7 @@ if submit_button:
         st.write(f"• Employment Status: {self_employed}")
         
     with sum_col2:
-        st.write("**Financial Details:**")
+        st.markdown('<p style="color: #1E3D59; font-weight: 500; margin-bottom: 0.5rem;">Financial Details:</p>', unsafe_allow_html=True)
         st.write(f"• Credit History: {credit_history}")
         st.write(f"• Property Area: {property_area}")
         st.write(f"• Monthly Income: ₱{applicant_income_log:,.2f}")
@@ -209,7 +266,7 @@ if submit_button:
         
         # Result card for each model
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
-        st.subheader(f"{model_name} Model Prediction")
+        st.markdown(f'<div class="subheader">{model_name} Model Prediction</div>', unsafe_allow_html=True)
         
         # Create columns for text and visualization
         res_col1, res_col2 = st.columns([2, 1.5])
