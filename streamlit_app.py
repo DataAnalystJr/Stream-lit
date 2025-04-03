@@ -33,6 +33,13 @@ def predict_loan_status(input_data):
 # Center the title with a border using HTML and CSS
 st.markdown("""
     <style>
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 0rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: 95rem;
+    }
     .title-container {
         padding: 2rem 1rem;
         text-align: center;
@@ -84,7 +91,7 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     .subheader {
-        color: #1E3D59;
+        color: #4A90E2;
         font-weight: 600;
         margin-bottom: 1rem;
     }
@@ -234,7 +241,7 @@ if submit_button:
     sum_col1, sum_col2 = st.columns(2)
     
     with sum_col1:
-        st.markdown('<p style="color: #1E3D59; font-weight: 500; margin-bottom: 0.5rem;">Personal Details:</p>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #4A90E2; font-weight: 500; margin-bottom: 0.5rem;">Personal Details:</p>', unsafe_allow_html=True)
         st.write(f"• Gender: {gender}")
         st.write(f"• Marital Status: {married}")
         st.write(f"• Number of Dependents: {dependents}")
@@ -242,7 +249,7 @@ if submit_button:
         st.write(f"• Employment Status: {self_employed}")
         
     with sum_col2:
-        st.markdown('<p style="color: #1E3D59; font-weight: 500; margin-bottom: 0.5rem;">Financial Details:</p>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #4A90E2; font-weight: 500; margin-bottom: 0.5rem;">Financial Details:</p>', unsafe_allow_html=True)
         st.write(f"• Credit History: {credit_history}")
         st.write(f"• Property Area: {property_area}")
         st.write(f"• Monthly Income: ₱{applicant_income_log:,.2f}")
