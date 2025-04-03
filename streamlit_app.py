@@ -42,26 +42,23 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .card {
-        background-color: white;
-        padding: 1.5rem;
-        border-radius: 15px;
-        margin-bottom: 1.5rem;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        background-color: transparent;
+        padding: 1rem;
+        margin-bottom: 1rem;
     }
     .result-card {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 1.5rem;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        background-color: transparent;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
     }
     .loan-slider-container {
-        background-color: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
+        background-color: transparent;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0;
+        padding: 0;
     }
     </style>
     <div class="title-container">
@@ -78,8 +75,8 @@ employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
 
-# Create two columns for the input form
-col1, col2 = st.columns(2)
+# Create two columns for the input form with adjusted ratio
+col1, col2 = st.columns([1, 1])
 
 # Card for personal information
 with col1:
