@@ -32,9 +32,42 @@ def predict_loan_status(input_data):
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
+    <style>
+    .title-container {
+        background-color: #262730;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        background-color: #262730;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .result-card {
+        background-color: #262730;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .highlight {
+        border-left: 4px solid #FF4B4B;
+    }
+    .loan-slider-container {
+        background-color: #262730;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    </style>
     <div class="title-container">
-        <h1 style='color: white;'>Loan Approval Prediction</h1>
-        <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
+        <h1 style='color: #FF4B4B;'>Loan Approval Prediction</h1>
+        <p style='color: #FAFAFA; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -221,7 +254,7 @@ if submit_button:
                 st.markdown(f"<h3 style='color: #4CAF50;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
                 st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
             else:
-                st.markdown(f"<h3 style='color: #F44336;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color: #FF4B4B;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
                 st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
 
             if probability > threshold:
@@ -240,7 +273,7 @@ if submit_button:
             plt.rcParams.update({'font.size': 10})
             
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
-                   color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
+                   color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#FF4B4B' if probability <= 0.5 else '#BDBDBD'])
             ax.set_ylim(0, 1)
             ax.set_ylabel('Probability')
             ax.set_title(f'{model_name} Prediction', pad=30, fontsize=11)
