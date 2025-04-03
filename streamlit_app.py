@@ -57,7 +57,7 @@ st.markdown("""
         margin-bottom: 0.5rem;
     }
     div[data-testid="stHorizontalBlock"] {
-        gap: 0;
+        gap: 2rem !important;
         padding: 0;
     }
     div[data-testid="column"] {
@@ -102,8 +102,8 @@ employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
 
-# Create two columns for the input form
-col1, col2 = st.columns(2)
+# Create two columns for the input form with adjusted ratio
+col1, col2 = st.columns([1, 1])
 
 # Personal information
 with col1:
