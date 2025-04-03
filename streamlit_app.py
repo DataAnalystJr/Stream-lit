@@ -37,8 +37,9 @@ st.markdown("""
         padding: 2rem 1rem;
         text-align: center;
         margin-bottom: 2rem;
-        background: linear-gradient(135deg, #303030, #303030);
+        background: linear-gradient(135deg, #202020, #202020);
         border-radius: 15px;
+        border-color: '#585858';
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .card {
