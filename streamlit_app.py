@@ -6,78 +6,6 @@ import joblib
 import matplotlib.pyplot as plt
 import os
 
-# Set page config
-st.set_page_config(
-    page_title="Loan Approval Prediction",
-    page_icon="💰",
-    layout="wide"
-)
-
-# Custom CSS for styling
-st.markdown("""
-<style>
-    .main {
-        padding: 2rem;
-        background-color: #f9f9f9;
-    }
-    .title-container {
-        text-align: center;
-        border: 2px solid #4CAF50;
-        padding: 15px;
-        border-radius: 15px;
-        background-color: #1E1E1E;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
-    .loan-slider-container {
-        padding: 15px;
-        background-color: #e8f5e9;
-        border-radius: 8px;
-        margin: 0;
-        border-left: 4px solid #4CAF50;
-    }
-    .stButton button {
-        background-color: #4CAF50;
-        color: white;
-        font-weight: bold;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 5px;
-    }
-    .stButton button:hover {
-        background-color: #45a049;
-    }
-    h1, h2, h3 {
-        color: #2E7D32;
-    }
-    .result-card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        border-left: 4px solid #2196F3;
-    }
-    label {
-        font-weight: 500;
-        color: #333;
-    }
-    .highlight {
-        background-color: #f1f8e9;
-        padding: 10px;
-        border-radius: 5px;
-        border-left: 3px solid #4CAF50;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
@@ -317,7 +245,7 @@ if submit_button:
             # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2., height + 0.05,
+                ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
                         f'{height:.1%}', ha='center', va='bottom')
                 
             st.pyplot(fig)
