@@ -32,6 +32,30 @@ def predict_loan_status(input_data):
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
+    <style>
+    .title-container {
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #1E3D59, #1E3D59);
+    }
+    .card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .result-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .loan-slider-container {
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    div[data-testid="stHorizontalBlock"] {
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
         <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
@@ -46,8 +70,8 @@ employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Urban': 1}
 
-# Create two columns for the input form
-col1, col2 = st.columns(2)
+# Create two columns for the input form with adjusted ratio
+col1, col2 = st.columns([1, 1])
 
 # Card for personal information
 with col1:
