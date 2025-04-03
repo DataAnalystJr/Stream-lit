@@ -60,6 +60,26 @@ st.markdown("""
         gap: 0;
         padding: 0;
     }
+    div[data-testid="column"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    div[class*="stMarkdown"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .block-container {
+        padding: 0 !important;
+        max-width: none !important;
+    }
+    section[data-testid="stSidebar"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    div[class*="stVerticalBlock"] {
+        gap: 0 !important;
+        padding: 0 !important;
+    }
     </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
