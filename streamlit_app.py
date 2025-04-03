@@ -34,11 +34,9 @@ def predict_loan_status(input_data):
 st.markdown("""
     <style>
     .block-container {
-        padding-top: 1rem;
-        padding-bottom: 0rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        max-width: 95rem;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 100% !important;
     }
     .title-container {
         padding: 2rem 1rem;
@@ -53,22 +51,28 @@ st.markdown("""
         padding: 1.5rem;
         border-radius: 15px;
         margin-bottom: 1.5rem;
+        border: none;
+        box-shadow: none;
     }
     .result-card {
         background-color: transparent;
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 1.5rem;
+        border: none;
+        box-shadow: none;
     }
     .highlight {
         border-left: 5px solid #1E3D59;
-        background-color: rgba(30, 61, 89, 0.05);
+        background-color: transparent;
     }
     .loan-slider-container {
         background-color: transparent;
         padding: 1.5rem;
         border-radius: 10px;
         margin-bottom: 1rem;
+        border: none;
+        box-shadow: none;
     }
     .stButton > button {
         background-color: #1E3D59;
@@ -91,6 +95,41 @@ st.markdown("""
         color: #4A90E2;
         font-weight: 600;
         margin-bottom: 1rem;
+    }
+    /* Remove all white backgrounds and spacing */
+    .stApp {
+        background-color: transparent !important;
+    }
+    .main .block-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+    }
+    div[data-testid="stToolbar"] {
+        display: none;
+    }
+    div[data-testid="stDecoration"] {
+        display: none;
+    }
+    div[data-testid="stStatusWidget"] {
+        display: none;
+    }
+    #MainMenu {
+        display: none;
+    }
+    header {
+        display: none;
+    }
+    footer {
+        display: none;
+    }
+    section[data-testid="stSidebar"] {
+        background-color: transparent !important;
+    }
+    .stMarkdown {
+        background-color: transparent !important;
+    }
+    div[class*="stMarkdown"] > div {
+        background-color: transparent !important;
     }
     </style>
     <div class="title-container">
