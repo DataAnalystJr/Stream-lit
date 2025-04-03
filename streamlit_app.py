@@ -34,9 +34,9 @@ def predict_loan_status(input_data):
 st.markdown("""
     <style>
     .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
+        padding: 2rem 4rem !important;
+        margin: 0 auto !important;
+        max-width: 1200px !important;
     }
     .title-container {
         padding: 2rem 1rem;
@@ -101,8 +101,9 @@ st.markdown("""
         background-color: transparent !important;
     }
     .main .block-container {
-        padding: 0 !important;
-        max-width: 100% !important;
+        padding: 2rem 4rem !important;
+        max-width: 1200px !important;
+        margin: 0 auto !important;
     }
     div[data-testid="stToolbar"] {
         display: none;
@@ -130,6 +131,15 @@ st.markdown("""
     }
     div[class*="stMarkdown"] > div {
         background-color: transparent !important;
+    }
+    /* Add padding to columns */
+    .element-container {
+        padding: 0 1rem !important;
+    }
+    /* Center the content */
+    .main {
+        display: flex;
+        justify-content: center;
     }
     </style>
     <div class="title-container">
