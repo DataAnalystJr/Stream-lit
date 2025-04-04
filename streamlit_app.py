@@ -257,10 +257,10 @@ if submit_button:
             threshold = 0.7  # Define your threshold
             
             if prediction == 1:
-                st.markdown(f"<h3 style='color: #4CAF50;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
                 st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
             else:
-                st.markdown(f"<h3 style='color: #F44336;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 style='color: #F1C40F;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
                 st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
 
             if probability > threshold:
