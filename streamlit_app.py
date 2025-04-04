@@ -37,27 +37,33 @@ st.markdown("""
         padding: 2rem 1rem;
         text-align: center;
         margin-bottom: 2rem;
-        background: linear-gradient(135deg, #1E3D59, #1E3D59);
+        background: linear-gradient(135deg, #205781, #4F959D);
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .card {
-        background-color: transparent;
+        background-color: #F6F8D5;
         padding: 1rem;
         margin-bottom: 1rem;
+        border-radius: 10px;
+        border: 1px solid #98D2C0;
     }
     .result-card {
-        background-color: transparent;
+        background-color: #F6F8D5;
         padding: 1.5rem;
         margin-bottom: 1rem;
+        border-radius: 10px;
+        border: 1px solid #98D2C0;
     }
     .loan-slider-container {
-        background-color: transparent;
+        background-color: #F6F8D5;
         padding: 1rem;
         margin-bottom: 0.5rem;
+        border-radius: 10px;
+        border: 1px solid #98D2C0;
     }
     div[data-testid="stHorizontalBlock"] {
-        gap: 0;
+        gap: 2rem !important;
         padding: 0;
     }
     div[data-testid="column"] {
@@ -69,8 +75,9 @@ st.markdown("""
         margin: 0 !important;
     }
     .block-container {
-        padding: 0 !important;
-        max-width: none !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+        max-width: 64rem !important;
     }
     section[data-testid="stSidebar"] {
         padding: 0 !important;
@@ -80,10 +87,42 @@ st.markdown("""
         gap: 0 !important;
         padding: 0 !important;
     }
+    .main > .block-container {
+        max-width: 64rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        margin: 0 auto;
+    }
+    /* Custom button styles */
+    .stButton > button {
+        background-color: #4F959D;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 0.5rem 1rem;
+        transition: background-color 0.3s;
+    }
+    .stButton > button:hover {
+        background-color: #205781;
+    }
+    /* Custom slider styles */
+    .stSlider > div > div > div {
+        background-color: #98D2C0;
+    }
+    /* Custom selectbox styles */
+    .stSelectbox > div > div > div {
+        background-color: #F6F8D5;
+        border: 1px solid #98D2C0;
+    }
+    /* Custom number input styles */
+    .stNumberInput > div > div > input {
+        background-color: #F6F8D5;
+        border: 1px solid #98D2C0;
+    }
     </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
-        <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
+        <p style='color: #F6F8D5; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -263,30 +302,20 @@ if submit_button:
             # Visualization with better colors and spacing
             fig, ax = plt.subplots(figsize=(4, 4.5))
             
-            # Add more space at the top for labels and adjust font sizes
-            plt.subplots_adjust(top=0.75, bottom=0.15)
-            
-            # Set smaller font size for title
-            plt.rcParams.update({'font.size': 10})
+            # Add more space at the top for labels
+            plt.subplots_adjust(top=0.8)
             
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
                    color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
             ax.set_ylim(0, 1)
             ax.set_ylabel('Probability')
-            ax.set_title(f'{model_name} Prediction', pad=30, fontsize=11)
+            ax.set_title(f'{model_name} Prediction', pad=20)
             
-            # Add percentage labels with proper spacing - moved below the bars
+            # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
-                # Position labels at the middle of the bar horizontally
-                # and just above the top of the bar vertically
-                ax.text(bar.get_x() + bar.get_width()/2., 
-                       height - 0.15 if height > 0.3 else height + 0.05,
-                       f'{height:.1%}', 
-                       ha='center', 
-                       va='center',
-                       fontsize=9,
-                       color='white' if height > 0.3 else 'black')
+                ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
+                        f'{height:.1%}', ha='center', va='bottom')
                 
             st.pyplot(fig)
             plt.close(fig)
