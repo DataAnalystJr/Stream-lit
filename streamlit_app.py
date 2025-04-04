@@ -16,25 +16,83 @@ logistic_regression_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'l
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
 
 # Load the models
-decision_tree_model = joblib.load(decision_tree_model)
+deicision_tree_model = joblib.load(decision_tree_model)
 knn_model = joblib.load(knn_model_path)
 logistic_regression_model = joblib.load(logistic_regression_model_path)
 randomforest_model = joblib.load(randomforest_model_path)
 
 # Function to predict loan status
-def predict_loan_status(input_data, model):
+def predict_loan_status(input_data):
     # Create a DataFrame from the input data
     input_df = pd.DataFrame([input_data])
 
-    # Make prediction using the provided model
-    prediction = model.predict(input_df)[0]
+    # Make prediction using the loaded model
+    prediction = deicision_tree_model.predict(input_df)[0]
     return prediction
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
+    <style>
+    .title-container {
+        padding: 2rem 1rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, #202020, #202020);
+        border-radius: 15px;
+        border: 2px solid #585858;
+        
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .card {
+        background-color: transparent;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .result-card {
+        background-color: transparent;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    .loan-slider-container {
+        background-color: transparent;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    div[data-testid="stHorizontalBlock"] {
+        gap: 2rem !important;
+        padding: 0;
+    }
+    div[data-testid="column"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    div[class*="stMarkdown"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        max-width: 64rem !important;
+    }
+    section[data-testid="stSidebar"] {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    div[class*="stVerticalBlock"] {
+        gap: 0 !important;
+        padding: 0 !important;
+    }
+    .main > .block-container {
+        max-width: 64rem;
+        padding-left: 2rem;
+        padding-right: 2rem;
+        margin: 0 auto;
+    }
+    </style>
     <div class="title-container">
         <h1 style='color: white;'>Loan Approval Prediction</h1>
-        <p style='color: #F6F8D5; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
+        <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -178,14 +236,14 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Decision Tree": decision_tree_model,
+        "Decision Tree": deicision_tree_model,
         "KNN": knn_model,
         "Logistic Regression": logistic_regression_model,
         "Random Forest": randomforest_model
     }
 
     for model_name, model in models.items():
-        prediction = predict_loan_status(input_data, model)
+        prediction = predict_loan_status(input_data)
         probability = model.predict_proba(pd.DataFrame([input_data]))[0][1]
         
         # Result card for each model
