@@ -40,7 +40,6 @@ st.markdown("""
         background: linear-gradient(135deg, #202020, #202020);
         border-radius: 15px;
         border: 2px solid #585858;
-        
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     .card {
@@ -88,6 +87,25 @@ st.markdown("""
         padding-left: 2rem;
         padding-right: 2rem;
         margin: 0 auto;
+    }
+    /* New background color styles */
+    .stApp {
+        background-color: #EBE8DB;
+    }
+    .stApp > header {
+        background-color: #EBE8DB;
+    }
+    .stApp > div {
+        background-color: #EBE8DB;
+    }
+    .stApp > div > div {
+        background-color: #EBE8DB;
+    }
+    .stApp > div > div > div {
+        background-color: #EBE8DB;
+    }
+    .stApp > div > div > div > div {
+        background-color: #EBE8DB;
     }
     </style>
     <div class="title-container">
