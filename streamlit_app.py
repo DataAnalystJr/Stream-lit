@@ -102,7 +102,7 @@ marital_status_options = {'Single': 0, 'Married': 1}
 education_options = {'Graduate': 0, 'Not Graduate': 1}
 employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
-property_area_options = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
+property_area_options = {'Rural': 0, 'Urban': 1}
 
 # Create two columns for the input form with adjusted ratio
 col1, col2 = st.columns([1, 1])
