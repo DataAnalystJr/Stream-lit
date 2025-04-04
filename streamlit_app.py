@@ -275,17 +275,34 @@ if submit_button:
             # Add more space at the top for labels
             plt.subplots_adjust(top=0.8)
             
+            # Modern color theme
+            approval_color = '#2E86C1'  # Modern blue
+            denial_color = '#E74C3C'    # Modern red
+            neutral_color = '#95A5A6'   # Modern gray
+            
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
-                   color=['#4CAF50' if probability > 0.5 else '#BDBDBD', '#F44336' if probability <= 0.5 else '#BDBDBD'])
+                   color=[approval_color if probability > 0.5 else neutral_color, 
+                          denial_color if probability <= 0.5 else neutral_color])
+            
+            # Set background color to transparent
+            fig.patch.set_facecolor('none')
+            ax.set_facecolor('none')
+            
+            # Customize grid and spines
+            ax.grid(True, linestyle='--', alpha=0.3)
+            for spine in ax.spines.values():
+                spine.set_edgecolor('#BDC3C7')
+                spine.set_linewidth(0.5)
+            
             ax.set_ylim(0, 1)
-            ax.set_ylabel('Probability')
-            ax.set_title(f'{model_name} Prediction', pad=20)
+            ax.set_ylabel('Probability', color='#34495E')
+            ax.set_title(f'{model_name} Prediction', pad=20, color='#2C3E50')
             
             # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
                 ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
-                        f'{height:.1%}', ha='center', va='bottom')
+                        f'{height:.1%}', ha='center', va='bottom', color='#2C3E50')
                 
             st.pyplot(fig)
             plt.close(fig)
