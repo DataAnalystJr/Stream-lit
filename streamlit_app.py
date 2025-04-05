@@ -11,9 +11,9 @@ current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
 decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DT.pkl')
-xgboost_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'kgb.pkl')
-knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn.pkl')
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf.pkl')
+xgboost_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KGB.pkl')
+knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KNN.pkl')
+randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
 
 # Load the models
 decision_tree_model = joblib.load(decision_tree_model)
