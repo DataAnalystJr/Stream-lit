@@ -7,67 +7,27 @@ import matplotlib.pyplot as plt
 import os
 
 # Get the current directory of the script
-current_dir = os.path.abspath(os.path.dirname(__file__))
+current_dir = os.path.dirname(__file__)
 
-# Print debug information
-st.write("Current directory:", current_dir)
-st.write("Does SWIFT folder exist?", os.path.exists(os.path.join(current_dir, 'SWIFT')))
-st.write("Does Models folder exist?", os.path.exists(os.path.join(current_dir, 'SWIFT', 'Models')))
+# Construct the relative paths
+decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_model.pkl')
+knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model.pkl')
+logistic_regression_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'logistic_regression_model.pkl')
+randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
 
-# Construct the absolute paths
-model_dir = os.path.join(current_dir, 'SWIFT', 'Models')
-
-# Print more debug information
-st.write("Looking for models in:", model_dir)
-if os.path.exists(model_dir):
-    st.write("Files in Models directory:", os.listdir(model_dir))
-
-try:
-    # Load the models with error handling
-    decision_tree_path = os.path.join(model_dir, 'DT.pkl')
-    knn_path = os.path.join(model_dir, 'KNN.pkl')
-    random_forest_path = os.path.join(model_dir, 'RF.pkl')
-    
-    st.write("Checking if model files exist:")
-    st.write("DT.pkl exists:", os.path.exists(decision_tree_path))
-    st.write("KNN.pkl exists:", os.path.exists(knn_path))
-    st.write("RF.pkl exists:", os.path.exists(random_forest_path))
-    
-    # Try to load each model individually with detailed error handling
-    try:
-        decision_tree_model = joblib.load(decision_tree_path)
-        st.write("Decision Tree model loaded successfully")
-    except Exception as e:
-        st.error(f"Error loading Decision Tree model: {str(e)}")
-        raise e
-        
-    try:
-        knn_model = joblib.load(knn_path)
-        st.write("KNN model loaded successfully")
-    except Exception as e:
-        st.error(f"Error loading KNN model: {str(e)}")
-        raise e
-        
-    try:
-        randomforest_model = joblib.load(random_forest_path)
-        st.write("Random Forest model loaded successfully")
-    except Exception as e:
-        st.error(f"Error loading Random Forest model: {str(e)}")
-        raise e
-        
-except Exception as e:
-    st.error(f"Error loading models: {str(e)}")
-    st.write(f"Looking for models in: {model_dir}")
-    st.write("Available files:", os.listdir(model_dir) if os.path.exists(model_dir) else "Directory not found")
-    raise e
+# Load the models
+deicision_tree_model = joblib.load(decision_tree_model)
+knn_model = joblib.load(knn_model_path)
+logistic_regression_model = joblib.load(logistic_regression_model_path)
+randomforest_model = joblib.load(randomforest_model_path)
 
 # Function to predict loan status
-def predict_loan_status(input_data, model):
+def predict_loan_status(input_data):
     # Create a DataFrame from the input data
     input_df = pd.DataFrame([input_data])
 
-    # Make prediction using the provided model
-    prediction = model.predict(input_df)[0]
+    # Make prediction using the loaded model
+    prediction = deicision_tree_model.predict(input_df)[0]
     return prediction
 
 # Center the title with a border using HTML and CSS
@@ -294,13 +254,14 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Decision Tree": decision_tree_model,
+        "Decision Tree": deicision_tree_model,
         "KNN": knn_model,
+        "Logistic Regression": logistic_regression_model,
         "Random Forest": randomforest_model
     }
 
     for model_name, model in models.items():
-        prediction = predict_loan_status(input_data, model)
+        prediction = predict_loan_status(input_data)
         probability = model.predict_proba(pd.DataFrame([input_data]))[0][1]
         
         # Result card for each model
