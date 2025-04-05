@@ -9,15 +9,36 @@ import os
 # Get the current directory of the script
 current_dir = os.path.abspath(os.path.dirname(__file__))
 
+# Print debug information
+st.write("Current directory:", current_dir)
+st.write("Does SWIFT folder exist?", os.path.exists(os.path.join(current_dir, 'SWIFT')))
+st.write("Does Models folder exist?", os.path.exists(os.path.join(current_dir, 'SWIFT', 'Models')))
+
 # Construct the absolute paths
 model_dir = os.path.join(current_dir, 'SWIFT', 'Models')
 
+# Print more debug information
+st.write("Looking for models in:", model_dir)
+if os.path.exists(model_dir):
+    st.write("Files in Models directory:", os.listdir(model_dir))
+
 try:
     # Load the models with error handling
-    decision_tree_model = joblib.load(os.path.join(model_dir, 'DT.pkl'))
-    xgboost_model = joblib.load(os.path.join(model_dir, 'KGB.pkl'))
-    knn_model = joblib.load(os.path.join(model_dir, 'KNN.pkl'))
-    randomforest_model = joblib.load(os.path.join(model_dir, 'RF.pkl'))
+    decision_tree_path = os.path.join(model_dir, 'DT.pkl')
+    xgboost_path = os.path.join(model_dir, 'KGB.pkl')
+    knn_path = os.path.join(model_dir, 'KNN.pkl')
+    random_forest_path = os.path.join(model_dir, 'RF.pkl')
+    
+    st.write("Checking if model files exist:")
+    st.write("DT.pkl exists:", os.path.exists(decision_tree_path))
+    st.write("KGB.pkl exists:", os.path.exists(xgboost_path))
+    st.write("KNN.pkl exists:", os.path.exists(knn_path))
+    st.write("RF.pkl exists:", os.path.exists(random_forest_path))
+    
+    decision_tree_model = joblib.load(decision_tree_path)
+    xgboost_model = joblib.load(xgboost_path)
+    knn_model = joblib.load(knn_path)
+    randomforest_model = joblib.load(random_forest_path)
 except Exception as e:
     st.error(f"Error loading models: {str(e)}")
     st.write(f"Looking for models in: {model_dir}")
