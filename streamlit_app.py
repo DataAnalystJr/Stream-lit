@@ -35,10 +35,36 @@ try:
     st.write("KNN.pkl exists:", os.path.exists(knn_path))
     st.write("RF.pkl exists:", os.path.exists(random_forest_path))
     
-    decision_tree_model = joblib.load(decision_tree_path)
-    xgboost_model = joblib.load(xgboost_path)
-    knn_model = joblib.load(knn_path)
-    randomforest_model = joblib.load(random_forest_path)
+    # Try to load each model individually with detailed error handling
+    try:
+        decision_tree_model = joblib.load(decision_tree_path)
+        st.write("Decision Tree model loaded successfully")
+    except Exception as e:
+        st.error(f"Error loading Decision Tree model: {str(e)}")
+        raise e
+        
+    try:
+        xgboost_model = joblib.load(xgboost_path)
+        st.write("XGBoost model loaded successfully")
+    except Exception as e:
+        st.error(f"Error loading XGBoost model: {str(e)}")
+        st.write(f"Attempted to load from: {xgboost_path}")
+        st.write(f"Current working directory: {os.getcwd()}")
+        raise e
+        
+    try:
+        knn_model = joblib.load(knn_path)
+        st.write("KNN model loaded successfully")
+    except Exception as e:
+        st.error(f"Error loading KNN model: {str(e)}")
+        raise e
+        
+    try:
+        randomforest_model = joblib.load(random_forest_path)
+        st.write("Random Forest model loaded successfully")
+    except Exception as e:
+        st.error(f"Error loading Random Forest model: {str(e)}")
+        raise e
 except Exception as e:
     st.error(f"Error loading models: {str(e)}")
     st.write(f"Looking for models in: {model_dir}")
