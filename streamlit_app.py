@@ -255,7 +255,7 @@ if submit_button:
     # Make predictions with each model
     models = {
         "Decision Tree": decision_tree_model,
-        "XGBoost": xgboost_model,
+        "XGBoost (KGB)": xgboost_model,
         "KNN": knn_model,
         "Random Forest": randomforest_model
     }
