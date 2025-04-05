@@ -25,13 +25,11 @@ if os.path.exists(model_dir):
 try:
     # Load the models with error handling
     decision_tree_path = os.path.join(model_dir, 'DT.pkl')
-    xgboost_path = os.path.join(model_dir, 'KGB.pkl')
     knn_path = os.path.join(model_dir, 'KNN.pkl')
     random_forest_path = os.path.join(model_dir, 'RF.pkl')
     
     st.write("Checking if model files exist:")
     st.write("DT.pkl exists:", os.path.exists(decision_tree_path))
-    st.write("KGB.pkl exists:", os.path.exists(xgboost_path))
     st.write("KNN.pkl exists:", os.path.exists(knn_path))
     st.write("RF.pkl exists:", os.path.exists(random_forest_path))
     
@@ -41,15 +39,6 @@ try:
         st.write("Decision Tree model loaded successfully")
     except Exception as e:
         st.error(f"Error loading Decision Tree model: {str(e)}")
-        raise e
-        
-    try:
-        xgboost_model = joblib.load(xgboost_path)
-        st.write("XGBoost model loaded successfully")
-    except Exception as e:
-        st.error(f"Error loading XGBoost model: {str(e)}")
-        st.write(f"Attempted to load from: {xgboost_path}")
-        st.write(f"Current working directory: {os.getcwd()}")
         raise e
         
     try:
@@ -65,6 +54,7 @@ try:
     except Exception as e:
         st.error(f"Error loading Random Forest model: {str(e)}")
         raise e
+        
 except Exception as e:
     st.error(f"Error loading models: {str(e)}")
     st.write(f"Looking for models in: {model_dir}")
@@ -305,7 +295,6 @@ if submit_button:
     # Make predictions with each model
     models = {
         "Decision Tree": decision_tree_model,
-        "XGBoost (KGB)": xgboost_model,
         "KNN": knn_model,
         "Random Forest": randomforest_model
     }
