@@ -7,19 +7,22 @@ import matplotlib.pyplot as plt
 import os
 
 # Get the current directory of the script
-current_dir = os.path.dirname(__file__)
+current_dir = os.path.abspath(os.path.dirname(__file__))
 
-# Construct the relative paths
-decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DT.pkl')
-xgboost_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KGB.pkl')
-knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KNN.pkl')
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
+# Construct the absolute paths
+model_dir = os.path.join(current_dir, 'SWIFT', 'Models')
 
-# Load the models
-decision_tree_model = joblib.load(decision_tree_model)
-xgboost_model = joblib.load(xgboost_model_path)
-knn_model = joblib.load(knn_model_path)
-randomforest_model = joblib.load(randomforest_model_path)
+try:
+    # Load the models with error handling
+    decision_tree_model = joblib.load(os.path.join(model_dir, 'DT.pkl'))
+    xgboost_model = joblib.load(os.path.join(model_dir, 'KGB.pkl'))
+    knn_model = joblib.load(os.path.join(model_dir, 'KNN.pkl'))
+    randomforest_model = joblib.load(os.path.join(model_dir, 'RF.pkl'))
+except Exception as e:
+    st.error(f"Error loading models: {str(e)}")
+    st.write(f"Looking for models in: {model_dir}")
+    st.write("Available files:", os.listdir(model_dir) if os.path.exists(model_dir) else "Directory not found")
+    raise e
 
 # Function to predict loan status
 def predict_loan_status(input_data, model):
