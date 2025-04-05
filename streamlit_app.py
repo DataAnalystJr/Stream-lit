@@ -22,12 +22,12 @@ knn_model = joblib.load(knn_model_path)
 randomforest_model = joblib.load(randomforest_model_path)
 
 # Function to predict loan status
-def predict_loan_status(input_data):
+def predict_loan_status(input_data, model):
     # Create a DataFrame from the input data
     input_df = pd.DataFrame([input_data])
 
-    # Make prediction using the loaded model
-    prediction = decision_tree_model.predict(input_df)[0]
+    # Make prediction using the provided model
+    prediction = model.predict(input_df)[0]
     return prediction
 
 # Center the title with a border using HTML and CSS
@@ -261,7 +261,7 @@ if submit_button:
     }
 
     for model_name, model in models.items():
-        prediction = predict_loan_status(input_data)
+        prediction = predict_loan_status(input_data, model)
         probability = model.predict_proba(pd.DataFrame([input_data]))[0][1]
         
         # Result card for each model
