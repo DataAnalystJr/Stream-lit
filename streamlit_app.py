@@ -256,7 +256,7 @@ if submit_button:
     models = {
         "Decision Tree": deicision_tree_model,
         "XGBoost": knn_model,
-        "Logistic Regression": logistic_regression_model,
+        "KNN": logistic_regression_model,
         "Random Forest": randomforest_model
     }
 
