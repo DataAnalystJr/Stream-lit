@@ -10,15 +10,15 @@ import os
 current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
-decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_model.pkl')
-knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model.pkl')
-logistic_regression_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'logistic_regression_model.pkl')
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
+decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DT.pkl')
+xgboost_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'kgb.pkl')
+knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn.pkl')
+randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf.pkl')
 
 # Load the models
-deicision_tree_model = joblib.load(decision_tree_model)
+decision_tree_model = joblib.load(decision_tree_model)
+xgboost_model = joblib.load(xgboost_model_path)
 knn_model = joblib.load(knn_model_path)
-logistic_regression_model = joblib.load(logistic_regression_model_path)
 randomforest_model = joblib.load(randomforest_model_path)
 
 # Function to predict loan status
@@ -27,7 +27,7 @@ def predict_loan_status(input_data):
     input_df = pd.DataFrame([input_data])
 
     # Make prediction using the loaded model
-    prediction = deicision_tree_model.predict(input_df)[0]
+    prediction = decision_tree_model.predict(input_df)[0]
     return prediction
 
 # Center the title with a border using HTML and CSS
@@ -254,9 +254,9 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Decision Tree": deicision_tree_model,
-        "XGBoost": knn_model,
-        "KNN": logistic_regression_model,
+        "Decision Tree": decision_tree_model,
+        "XGBoost": xgboost_model,
+        "KNN": knn_model,
         "Random Forest": randomforest_model
     }
 
