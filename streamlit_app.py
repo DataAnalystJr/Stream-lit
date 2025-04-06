@@ -12,13 +12,12 @@ current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
 decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DTM.pkl')
-knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model.pkl')
-logistic_regression_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'logistic_regression_model.pkl')
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
+
+randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
 
 # Load the models
 deicision_tree_model = joblib.load(decision_tree_model)
-knn_model = joblib.load(knn_model_path)
+
 randomforest_model = joblib.load(randomforest_model_path)
 
 def transform_features_for_dtm(input_df):
@@ -284,7 +283,7 @@ if submit_button:
     # Make predictions with each model
     models = {
         "Decision Tree": deicision_tree_model,
-        "KNN": knn_model,
+      
         "Random Forest": randomforest_model
     }
 
