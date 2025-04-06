@@ -133,7 +133,6 @@ with col2:
     self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     applicant_income_log = st.number_input("Enter Applicant Income (Monthly in ₱):", min_value=0.0, value=None)
-    total_income_log = st.number_input("Enter Total Income (Payroll Amount in ₱):", min_value=0.0, value=None)
 
 # Loan details
 st.subheader("Loan Details")
@@ -165,8 +164,7 @@ def is_valid_input():
         property_area != "", 
         applicant_income_log is not None and applicant_income_log > 0, 
         loan_amount_log is not None and loan_amount_log > 0, 
-        loan_amount_term_log is not None and loan_amount_term_log > 0, 
-        total_income_log is not None and total_income_log > 0
+        loan_amount_term_log is not None and loan_amount_term_log > 0
     ])
 
 # Function to reset all fields
@@ -182,7 +180,6 @@ def clear_fields():
     st.session_state.applicant_income_log = None
     st.session_state.loan_amount_log = None
     st.session_state.loan_amount_term_log = None
-    st.session_state.total_income_log = None
     
     # Set the flag for triggering a rerun
     st.session_state.clear_triggered = True
@@ -213,8 +210,7 @@ if submit_button:
         'Property_Area': property_area_options[property_area],
         'ApplicantIncomelog': applicant_income_log,
         'LoanAmountlog': loan_amount_log,
-        'Loan_Amount_Term_log': loan_amount_term_log,
-        'Total_Income_log': total_income_log
+        'Loan_Amount_Term_log': loan_amount_term_log
     }
 
     # Summary card with collected data
@@ -239,7 +235,6 @@ if submit_button:
         st.write(f"• Monthly Income: ₱{applicant_income_log:,.2f}")
         st.write(f"• Loan Amount: ₱{loan_amount_log:,.2f}")
         st.write(f"• Loan Term: {loan_amount_term_log} months")
-        st.write(f"• Total Income: ₱{total_income_log:,.2f}")
     
     st.markdown('</div>', unsafe_allow_html=True)
 
