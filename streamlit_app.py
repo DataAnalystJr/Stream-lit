@@ -11,7 +11,7 @@ current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
 decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_model.pkl')
-knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KNN.pkl')
+knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model.pkl')
 
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
 
