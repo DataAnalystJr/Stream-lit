@@ -21,15 +21,6 @@ knn_model = joblib.load(knn_model_path)
 logistic_regression_model = joblib.load(logistic_regression_model_path)
 randomforest_model = joblib.load(randomforest_model_path)
 
-# Function to predict loan status
-def predict_loan_status(input_data):
-    # Create a DataFrame from the input data
-    input_df = pd.DataFrame([input_data])
-
-    # Make prediction using the loaded model
-    prediction = deicision_tree_model.predict(input_df)[0]
-    return prediction
-
 # Center the title with a border using HTML and CSS
 st.markdown("""
     <style>
@@ -258,12 +249,15 @@ if submit_button:
         "KNN": knn_model,
         "Logistic Regression": logistic_regression_model,
         "Random Forest": randomforest_model
-      
     }
 
     for model_name, model in models.items():
-        prediction = predict_loan_status(input_data)
-        probability = model.predict_proba(pd.DataFrame([input_data]))[0][1]
+        # Create DataFrame from input data
+        input_df = pd.DataFrame([input_data])
+        
+        # Get prediction and probability from the current model
+        prediction = model.predict(input_df)[0]
+        probability = model.predict_proba(input_df)[0][1]
         
         # Result card for each model
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
