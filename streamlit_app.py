@@ -291,20 +291,12 @@ if submit_button:
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
-        # Transform features if using DTM model
-        if model_name == "Decision Tree":
-            try:
-                input_df = transform_features_for_dtm(input_df)
-            except Exception as e:
-                st.error(f"Error transforming features for Decision Tree model: {str(e)}")
-                continue
-        else:
-            # For other models, transform feature names
-            try:
-                input_df = transform_feature_names(input_df)
-            except Exception as e:
-                st.error(f"Error transforming feature names for {model_name}: {str(e)}")
-                continue
+        # Transform features for both models since they expect 102 features
+        try:
+            input_df = transform_features_for_dtm(input_df)
+        except Exception as e:
+            st.error(f"Error transforming features for {model_name} model: {str(e)}")
+            continue
         
         # Get prediction and probability from the current model
         try:
