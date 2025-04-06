@@ -19,7 +19,7 @@ randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_f
 deicision_tree_model = joblib.load(decision_tree_model)
 knn_model = joblib.load(knn_model_path)
 logistic_regression_model = joblib.load(logistic_regression_model_path)
-
+randomforest_model = joblibl.load(randomforest_model_path)
 
 # Function to predict loan status
 def predict_loan_status(input_data):
@@ -257,6 +257,7 @@ if submit_button:
         "Decision Tree": deicision_tree_model,
         "KNN": knn_model,
         "Logistic Regression": logistic_regression_model,
+        "Random Forest": randomforest_model
       
     }
 
