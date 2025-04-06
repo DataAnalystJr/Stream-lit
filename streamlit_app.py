@@ -5,6 +5,7 @@ import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
@@ -201,16 +202,16 @@ if clear_button:
 if submit_button:
     # Prepare input data for prediction
     input_data = {
-        'Gender': gender_options[gender],
-        'Married': marital_status_options[married],
-        'Dependents': dependents,
-        'Education': education_options[education],
-        'Self_Employed': employment_status_options[self_employed],
-        'Credit_History': credit_history_options[credit_history],
-        'Property_Area': property_area_options[property_area],
-        'ApplicantIncomelog': applicant_income_log,
-        'LoanAmountlog': loan_amount_log,
-        'Loan_Amount_Term_log': loan_amount_term_log
+        'gender': gender_options[gender],
+        'married': marital_status_options[married],
+        'dependents': dependents,
+        'education': education_options[education],
+        'self_employed': employment_status_options[self_employed],
+        'credit_history': credit_history_options[credit_history],
+        'property_area': property_area_options[property_area],
+        'applicant_income_log': applicant_income_log,
+        'loan_amount_log': loan_amount_log,
+        'loan_amount_term_log': loan_amount_term_log
     }
 
     # Summary card with collected data
@@ -242,13 +243,16 @@ if submit_button:
     models = {
         "Decision Tree": deicision_tree_model,
         "KNN": knn_model,
-
         "Random Forest": randomforest_model
     }
 
     for model_name, model in models.items():
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
+        
+        # Transform features if using DTM model
+        if model_name == "Decision Tree":
+            input_df = transform_features_for_dtm(input_df)
         
         # Get prediction and probability from the current model
         prediction = model.predict(input_df)[0]
@@ -316,4 +320,31 @@ if submit_button:
             plt.close(fig)
             
         st.markdown('</div>', unsafe_allow_html=True)
+        
+
+def transform_features_for_dtm(input_df):
+    """Transform input features to match DTM model's expected 102 features."""
+    # Create dummy variables for categorical columns
+    categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
+    
+    # Initialize a zero array with 102 features
+    transformed = np.zeros(102)
+    
+    # Map the continuous variables (they will be in the same position)
+    transformed[0] = input_df['applicant_income_log'].values[0]
+    transformed[1] = input_df['loan_amount_log'].values[0]
+    transformed[2] = input_df['loan_amount_term_log'].values[0]
+    transformed[3] = input_df['dependents'].values[0]
+    
+    # Map categorical variables
+    # Each categorical variable will have its own section in the array
+    start_idx = 4
+    for col in categorical_cols:
+        val = input_df[col].values[0]
+        transformed[start_idx + val] = 1
+        start_idx += 2  # Move to next section (assuming binary categories)
+    
+    return pd.DataFrame([transformed])
+        
+print("hello")
         
