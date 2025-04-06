@@ -12,7 +12,7 @@ current_dir = os.path.dirname(__file__)
 # Construct the relative paths
 decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_model.pkl')
 knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model.pkl')
-
+XGB_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KGB.pkl')
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
 
 # Load the models
@@ -20,7 +20,7 @@ try:
     deicision_tree_model = joblib.load(decision_tree_model)
     knn_model = joblib.load(knn_model_path)
     randomforest_model = joblib.load(randomforest_model_path)
-    
+    XGB_model = joblib.load(XGB_model_path)
     # Try to load XGBoost model with error handling
     try:
         XGB_model = joblib.load(XGB_boost_path)
@@ -257,7 +257,8 @@ if submit_button:
     models = {
         "Decision Tree": deicision_tree_model,
         "KNN": knn_model,
-        "Random Forest": randomforest_model
+        "Random Forest": randomforest_model,
+        "XGB Boost": XGB_model
     }
 
     # Only add XGBoost if it loaded successfully
