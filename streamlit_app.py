@@ -252,11 +252,19 @@ if submit_button:
         
         # Transform features if using DTM model
         if model_name == "Decision Tree":
-            input_df = transform_features_for_dtm(input_df)
+            try:
+                input_df = transform_features_for_dtm(input_df)
+            except Exception as e:
+                st.error(f"Error transforming features for Decision Tree model: {str(e)}")
+                continue
         
         # Get prediction and probability from the current model
-        prediction = model.predict(input_df)[0]
-        probability = model.predict_proba(input_df)[0][1]
+        try:
+            prediction = model.predict(input_df)[0]
+            probability = model.predict_proba(input_df)[0][1]
+        except Exception as e:
+            st.error(f"Error making prediction with {model_name}: {str(e)}")
+            continue
         
         # Result card for each model
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
