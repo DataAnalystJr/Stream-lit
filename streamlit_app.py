@@ -10,9 +10,9 @@ import os
 current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
-decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DTM.pkl')
+decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_model.pkl')
 knn_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model.pkl')
-
+logistic_regression_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'logistic_regression_model.pkl')
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'random_forest_model.pkl')
 
 # Load the models
@@ -316,5 +316,4 @@ if submit_button:
             plt.close(fig)
             
         st.markdown('</div>', unsafe_allow_html=True)
-        
         
