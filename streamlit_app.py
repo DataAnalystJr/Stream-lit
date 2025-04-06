@@ -35,12 +35,14 @@ def transform_features_for_dtm(input_df):
     transformed[3] = input_df['dependents'].values[0]
     
     # Map categorical variables
-    # Each categorical variable will have its own section in the array
+    # Each categorical variable needs 2 positions (for binary categories)
     start_idx = 4
     for col in categorical_cols:
         val = input_df[col].values[0]
-        transformed[start_idx + val] = 1
-        start_idx += 2  # Move to next section (assuming binary categories)
+        # Set both positions for each categorical variable
+        transformed[start_idx] = 1 if val == 0 else 0  # First category
+        transformed[start_idx + 1] = 1 if val == 1 else 0  # Second category
+        start_idx += 2  # Move to next pair of positions
     
     return pd.DataFrame([transformed])
 
