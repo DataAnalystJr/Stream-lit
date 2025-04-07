@@ -42,31 +42,37 @@ try:
 except Exception as e:
     st.error(f"Error loading Random Forest model: {str(e)}")
 
-def transform_features_for_models(input_df):
+def transform_features_for_models(input_df, model_name="XGB"):
     """Transform input features to match the expected format for both XGBoost and Random Forest models."""
     # Create dummy variables for categorical columns
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
-    # Initialize a zero array with 102 features
-    transformed = np.zeros(102)
-    
-    # Map the continuous variables (they will be in the same position)
-    transformed[0] = input_df['applicant_income_log'].values[0]
-    transformed[1] = input_df['loan_amount_log'].values[0]
-    transformed[2] = input_df['loan_amount_term_log'].values[0]
-    transformed[3] = input_df['dependents'].values[0]
-    
-    # Map categorical variables
-    # Each categorical variable needs 2 positions (for binary categories)
-    start_idx = 4
-    for col in categorical_cols:
-        val = input_df[col].values[0]
-        # Set both positions for each categorical variable
-        transformed[start_idx] = 1 if val == 0 else 0  # First category
-        transformed[start_idx + 1] = 1 if val == 1 else 0  # Second category
-        start_idx += 2  # Move to next pair of positions
-    
-    return pd.DataFrame([transformed])
+    if model_name == "XGB":
+        # For XGBoost, we just need to return the original features
+        # The XGBoost model expects 12 features in their original form
+        return input_df
+    else:
+        # For Random Forest, we need the 102 features transformation
+        # Initialize a zero array with 102 features
+        transformed = np.zeros(102)
+        
+        # Map the continuous variables (they will be in the same position)
+        transformed[0] = input_df['applicant_income_log'].values[0]
+        transformed[1] = input_df['loan_amount_log'].values[0]
+        transformed[2] = input_df['loan_amount_term_log'].values[0]
+        transformed[3] = input_df['dependents'].values[0]
+        
+        # Map categorical variables
+        # Each categorical variable needs 2 positions (for binary categories)
+        start_idx = 4
+        for col in categorical_cols:
+            val = input_df[col].values[0]
+            # Set both positions for each categorical variable
+            transformed[start_idx] = 1 if val == 0 else 0  # First category
+            transformed[start_idx + 1] = 1 if val == 1 else 0  # Second category
+            start_idx += 2  # Move to next pair of positions
+        
+        return pd.DataFrame([transformed])
 
 def transform_feature_names(input_df):
     """Transform feature names to match the model's expected format."""
@@ -321,9 +327,9 @@ if submit_button:
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
-        # Transform features for both models since they expect 102 features
+        # Transform features based on the model type
         try:
-            input_df = transform_features_for_models(input_df)
+            input_df = transform_features_for_models(input_df, model_name)
         except Exception as e:
             st.error(f"Error transforming features for {model_name} model: {str(e)}")
             continue
