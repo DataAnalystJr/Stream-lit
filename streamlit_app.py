@@ -294,11 +294,14 @@ if submit_button:
     # Make predictions with each model
     models = {
         "XGB": XGB_Model,
-      
         "Random Forest": randomforest_model
     }
 
     for model_name, model in models.items():
+        if model is None:
+            st.error(f"Could not make predictions with {model_name} model as it failed to load")
+            continue
+            
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
