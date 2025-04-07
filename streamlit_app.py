@@ -11,17 +11,17 @@ import numpy as np
 current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
-decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DTM.pkl')
+XGB_Model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
 
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
 
 # Load the models
-deicision_tree_model = joblib.load(decision_tree_model)
+XGB_Model = joblib.load(XGB_Model_path)
 
 randomforest_model = joblib.load(randomforest_model_path)
 
-def transform_features_for_dtm(input_df):
-    """Transform input features to match DTM model's expected 102 features."""
+def transform_features_for_models(input_df):
+    """Transform input features to match the expected format for both XGBoost and Random Forest models."""
     # Create dummy variables for categorical columns
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
@@ -284,7 +284,7 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Decision Tree": deicision_tree_model,
+        "XGB": XGB_Model,
       
         "Random Forest": randomforest_model
     }
@@ -295,7 +295,7 @@ if submit_button:
         
         # Transform features for both models since they expect 102 features
         try:
-            input_df = transform_features_for_dtm(input_df)
+            input_df = transform_features_for_models(input_df)
         except Exception as e:
             st.error(f"Error transforming features for {model_name} model: {str(e)}")
             continue
