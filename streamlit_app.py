@@ -16,9 +16,18 @@ XGB_Model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
 
 # Load the models
-XGB_Model = joblib.load(XGB_Model_path)
+try:
+    XGB_Model = joblib.load(XGB_Model_path)
+except Exception as e:
+    st.error(f"Error loading XGBoost model: {str(e)}")
+    st.error("Please ensure you have the correct version of XGBoost installed (3.0.0 or compatible)")
+    XGB_Model = None
 
-randomforest_model = joblib.load(randomforest_model_path)
+try:
+    randomforest_model = joblib.load(randomforest_model_path)
+except Exception as e:
+    st.error(f"Error loading Random Forest model: {str(e)}")
+    randomforest_model = None
 
 def transform_features_for_models(input_df):
     """Transform input features to match the expected format for both XGBoost and Random Forest models."""
