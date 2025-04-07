@@ -7,27 +7,40 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
+# Try to import XGBoost with version check
+try:
+    import xgboost
+    st.write(f"XGBoost version: {xgboost.__version__}")
+except ImportError:
+    st.error("XGBoost is not installed. Please install it using: pip install xgboost==3.0.0")
+    xgboost = None
+
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
 XGB_Model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
-
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
 
 # Load the models
-try:
-    XGB_Model = joblib.load(XGB_Model_path)
-except Exception as e:
-    st.error(f"Error loading XGBoost model: {str(e)}")
-    st.error("Please ensure you have the correct version of XGBoost installed (3.0.0 or compatible)")
-    XGB_Model = None
+XGB_Model = None
+randomforest_model = None
+
+if xgboost is not None:
+    try:
+        XGB_Model = joblib.load(XGB_Model_path)
+        st.success("XGBoost model loaded successfully")
+    except Exception as e:
+        st.error(f"Error loading XGBoost model: {str(e)}")
+        st.error("Please ensure you have the correct version of XGBoost installed (3.0.0 or compatible)")
+else:
+    st.error("XGBoost is not available. Some features will be disabled.")
 
 try:
     randomforest_model = joblib.load(randomforest_model_path)
+    st.success("Random Forest model loaded successfully")
 except Exception as e:
     st.error(f"Error loading Random Forest model: {str(e)}")
-    randomforest_model = None
 
 def transform_features_for_models(input_df):
     """Transform input features to match the expected format for both XGBoost and Random Forest models."""
@@ -292,16 +305,19 @@ if submit_button:
     st.markdown('</div>', unsafe_allow_html=True)
 
     # Make predictions with each model
-    models = {
-        "XGB": XGB_Model,
-        "Random Forest": randomforest_model
-    }
+    models = {}
+    
+    if XGB_Model is not None:
+        models["XGB"] = XGB_Model
+    
+    if randomforest_model is not None:
+        models["Random Forest"] = randomforest_model
+
+    if not models:
+        st.error("No models are available for prediction. Please check the model loading errors above.")
+        st.stop()
 
     for model_name, model in models.items():
-        if model is None:
-            st.error(f"Could not make predictions with {model_name} model as it failed to load")
-            continue
-            
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
