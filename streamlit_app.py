@@ -48,9 +48,23 @@ def transform_features_for_models(input_df, model_name="XGB"):
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
     if model_name == "XGB":
-        # For XGBoost, we just need to return the original features
-        # The XGBoost model expects 12 features in their original form
-        return input_df
+        # For XGBoost, we need to transform the features to match the expected format
+        # First, rename the columns to match the expected format
+        input_df = transform_feature_names(input_df)
+        
+        # Calculate additional features that might be expected by the model
+        input_df['Total_Income'] = input_df['ApplicantIncomelog']  # You might want to adjust this
+        input_df['EMI'] = input_df['LoanAmountlog'] / input_df['LoanAmountTermlog']  # Monthly EMI
+        
+        # Ensure columns are in the correct order
+        expected_columns = [
+            'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
+            'ApplicantIncomelog', 'LoanAmountlog', 'LoanAmountTermlog',
+            'Credit_History', 'Property_Area', 'Total_Income', 'EMI'
+        ]
+        
+        # Reorder columns to match the expected order
+        return input_df[expected_columns]
     else:
         # For Random Forest, we need the 102 features transformation
         # Initialize a zero array with 102 features
