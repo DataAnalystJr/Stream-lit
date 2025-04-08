@@ -6,6 +6,7 @@ import joblib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+from typing import Dict, Any
 
 # Try to import XGBoost with version check
 try:
@@ -40,6 +41,29 @@ try:
     st.success("Random Forest model loaded successfully")
 except Exception as e:
     st.error(f"Error loading Random Forest model: {str(e)}")
+
+# Initialize session state for models if not exists
+if 'models' not in st.session_state:
+    st.session_state.models = {}
+
+def load_model(model_name: str) -> Any:
+    """Lazy load model only when needed"""
+    if model_name not in st.session_state.models:
+        try:
+            import joblib
+            current_dir = os.path.dirname(__file__)
+            model_path = os.path.join(current_dir, 'SWIFT', 'Models', f'{model_name}.pkl')
+            
+            if model_name == 'XGB':
+                import xgboost
+            
+            model = joblib.load(model_path)
+            st.session_state.models[model_name] = model
+            return model
+        except Exception as e:
+            st.error(f"Error loading {model_name} model: {str(e)}")
+            return None
+    return st.session_state.models[model_name]
 
 def transform_features_for_models(input_df, model_name):
     """Transform input features to match the expected format for all models."""
@@ -342,99 +366,75 @@ if submit_button:
     st.markdown('</div>', unsafe_allow_html=True)
 
     # Make predictions with each model
-    models = {}
-    
-    if XGB_Model is not None:
-        models["XGB"] = XGB_Model
-    
-    if randomforest_model is not None:
-        models["Random Forest"] = randomforest_model
+    model_names = ['XGB', 'RF']  # List of available models
+    input_df = pd.DataFrame([input_data])
 
-    if not models:
-        st.error("No models are available for prediction. Please check the model loading errors above.")
-        st.stop()
-
-    for model_name, model in models.items():
-        # Create DataFrame from input data
-        input_df = pd.DataFrame([input_data])
-        
-        # Transform features based on the model type
-        try:
-            input_df = transform_features_for_models(input_df, model_name)
-        except Exception as e:
-            st.error(f"Error transforming features for {model_name} model: {str(e)}")
+    for model_name in model_names:
+        model = load_model(model_name)
+        if model is None:
             continue
-        
-        # Get prediction and probability from the current model
+
         try:
-            prediction = model.predict(input_df)[0]
-            probability = model.predict_proba(input_df)[0][1]
+            transformed_input = transform_features_for_models(input_df, model_name)
+            prediction = model.predict(transformed_input)[0]
+            probability = model.predict_proba(transformed_input)[0][1]
+            
+            # Result card for each model
+            st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
+            st.subheader(f"{model_name} Model Prediction")
+            
+            # Create columns for text and visualization
+            res_col1, res_col2 = st.columns([3, 2])
+            
+            with res_col1:
+                threshold = 0.7
+                if prediction == 1:
+                    st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
+                    st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
+                else:
+                    st.markdown(f"<h3 style='color: #F1C40F;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
+                    st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
+
+                if probability > threshold:
+                    st.write(f"**Risk Assessment:** Low risk applicant (Score: {probability:.2f})")
+                else:
+                    st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
+
+            with res_col2:
+                fig, ax = plt.subplots(figsize=(4, 4.5))
+                plt.subplots_adjust(top=0.8)
+                
+                approval_color = '#3498DB'
+                denial_color = '#F1C40F'
+                neutral_color = '#95A5A6'
+                
+                bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
+                       color=[approval_color if probability > 0.5 else neutral_color, 
+                              denial_color if probability <= 0.5 else neutral_color])
+                
+                fig.patch.set_facecolor('#F8F9FA')
+                ax.set_facecolor('#F8F9FA')
+                
+                ax.grid(True, linestyle='--', alpha=0.3, color='#D5D8DC')
+                for spine in ax.spines.values():
+                    spine.set_edgecolor('#ABB2B9')
+                    spine.set_linewidth(0.5)
+                
+                ax.set_ylim(0, 1)
+                ax.set_ylabel('Probability', color='#2C3E50')
+                ax.set_title(f'{model_name} Prediction', pad=20, color='#2C3E50')
+                
+                for bar in bars:
+                    height = bar.get_height()
+                    ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
+                            f'{height:.1%}', ha='center', va='bottom', color='#2C3E50')
+                    
+                st.pyplot(fig)
+                plt.close(fig)
+                
+            st.markdown('</div>', unsafe_allow_html=True)
         except Exception as e:
             st.error(f"Error making prediction with {model_name}: {str(e)}")
-            continue
-        
-        # Result card for each model
-        st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
-        st.subheader(f"{model_name} Model Prediction")
-        
-        # Create columns for text and visualization
-        res_col1, res_col2 = st.columns([3, 2])
-        
-        with res_col1:
-            threshold = 0.7  # Define your threshold
-            
-            if prediction == 1:
-                st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
-                st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
-            else:
-                st.markdown(f"<h3 style='color: #F1C40F;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
-                st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
 
-            if probability > threshold:
-                st.write(f"**Risk Assessment:** Low risk applicant (Score: {probability:.2f})")
-            else:
-                st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
-
-        with res_col2:
-            # Visualization with better colors and spacing
-            fig, ax = plt.subplots(figsize=(4, 4.5))
-            
-            # Add more space at the top for labels
-            plt.subplots_adjust(top=0.8)
-            
-            # New color theme with blue and yellow
-            approval_color = '#3498DB'  # Bright blue
-            denial_color = '#F1C40F'    # Bright yellow
-            neutral_color = '#95A5A6'   # Modern gray
-            
-            bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
-                   color=[approval_color if probability > 0.5 else neutral_color, 
-                          denial_color if probability <= 0.5 else neutral_color])
-            
-            # Set background color to light gray
-            fig.patch.set_facecolor('#F8F9FA')
-            ax.set_facecolor('#F8F9FA')
-            
-            # Customize grid and spines
-            ax.grid(True, linestyle='--', alpha=0.3, color='#D5D8DC')
-            for spine in ax.spines.values():
-                spine.set_edgecolor('#ABB2B9')
-                spine.set_linewidth(0.5)
-            
-            ax.set_ylim(0, 1)
-            ax.set_ylabel('Probability', color='#2C3E50')
-            ax.set_title(f'{model_name} Prediction', pad=20, color='#2C3E50')
-            
-            # Add percentage labels with more vertical spacing
-            for bar in bars:
-                height = bar.get_height()
-                ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
-                        f'{height:.1%}', ha='center', va='bottom', color='#2C3E50')
-                
-            st.pyplot(fig)
-            plt.close(fig)
-            
-        st.markdown('</div>', unsafe_allow_html=True)
-        
 print("hello")
         
