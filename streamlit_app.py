@@ -6,17 +6,18 @@ import joblib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import xgboost
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
+# Construct the relative paths
+rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
+xgb_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
 
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
-
-
-
-randomforest_model = joblib.load(randomforest_model_path)
-
+# Load the models silently without success messages
+rf_model = joblib.load(rf_path)
+xgb_model = joblib.load(xgb_path)
 
 # Center the title with a border using HTML and CSS
 st.markdown("""
@@ -237,29 +238,20 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Decision Tree": deicision_tree_model,
-      
-        "Random Forest": randomforest_model
+        "Random Forest": rf_model,
+        "XGBoost": xgb_model
     }
 
     for model_name, model in models.items():
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
-        # Transform features if using DTM model
-        if model_name == "Decision Tree":
-            try:
-                input_df = transform_features_for_dtm(input_df)
-            except Exception as e:
-                st.error(f"Error transforming features for Decision Tree model: {str(e)}")
-                continue
-        else:
-            # For other models, transform feature names
-            try:
-                input_df = transform_feature_names(input_df)
-            except Exception as e:
-                st.error(f"Error transforming feature names for {model_name}: {str(e)}")
-                continue
+        # Transform features for both models
+        try:
+            input_df = transform_features_for_models(input_df)
+        except Exception as e:
+            st.error(f"Error transforming features for {model_name} model: {str(e)}")
+            continue
         
         # Get prediction and probability from the current model
         try:
@@ -333,4 +325,6 @@ if submit_button:
         st.markdown('</div>', unsafe_allow_html=True)
         
 print("hello")
+
+# End of file
         
