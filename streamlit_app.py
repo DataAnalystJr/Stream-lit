@@ -21,11 +21,9 @@ current_dir = os.path.dirname(__file__)
 # Construct the relative paths
 XGB_Model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
 randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
-KNN_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KNN.pkl')
 # Load the models
 XGB_Model = None
 randomforest_model = None
-KNN_model = None
 
 if xgboost is not None:
     try:
@@ -43,62 +41,35 @@ try:
 except Exception as e:
     st.error(f"Error loading Random Forest model: {str(e)}")
 
-try:
-    KNN_model = joblib.load(KNN_path)
-    st.success("KNN model loaded successfully")
-except Exception as e:
-    st.error(f"Error loading KNN model: {str(e)}")
-
-def transform_features_for_models(input_df, model_name="XGB"):
-    """Transform input features to match the expected format for both XGBoost and Random Forest models."""
+def transform_features_for_models(input_df, model_name):
+    """Transform input features to match the expected format for all models."""
     # Create dummy variables for categorical columns
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
     # Calculate DTI log
     dti_log = np.log(input_df['debt_to_income_ratio'] + 1)  # Adding 1 to handle zero values
     
-    if model_name == "XGB":
-        # For XGBoost, we need to transform the features to match the expected format
-        # First, rename the columns to match the expected format
-        input_df = transform_feature_names(input_df)
-        
-        # Calculate additional features that might be expected by the model
-        input_df['Total_Income'] = input_df['ApplicantIncomelog']  # You might want to adjust this
-        input_df['EMI'] = input_df['LoanAmountlog'] / input_df['LoanAmountTermlog']  # Monthly EMI
-        input_df['DTI_log'] = dti_log  # Add DTI log
-        
-        # Ensure columns are in the correct order
-        expected_columns = [
-            'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
-            'ApplicantIncomelog', 'LoanAmountlog', 'LoanAmountTermlog',
-            'Credit_History', 'Property_Area', 'Total_Income', 'EMI', 'DTI_log'
-        ]
-        
-        # Reorder columns to match the expected order
-        return input_df[expected_columns]
-    else:
-        # For Random Forest, we need the 102 features transformation
-        # Initialize a zero array with 102 features
-        transformed = np.zeros(102)
-        
-        # Map the continuous variables (they will be in the same position)
-        transformed[0] = input_df['applicant_income_log'].values[0]
-        transformed[1] = input_df['loan_amount_log'].values[0]
-        transformed[2] = input_df['loan_amount_term_log'].values[0]
-        transformed[3] = input_df['dependents'].values[0]
-        transformed[4] = dti_log.values[0]  # Add DTI log as the 5th feature
-        
-        # Map categorical variables
-        # Each categorical variable needs 2 positions (for binary categories)
-        start_idx = 5  # Start after the continuous variables including DTI
-        for col in categorical_cols:
-            val = input_df[col].values[0]
-            # Set both positions for each categorical variable
-            transformed[start_idx] = 1 if val == 0 else 0  # First category
-            transformed[start_idx + 1] = 1 if val == 1 else 0  # Second category
-            start_idx += 2  # Move to next pair of positions
-        
-        return pd.DataFrame([transformed])
+    # Initialize a zero array with 102 features
+    transformed = np.zeros(102)
+    
+    # Map the continuous variables (they will be in the same position)
+    transformed[0] = input_df['applicant_income_log'].values[0]
+    transformed[1] = input_df['loan_amount_log'].values[0]
+    transformed[2] = input_df['loan_amount_term_log'].values[0]
+    transformed[3] = input_df['dependents'].values[0]
+    transformed[4] = dti_log.values[0]  # Add DTI log as the 5th feature
+    
+    # Map categorical variables
+    # Each categorical variable needs 2 positions (for binary categories)
+    start_idx = 5  # Start after the continuous variables including DTI
+    for col in categorical_cols:
+        val = input_df[col].values[0]
+        # Set both positions for each categorical variable
+        transformed[start_idx] = 1 if val == 0 else 0  # First category
+        transformed[start_idx + 1] = 1 if val == 1 else 0  # Second category
+        start_idx += 2  # Move to next pair of positions
+    
+    return pd.DataFrame([transformed])
 
 def transform_feature_names(input_df):
     """Transform feature names to match the model's expected format."""
@@ -378,8 +349,6 @@ if submit_button:
     
     if randomforest_model is not None:
         models["Random Forest"] = randomforest_model
-    if KNN_model is not None:
-        models["KNN"] = KNN_model
 
     if not models:
         st.error("No models are available for prediction. Please check the model loading errors above.")
