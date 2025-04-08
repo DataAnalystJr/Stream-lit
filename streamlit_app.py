@@ -106,7 +106,7 @@ st.markdown("""
 # Create a mapping for user-friendly labels
 gender_options = {'Female': 0, 'Male': 1}
 marital_status_options = {'Single': 0, 'Married': 1}
-education_options = {'Graduate': 0, 'Not Graduate': 1}
+education_options = {'High School Graduate': 0, 'College Graduate': 1}
 employment_status_options = {'Unemployed': 0, 'Employed': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Urban': 1}
@@ -120,7 +120,7 @@ with col1:
     gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
     married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
     dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None, min_value=0, step=1)
-    education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
+    education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0)
     
     st.subheader("Property Information")
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
