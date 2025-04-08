@@ -225,7 +225,7 @@ st.subheader("Loan Details")
 st.write("**Enter Loan Amount:**")
 loan_amount_log = st.slider("", 
                            min_value=1000.0, 
-                           max_value=1000000.0, 
+                           max_value=500000.0, 
                            value=100000.0, 
                            step=1000.0,
                            format="₱ %d")
@@ -233,7 +233,7 @@ loan_amount_log = st.slider("",
 st.write("**Enter Loan Amount Term (in Months):**")
 loan_amount_term_log = st.slider("", 
                                 min_value=1.0, 
-                                max_value=360.0, 
+                                max_value=160.0, 
                                 value=60.0, 
                                 step=1.0,
                                 format="%d months")
