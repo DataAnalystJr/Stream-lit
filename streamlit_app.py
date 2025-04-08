@@ -2,26 +2,36 @@ import subprocess
 import sys
 import streamlit as st
 import pandas as pd
-import joblib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+from typing import Dict, Any
 
-# Get the current directory of the script
-current_dir = os.path.dirname(__file__)
+# Initialize session state for models if not exists
+if 'models' not in st.session_state:
+    st.session_state.models = {}
 
-# Construct the relative paths
-decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DTM.pkl')
+def load_model(model_name: str) -> Any:
+    """Lazy load model only when needed"""
+    if model_name not in st.session_state.models:
+        try:
+            import joblib
+            current_dir = os.path.dirname(__file__)
+            model_path = os.path.join(current_dir, 'SWIFT', 'Models', f'{model_name}.pkl')
+            
+            if model_name == 'XGB':
+                import xgboost
+            
+            model = joblib.load(model_path)
+            st.session_state.models[model_name] = model
+            return model
+        except Exception as e:
+            st.error(f"Error loading {model_name} model: {str(e)}")
+            return None
+    return st.session_state.models[model_name]
 
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
-
-# Load the models
-deicision_tree_model = joblib.load(decision_tree_model)
-
-randomforest_model = joblib.load(randomforest_model_path)
-
-def transform_features_for_dtm(input_df):
-    """Transform input features to match DTM model's expected 102 features."""
+def transform_features_for_models(input_df):
+    """Transform input features to match the expected 102 features format for RF and XGB models."""
     # Create dummy variables for categorical columns
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
@@ -284,18 +294,19 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Decision Tree": deicision_tree_model,
-      
-        "Random Forest": randomforest_model
+        "Random Forest": load_model('RF'),
+        "XGBoost": load_model('XGB')
     }
 
     for model_name, model in models.items():
+        if model is None:
+            continue
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
         # Transform features for both models since they expect 102 features
         try:
-            input_df = transform_features_for_dtm(input_df)
+            input_df = transform_features_for_models(input_df)
         except Exception as e:
             st.error(f"Error transforming features for {model_name} model: {str(e)}")
             continue
