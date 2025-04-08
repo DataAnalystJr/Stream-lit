@@ -2,33 +2,22 @@ import subprocess
 import sys
 import streamlit as st
 import pandas as pd
+import joblib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
 from typing import Dict, Any
 
-# Initialize session state for models if not exists
-if 'models' not in st.session_state:
-    st.session_state.models = {}
+# Get the current directory of the script
+current_dir = os.path.dirname(__file__)
 
-def load_model(model_name: str) -> Any:
-    """Lazy load model only when needed"""
-    if model_name not in st.session_state.models:
-        try:
-            import joblib
-            current_dir = os.path.dirname(__file__)
-            model_path = os.path.join(current_dir, 'SWIFT', 'Models', f'{model_name}.pkl')
-            
-            if model_name == 'XGB':
-                import xgboost
-            
-            model = joblib.load(model_path)
-            st.session_state.models[model_name] = model
-            return model
-        except Exception as e:
-            st.error(f"Error loading {model_name} model: {str(e)}")
-            return None
-    return st.session_state.models[model_name]
+# Construct the relative paths
+rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
+xgb_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
+
+# Load the models
+rf_model = joblib.load(rf_path)
+xgb_model = joblib.load(xgb_path)
 
 def transform_features_for_models(input_df):
     """Transform input features to match the expected 102 features format for RF and XGB models."""
@@ -294,13 +283,11 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Random Forest": load_model('RF'),
-        "XGBoost": load_model('XGB')
+        "Random Forest": rf_model,
+        "XGBoost": xgb_model
     }
 
     for model_name, model in models.items():
-        if model is None:
-            continue
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
