@@ -107,7 +107,7 @@ st.markdown("""
 gender_options = {'Female': 0, 'Male': 1}
 marital_status_options = {'Single': 0, 'Married': 1}
 education_options = {'High School Graduate': 0, 'College Graduate': 1}
-employment_status_options = {'Unemployed': 0, 'Employed': 1}
+employment_status_options = {'No': 0, 'Yes': 1}
 credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Urban': 1}
 
@@ -128,7 +128,7 @@ with col1:
 # Financial information
 with col2:
     st.subheader("Financial Information")
-    self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
+    self_employed = st.selectbox("Self-Employed:", options=[""] + list(employment_status_options.keys()), index=0)
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     applicant_income_log = st.number_input("Enter Applicant Income (Monthly in ₱):", min_value=0.0, value=None)
 
