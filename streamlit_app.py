@@ -1,5 +1,3 @@
-import subprocess
-import sys
 import streamlit as st
 import pandas as pd
 import joblib
@@ -7,40 +5,6 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 from typing import Dict, Any
-
-# Try to import XGBoost with version check
-try:
-    import xgboost
-    st.write(f"XGBoost version: {xgboost.__version__}")
-except ImportError:
-    st.error("XGBoost is not installed. Please install it using: pip install xgboost==3.0.0")
-    xgboost = None
-
-# Get the current directory of the script
-current_dir = os.path.dirname(__file__)
-
-# Construct the relative paths
-XGB_Model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
-# Load the models
-XGB_Model = None
-randomforest_model = None
-
-if xgboost is not None:
-    try:
-        XGB_Model = joblib.load(XGB_Model_path)
-        st.success("XGBoost model loaded successfully")
-    except Exception as e:
-        st.error(f"Error loading XGBoost model: {str(e)}")
-        st.error("Please ensure you have the correct version of XGBoost installed (3.0.0 or compatible)")
-else:
-    st.error("XGBoost is not available. Some features will be disabled.")
-
-try:
-    randomforest_model = joblib.load(randomforest_model_path)
-    st.success("Random Forest model loaded successfully")
-except Exception as e:
-    st.error(f"Error loading Random Forest model: {str(e)}")
 
 # Initialize session state for models if not exists
 if 'models' not in st.session_state:
