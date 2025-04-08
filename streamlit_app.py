@@ -47,6 +47,9 @@ def transform_features_for_models(input_df, model_name="XGB"):
     # Create dummy variables for categorical columns
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
+    # Calculate DTI log
+    dti_log = np.log(input_df['debt_to_income_ratio'] + 1)  # Adding 1 to handle zero values
+    
     if model_name == "XGB":
         # For XGBoost, we need to transform the features to match the expected format
         # First, rename the columns to match the expected format
@@ -55,12 +58,13 @@ def transform_features_for_models(input_df, model_name="XGB"):
         # Calculate additional features that might be expected by the model
         input_df['Total_Income'] = input_df['ApplicantIncomelog']  # You might want to adjust this
         input_df['EMI'] = input_df['LoanAmountlog'] / input_df['LoanAmountTermlog']  # Monthly EMI
+        input_df['DTI_log'] = dti_log  # Add DTI log
         
         # Ensure columns are in the correct order
         expected_columns = [
             'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
             'ApplicantIncomelog', 'LoanAmountlog', 'LoanAmountTermlog',
-            'Credit_History', 'Property_Area', 'Total_Income', 'EMI'
+            'Credit_History', 'Property_Area', 'Total_Income', 'EMI', 'DTI_log'
         ]
         
         # Reorder columns to match the expected order
@@ -75,10 +79,11 @@ def transform_features_for_models(input_df, model_name="XGB"):
         transformed[1] = input_df['loan_amount_log'].values[0]
         transformed[2] = input_df['loan_amount_term_log'].values[0]
         transformed[3] = input_df['dependents'].values[0]
+        transformed[4] = dti_log.values[0]  # Add DTI log as the 5th feature
         
         # Map categorical variables
         # Each categorical variable needs 2 positions (for binary categories)
-        start_idx = 4
+        start_idx = 5  # Start after the continuous variables including DTI
         for col in categorical_cols:
             val = input_df[col].values[0]
             # Set both positions for each categorical variable
