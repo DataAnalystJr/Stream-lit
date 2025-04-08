@@ -139,8 +139,7 @@ st.write("**ApplicantLoanAmot:**")
 loan_amount_log = st.number_input("", 
                            min_value=1000.0, 
                            max_value=1000000.0, 
-                           value=100000.0, 
-                           step=1000.0,
+                           value=100000.0,
                            format="%f")
 
 st.write("**Enter Loan Amount Term (in Months):**")
