@@ -20,11 +20,12 @@ current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
 XGB_Model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
-randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
-
+randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
+KNN_path = os.path.join(current_dir, 'SWIFT', 'Models', 'KNN.pkl')
 # Load the models
 XGB_Model = None
 randomforest_model = None
+KNN_model = None
 
 if xgboost is not None:
     try:
@@ -41,6 +42,12 @@ try:
     st.success("Random Forest model loaded successfully")
 except Exception as e:
     st.error(f"Error loading Random Forest model: {str(e)}")
+
+try:
+    KNN_model = joblib.load(KNN_path)
+    st.success("KNN model loaded successfully")
+except Exception as e:
+    st.error(f"Error loading KNN model: {str(e)}")
 
 def transform_features_for_models(input_df, model_name="XGB"):
     """Transform input features to match the expected format for both XGBoost and Random Forest models."""
@@ -371,6 +378,8 @@ if submit_button:
     
     if randomforest_model is not None:
         models["Random Forest"] = randomforest_model
+    if KNN_model is not None:
+        models["KNN"] = KNN_model
 
     if not models:
         st.error("No models are available for prediction. Please check the model loading errors above.")
