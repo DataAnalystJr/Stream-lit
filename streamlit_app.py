@@ -117,14 +117,14 @@ col1, col2 = st.columns([1, 1])
 # Personal information
 with col1:
     st.subheader("Personal Information")
-    Gender = st.selectbox("Customer_Gender:", options=[""] + list(gender_options.keys()), index=0)
-    Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0)
+    Gender = st.selectbox("Customer_Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
+    Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0, key="married")
     dependents_options = [0, 1, 2, "3+"]
-    Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0)
-    education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0)
+    Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0, key="dependents")
+    Education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0, key="education")
     
     st.subheader("Property Information")
-    property_area = st.selectbox("Property_Loan_Stat:", options=[""] + list(property_area_options.keys()), index=0)
+    property_area = st.selectbox("Property_Loan_Stat:", options=[""] + list(property_area_options.keys()), index=0, key="property_area")
 
 # Financial information
 with col2:
@@ -153,10 +153,10 @@ loan_amount_term_log = st.slider("",
 # Validation function
 def is_valid_input():
     return all([
-        gender != "", 
-        married != "", 
-        dependents is not None, 
-        education != "", 
+        Gender != "", 
+        Married != "", 
+        Dependents is not None, 
+        Education != "", 
         self_employed != "", 
         credit_history != "", 
         property_area != "", 
@@ -168,16 +168,11 @@ def is_valid_input():
 # Function to reset all fields
 def clear_fields():
     # Reset all session state variables to default values
-    st.session_state.gender = ""
-    st.session_state.married = ""
-    st.session_state.dependents = None
-    st.session_state.education = ""
-    st.session_state.self_employed = ""
-    st.session_state.credit_history = ""
-    st.session_state.property_area = ""
-    st.session_state.applicant_income_log = None
-    st.session_state.loan_amount_log = None
-    st.session_state.loan_amount_term_log = None
+    for key in ["gender", "married", "dependents", "education", "self_employed", 
+                "credit_history", "property_area", "applicant_income_log", 
+                "loan_amount_log", "loan_amount_term_log"]:
+        if key in st.session_state:
+            st.session_state[key] = ""
     
     # Set the flag for triggering a rerun
     st.session_state.clear_triggered = True
@@ -199,10 +194,10 @@ if clear_button:
 if submit_button:
     # Prepare input data for prediction
     input_data = {
-        'gender': gender_options[gender],
-        'married': marital_status_options[married],
-        'dependents': dependents,
-        'education': education_options[education],
+        'gender': gender_options[Gender],
+        'married': marital_status_options[Married],
+        'dependents': Dependents,
+        'education': education_options[Education],
         'self_employed': employment_status_options[self_employed],
         'credit_history': credit_history_options[credit_history],
         'property_area': property_area_options[property_area],
@@ -220,10 +215,10 @@ if submit_button:
     
     with sum_col1:
         st.write("**Personal Details:**")
-        st.write(f"• Gender: {gender}")
-        st.write(f"• Marital Status: {married}")
-        st.write(f"• Number of Dependents: {dependents}")
-        st.write(f"• Education: {education}")
+        st.write(f"• Gender: {Gender}")
+        st.write(f"• Marital Status: {Married}")
+        st.write(f"• Number of Dependents: {Dependents}")
+        st.write(f"• Education: {Education}")
         st.write(f"• Employment Status: {self_employed}")
         
     with sum_col2:
