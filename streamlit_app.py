@@ -104,12 +104,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Create a mapping for user-friendly labels
-gender_options = {'Female': 0, 'Male': 1}
-marital_status_options = {'Single': 0, 'Married': 1}
-education_options = {'High School Graduate': 0, 'College Graduate': 1}
-employment_status_options = {'No': 0, 'Yes': 1}
-credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
-property_area_options = {'Rural': 0, 'Urban': 1}
+gender_options = {'M': 1, 'F': 0}
+marital_status_options = {'Married': 1, 'Single': 0}
+education_options = {'College Graduate': 1, 'High School Graduate': 0}
+employment_status_options = {'Yes': 1, 'No': 0}
+credit_history_options = {'1': 1, '0': 0}
+property_area_options = {'Y': 1, 'N': 0}
 
 # Create two columns for the input form with adjusted ratio
 col1, col2 = st.columns([1, 1])
@@ -117,30 +117,31 @@ col1, col2 = st.columns([1, 1])
 # Personal information
 with col1:
     st.subheader("Personal Information")
-    gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
-    married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
-    dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None, min_value=0, step=1)
+    Gender = st.selectbox("Customer_Gender:", options=[""] + list(gender_options.keys()), index=0)
+    Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0)
+    dependents_options = [0, 1, 2, "3+"]
+    Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0)
     education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0)
     
     st.subheader("Property Information")
-    property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
+    property_area = st.selectbox("Property_Loan_Stat:", options=[""] + list(property_area_options.keys()), index=0)
 
 # Financial information
 with col2:
     st.subheader("Financial Information")
-    self_employed = st.selectbox("Self-Employed:", options=[""] + list(employment_status_options.keys()), index=0)
-    credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
-    applicant_income_log = st.number_input("Enter Applicant Income (Monthly in ₱):", min_value=0.0, value=None)
+    self_employed = st.selectbox("Self_Employed:", options=[""] + list(employment_status_options.keys()), index=0)
+    credit_history = st.selectbox("Credit_His:", options=[""] + list(credit_history_options.keys()), index=0)
+    applicant_income_log = st.number_input("Monthly_i:", min_value=0.0, value=None, step=1000.0)
 
 # Loan details
 st.subheader("Loan Details")
-st.write("**Enter Loan Amount:**")
-loan_amount_log = st.slider("", 
+st.write("**ApplicantLoanAmot:**")
+loan_amount_log = st.number_input("", 
                            min_value=1000.0, 
                            max_value=1000000.0, 
                            value=100000.0, 
                            step=1000.0,
-                           format="₱ %d")
+                           format="%f")
 
 st.write("**Enter Loan Amount Term (in Months):**")
 loan_amount_term_log = st.slider("", 
