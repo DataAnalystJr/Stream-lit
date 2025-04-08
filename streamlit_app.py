@@ -6,21 +6,22 @@ import joblib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-from typing import Dict, Any
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
 # Construct the relative paths
-rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
-xgb_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
+decision_tree_model = os.path.join(current_dir, 'SWIFT', 'Models', 'DTM.pkl')
+
+randomforest_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RandomForest.pkl')
 
 # Load the models
-rf_model = joblib.load(rf_path)
-xgb_model = joblib.load(xgb_path)
+deicision_tree_model = joblib.load(decision_tree_model)
 
-def transform_features_for_models(input_df):
-    """Transform input features to match the expected 102 features format for RF and XGB models."""
+randomforest_model = joblib.load(randomforest_model_path)
+
+def transform_features_for_dtm(input_df):
+    """Transform input features to match DTM model's expected 102 features."""
     # Create dummy variables for categorical columns
     categorical_cols = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
     
@@ -34,14 +35,12 @@ def transform_features_for_models(input_df):
     transformed[3] = input_df['dependents'].values[0]
     
     # Map categorical variables
-    # Each categorical variable needs 2 positions (for binary categories)
+    # Each categorical variable will have its own section in the array
     start_idx = 4
     for col in categorical_cols:
         val = input_df[col].values[0]
-        # Set both positions for each categorical variable
-        transformed[start_idx] = 1 if val == 0 else 0  # First category
-        transformed[start_idx + 1] = 1 if val == 1 else 0  # Second category
-        start_idx += 2  # Move to next pair of positions
+        transformed[start_idx + val] = 1
+        start_idx += 2  # Move to next section (assuming binary categories)
     
     return pd.DataFrame([transformed])
 
@@ -283,20 +282,29 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Random Forest": rf_model,
-        "XGBoost": xgb_model
+        "Decision Tree": deicision_tree_model,
+      
+        "Random Forest": randomforest_model
     }
 
     for model_name, model in models.items():
         # Create DataFrame from input data
         input_df = pd.DataFrame([input_data])
         
-        # Transform features for both models since they expect 102 features
-        try:
-            input_df = transform_features_for_models(input_df)
-        except Exception as e:
-            st.error(f"Error transforming features for {model_name} model: {str(e)}")
-            continue
+        # Transform features if using DTM model
+        if model_name == "Decision Tree":
+            try:
+                input_df = transform_features_for_dtm(input_df)
+            except Exception as e:
+                st.error(f"Error transforming features for Decision Tree model: {str(e)}")
+                continue
+        else:
+            # For other models, transform feature names
+            try:
+                input_df = transform_feature_names(input_df)
+            except Exception as e:
+                st.error(f"Error transforming feature names for {model_name}: {str(e)}")
+                continue
         
         # Get prediction and probability from the current model
         try:
