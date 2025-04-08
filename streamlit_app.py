@@ -98,7 +98,7 @@ st.markdown("""
     }
     </style>
     <div class="title-container">
-        <h1 style='color: white;'>Loan Approval Prediction</h1>
+        <h1 style='color: white;'>Loan Approval </h1>
         <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
     </div>
 """, unsafe_allow_html=True)
