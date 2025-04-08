@@ -238,6 +238,35 @@ loan_amount_term_log = st.slider("",
                                 step=1.0,
                                 format="%d months")
 
+# Calculate monthly payment and debt-to-income ratio
+def calculate_monthly_payment(loan_amount, annual_rate, months):
+    # Using the loan amortization formula
+    monthly_rate = annual_rate / 12
+    monthly_payment = loan_amount * (monthly_rate * (1 + monthly_rate)**months) / ((1 + monthly_rate)**months - 1)
+    return monthly_payment
+
+# Assuming an annual interest rate of 10% (you can make this configurable if needed)
+annual_interest_rate = 0.10
+
+if applicant_income_log and loan_amount_log and loan_amount_term_log:
+    monthly_payment = calculate_monthly_payment(loan_amount_log, annual_interest_rate, loan_amount_term_log)
+    monthly_income = applicant_income_log
+    debt_to_income_ratio = (monthly_payment / monthly_income) * 100
+    
+    # Display the calculated values
+    st.write("**Loan Payment Details:**")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.write(f"• Estimated Monthly Payment: ₱{monthly_payment:,.2f}")
+    with col2:
+        st.write(f"• Debt-to-Income Ratio: {debt_to_income_ratio:.1f}%")
+        if debt_to_income_ratio > 43:
+            st.warning("⚠️ Debt-to-income ratio is higher than recommended (43%)")
+        elif debt_to_income_ratio > 36:
+            st.info("ℹ️ Debt-to-income ratio is slightly elevated")
+        else:
+            st.success("✅ Debt-to-income ratio is within good range")
+
 # Validation function
 def is_valid_input():
     return all([
@@ -285,6 +314,10 @@ if clear_button:
 
 # Results section    
 if submit_button:
+    # Calculate debt-to-income ratio
+    monthly_payment = calculate_monthly_payment(loan_amount_log, annual_interest_rate, loan_amount_term_log)
+    debt_to_income_ratio = (monthly_payment / applicant_income_log) * 100
+
     # Prepare input data for prediction
     input_data = {
         'gender': gender_options[gender],
@@ -296,7 +329,8 @@ if submit_button:
         'property_area': property_area_options[property_area],
         'applicant_income_log': applicant_income_log,
         'loan_amount_log': loan_amount_log,
-        'loan_amount_term_log': loan_amount_term_log
+        'loan_amount_term_log': loan_amount_term_log,
+        'debt_to_income_ratio': debt_to_income_ratio
     }
 
     # Summary card with collected data
