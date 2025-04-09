@@ -208,7 +208,7 @@ loan_amount_log = st.number_input("",
 st.write("**Loan Term (in Months):**")
 loan_amount_term_log = st.slider("", 
                                 min_value=1.0, 
-                                max_value=360.0, 
+                                max_value=160.0, 
                                 value=60.0, 
                                 step=1.0,
                                 format="%d months")
