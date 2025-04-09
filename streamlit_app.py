@@ -167,7 +167,7 @@ marital_status_options = {'Married': 1, 'Single': 0}
 education_options = {'College Graduate': 1, 'High School Graduate': 0}
 employment_status_options = {'Yes': 1, 'No': 0}
 credit_history_options = {'Good': 1, 'Bad': 0}
-property_area_options = {'Y': 1, 'N': 0}
+property_area_options = {'Urban': 1, 'Rural': 0}
 
 # Create two columns for the input form with adjusted ratio
 col1, col2 = st.columns([1, 1])
@@ -383,62 +383,3 @@ print("hello")
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 # End of file
-
-# Function to transform features for model prediction
-def transform_features_for_models(df):
-    # Create dummy variables for categorical columns
-    categorical_cols = ['gender', 'married', 'education', 'self_employed', 'property_area']
-    for col in categorical_cols:
-        dummies = pd.get_dummies(df[col], prefix=col)
-        df = pd.concat([df, dummies], axis=1)
-        df = df.drop(col, axis=1)
-    
-    # Calculate DTI log
-    df['DTI_log'] = np.log1p(df['loan_amount_log'] / df['applicant_income_log'])
-    
-    # Initialize array with 102 features (as expected by the models)
-    transformed_features = np.zeros((1, 102))
-    
-    # Map continuous variables
-    continuous_mapping = {
-        'applicant_income_log': 0,
-        'loan_amount_log': 1,
-        'loan_amount_term_log': 2,
-        'DTI_log': 3
-    }
-    
-    # Map categorical variables
-    categorical_mapping = {
-        'gender_0': 4, 'gender_1': 5,
-        'married_0': 6, 'married_1': 7,
-        'education_0': 8, 'education_1': 9,
-        'self_employed_0': 10, 'self_employed_1': 11,
-        'property_area_0': 12, 'property_area_1': 13
-    }
-    
-    # Fill in continuous variables
-    for col, idx in continuous_mapping.items():
-        if col in df.columns:
-            transformed_features[0, idx] = df[col].values[0]
-    
-    # Fill in categorical variables
-    for col, idx in categorical_mapping.items():
-        if col in df.columns:
-            transformed_features[0, idx] = df[col].values[0]
-    
-    # Fill in dependents (one-hot encoded)
-    dependents = df['dependents'].values[0]
-    if dependents == 0:
-        transformed_features[0, 14] = 1
-    elif dependents == 1:
-        transformed_features[0, 15] = 1
-    elif dependents == 2:
-        transformed_features[0, 16] = 1
-    else:  # 3+
-        transformed_features[0, 17] = 1
-    
-    # Fill in credit history
-    transformed_features[0, 18] = df['credit_history'].values[0]
-    
-    return transformed_features
-        
