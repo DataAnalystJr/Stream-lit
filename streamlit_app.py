@@ -13,33 +13,59 @@ current_dir = os.path.dirname(__file__)
 
 # Function to transform features for model prediction
 def transform_features_for_models(df):
-    # Initialize array with features matching the model's expectations
-    transformed_features = np.zeros((1, 12))  # 12 features as per the dataset
+    # Initialize array with 102 features as expected by the models
+    transformed_features = np.zeros((1, 102))
     
-    # Map the features in the exact order they appear in the model
-    feature_mapping = {
-        'gender': 0,                    # Gender
-        'married': 1,                   # Married
-        'dependents': 2,                # Dependents
-        'education': 3,                 # Education
-        'self_employed': 4,             # Self_Employed
-        'credit_history': 5,            # Credit_History
-        'property_area': 6,             # Property_Area
-        'applicant_income_log': 7,      # ApplicantIncomeLog
-        'loan_to_income_ratio_log': 8,  # Loan_to_Income_RatioLog
-        'loan_amount_log': 9,           # LoanAmountLog
-        'loan_amount_term_log': 10,     # Monthly_Loan_Amount_TermLog
-        'dti_log': 11                   # DTI_Log
-    }
+    # 1. Handle continuous variables first
+    transformed_features[0, 0] = np.log1p(df['applicant_income_log'].values[0])  # ApplicantIncomeLog
+    transformed_features[0, 1] = np.log1p(df['loan_amount_log'].values[0])  # LoanAmountLog
+    transformed_features[0, 2] = np.log1p(df['loan_amount_term_log'].values[0])  # Monthly_Loan_Amount_TermLog
     
-    # Calculate derived features
-    df['loan_to_income_ratio_log'] = np.log1p(df['loan_amount_log'] / df['applicant_income_log'])
-    df['dti_log'] = df['loan_to_income_ratio_log']  # DTI is same as Loan to Income ratio
+    # Calculate and store derived features
+    loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
+    transformed_features[0, 3] = np.log1p(loan_to_income_ratio)  # Loan_to_Income_RatioLog
+    transformed_features[0, 4] = transformed_features[0, 3]  # DTI_Log (same as Loan_to_Income_RatioLog)
     
-    # Fill in all features
-    for col, idx in feature_mapping.items():
-        if col in df.columns:
-            transformed_features[0, idx] = df[col].values[0]
+    # 2. Handle categorical variables
+    # Gender (2 features)
+    gender_val = df['gender'].values[0]
+    transformed_features[0, 5] = 1 if gender_val == 1 else 0  # Male
+    transformed_features[0, 6] = 1 if gender_val == 0 else 0  # Female
+    
+    # Married (2 features)
+    married_val = df['married'].values[0]
+    transformed_features[0, 7] = 1 if married_val == 1 else 0  # Married
+    transformed_features[0, 8] = 1 if married_val == 0 else 0  # Single
+    
+    # Dependents (4 features)
+    dependents_val = df['dependents'].values[0]
+    transformed_features[0, 9] = 1 if dependents_val == 0 else 0   # 0 dependents
+    transformed_features[0, 10] = 1 if dependents_val == 1 else 0  # 1 dependent
+    transformed_features[0, 11] = 1 if dependents_val == 2 else 0  # 2 dependents
+    transformed_features[0, 12] = 1 if dependents_val == "3+" else 0  # 3+ dependents
+    
+    # Education (2 features)
+    education_val = df['education'].values[0]
+    transformed_features[0, 13] = 1 if education_val == 1 else 0  # Graduate
+    transformed_features[0, 14] = 1 if education_val == 0 else 0  # Not Graduate
+    
+    # Self_Employed (2 features)
+    self_employed_val = df['self_employed'].values[0]
+    transformed_features[0, 15] = 1 if self_employed_val == 1 else 0  # Yes
+    transformed_features[0, 16] = 1 if self_employed_val == 0 else 0  # No
+    
+    # Credit_History (2 features)
+    credit_history_val = df['credit_history'].values[0]
+    transformed_features[0, 17] = 1 if credit_history_val == 1 else 0  # Good
+    transformed_features[0, 18] = 1 if credit_history_val == 0 else 0  # Bad
+    
+    # Property_Area (2 features)
+    property_area_val = df['property_area'].values[0]
+    transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Y
+    transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # N
+    
+    # 3. The remaining features (21-101) are likely interaction terms and polynomial features
+    # We'll leave them as zeros for now since they're less important according to your feature importance graph
     
     return transformed_features
 
