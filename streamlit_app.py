@@ -16,15 +16,15 @@ def transform_features_for_models(df):
     # Initialize array with 102 features as expected by the models
     transformed_features = np.zeros((1, 102))
     
-    # 1. Handle continuous variables first
-    transformed_features[0, 0] = np.log1p(df['applicant_income_log'].values[0])  # ApplicantIncomeLog
-    transformed_features[0, 1] = np.log1p(df['loan_amount_log'].values[0])  # LoanAmountLog
-    transformed_features[0, 2] = np.log1p(df['loan_amount_term_log'].values[0])  # Monthly_Loan_Amount_TermLog
+    # 1. Handle continuous variables first - apply log transformation only once
+    transformed_features[0, 0] = df['applicant_income_log'].values[0]  # ApplicantIncomeLog
+    transformed_features[0, 1] = df['loan_amount_log'].values[0]  # LoanAmountLog
+    transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Monthly_Loan_Amount_TermLog
     
     # Calculate and store derived features
     loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
-    transformed_features[0, 3] = np.log1p(loan_to_income_ratio)  # Loan_to_Income_RatioLog
-    transformed_features[0, 4] = transformed_features[0, 3]  # DTI_Log (same as Loan_to_Income_RatioLog)
+    transformed_features[0, 3] = loan_to_income_ratio  # Loan_to_Income_RatioLog
+    transformed_features[0, 4] = loan_to_income_ratio  # DTI_Log (same as Loan_to_Income_RatioLog)
     
     # 2. Handle categorical variables
     # Gender (2 features)
@@ -64,8 +64,13 @@ def transform_features_for_models(df):
     transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Y
     transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # N
     
-    # 3. The remaining features (21-101) are likely interaction terms and polynomial features
-    # We'll leave them as zeros for now since they're less important according to your feature importance graph
+    # Add some interaction features (indices 21-101)
+    # Income * Loan Amount interaction
+    transformed_features[0, 21] = transformed_features[0, 0] * transformed_features[0, 1]
+    # Income * Loan Term interaction
+    transformed_features[0, 22] = transformed_features[0, 0] * transformed_features[0, 2]
+    # Loan Amount * Loan Term interaction
+    transformed_features[0, 23] = transformed_features[0, 1] * transformed_features[0, 2]
     
     return transformed_features
 
@@ -259,9 +264,9 @@ if submit_button:
         'self_employed': employment_status_options[self_employed],
         'credit_history': credit_history_options[credit_history],
         'property_area': property_area_options[property_area],
-        'applicant_income_log': applicant_income_log,
-        'loan_amount_log': loan_amount_log,
-        'loan_amount_term_log': loan_amount_term_log
+        'applicant_income_log': np.log1p(applicant_income_log),
+        'loan_amount_log': np.log1p(loan_amount_log),
+        'loan_amount_term_log': np.log1p(loan_amount_term_log)
     }
 
     # Summary card with collected data
