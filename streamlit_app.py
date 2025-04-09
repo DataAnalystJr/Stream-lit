@@ -13,59 +13,33 @@ current_dir = os.path.dirname(__file__)
 
 # Function to transform features for model prediction
 def transform_features_for_models(df):
-    # Create dummy variables for categorical columns
-    categorical_cols = ['gender', 'married', 'education', 'self_employed', 'property_area']
-    for col in categorical_cols:
-        dummies = pd.get_dummies(df[col], prefix=col)
-        df = pd.concat([df, dummies], axis=1)
-        df = df.drop(col, axis=1)
+    # Initialize array with features matching the model's expectations
+    transformed_features = np.zeros((1, 12))  # 12 features as per the dataset
     
-    # Calculate DTI log
-    df['DTI_log'] = np.log1p(df['loan_amount_log'] / df['applicant_income_log'])
-    
-    # Initialize array with 102 features (as expected by the models)
-    transformed_features = np.zeros((1, 102))
-    
-    # Map continuous variables
-    continuous_mapping = {
-        'applicant_income_log': 0,
-        'loan_amount_log': 1,
-        'loan_amount_term_log': 2,
-        'DTI_log': 3
+    # Map the features in the exact order they appear in the model
+    feature_mapping = {
+        'gender': 0,                    # Gender
+        'married': 1,                   # Married
+        'dependents': 2,                # Dependents
+        'education': 3,                 # Education
+        'self_employed': 4,             # Self_Employed
+        'credit_history': 5,            # Credit_History
+        'property_area': 6,             # Property_Area
+        'applicant_income_log': 7,      # ApplicantIncomeLog
+        'loan_to_income_ratio_log': 8,  # Loan_to_Income_RatioLog
+        'loan_amount_log': 9,           # LoanAmountLog
+        'loan_amount_term_log': 10,     # Monthly_Loan_Amount_TermLog
+        'dti_log': 11                   # DTI_Log
     }
     
-    # Map categorical variables
-    categorical_mapping = {
-        'gender_0': 4, 'gender_1': 5,
-        'married_0': 6, 'married_1': 7,
-        'education_0': 8, 'education_1': 9,
-        'self_employed_0': 10, 'self_employed_1': 11,
-        'property_area_0': 12, 'property_area_1': 13
-    }
+    # Calculate derived features
+    df['loan_to_income_ratio_log'] = np.log1p(df['loan_amount_log'] / df['applicant_income_log'])
+    df['dti_log'] = df['loan_to_income_ratio_log']  # DTI is same as Loan to Income ratio
     
-    # Fill in continuous variables
-    for col, idx in continuous_mapping.items():
+    # Fill in all features
+    for col, idx in feature_mapping.items():
         if col in df.columns:
             transformed_features[0, idx] = df[col].values[0]
-    
-    # Fill in categorical variables
-    for col, idx in categorical_mapping.items():
-        if col in df.columns:
-            transformed_features[0, idx] = df[col].values[0]
-    
-    # Fill in dependents (one-hot encoded)
-    dependents = df['dependents'].values[0]
-    if dependents == 0:
-        transformed_features[0, 14] = 1
-    elif dependents == 1:
-        transformed_features[0, 15] = 1
-    elif dependents == 2:
-        transformed_features[0, 16] = 1
-    else:  # 3+
-        transformed_features[0, 17] = 1
-    
-    # Fill in credit history
-    transformed_features[0, 18] = df['credit_history'].values[0]
     
     return transformed_features
 
@@ -162,12 +136,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Create a mapping for user-friendly labels
-gender_options = {'M': 1, 'F': 0}
-marital_status_options = {'Married': 1, 'Single': 0}
-education_options = {'College Graduate': 1, 'High School Graduate': 0}
-employment_status_options = {'Yes': 1, 'No': 0}
-credit_history_options = {'Good': 1, 'Bad': 0}
-property_area_options = {'Urban': 1, 'Rural': 0}
+gender_options = {'M': 1, 'F': 0}  # Gender
+marital_status_options = {'Married': 1, 'Single': 0}  # Married
+education_options = {'College Graduate': 1, 'High School Graduate': 0}  # Education
+employment_status_options = {'Yes': 1, 'No': 0}  # Self_Employed
+credit_history_options = {'Good': 1, 'Bad': 0}  # Credit_History
+property_area_options = {'Y': 1, 'N': 0}  # Property_Area
 
 # Create two columns for the input form with adjusted ratio
 col1, col2 = st.columns([1, 1])
@@ -175,32 +149,32 @@ col1, col2 = st.columns([1, 1])
 # Personal information
 with col1:
     st.subheader("Personal Information")
-    Gender = st.selectbox("Customer_Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
+    Gender = st.selectbox("Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
     Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0, key="married")
     dependents_options = [0, 1, 2, "3+"]
     Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0, key="dependents")
     Education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0, key="education")
     
     st.subheader("Property Information")
-    property_area = st.selectbox("Property_Loan_Stat:", options=[""] + list(property_area_options.keys()), index=0, key="property_area")
+    property_area = st.selectbox("Property Area:", options=[""] + list(property_area_options.keys()), index=0, key="property_area")
 
 # Financial information
 with col2:
     st.subheader("Financial Information")
-    self_employed = st.selectbox("Self_Employed:", options=[""] + list(employment_status_options.keys()), index=0)
-    credit_history = st.selectbox("Credit_His:", options=[""] + list(credit_history_options.keys()), index=0)
-    applicant_income_log = st.number_input("Monthly_i:", min_value=0.0, value=None, step=1000.0)
+    self_employed = st.selectbox("Self Employed:", options=[""] + list(employment_status_options.keys()), index=0)
+    credit_history = st.selectbox("Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
+    applicant_income_log = st.number_input("Monthly Income:", min_value=0.0, value=None, step=1000.0)
 
 # Loan details
 st.subheader("Loan Details")
-st.write("**ApplicantLoanAmot:**")
+st.write("**Loan Amount:**")
 loan_amount_log = st.number_input("", 
                            min_value=1000.0, 
                            max_value=1000000.0, 
                            value=100000.0,
                            format="%f")
 
-st.write("**Enter Loan Amount Term (in Months):**")
+st.write("**Loan Term (in Months):**")
 loan_amount_term_log = st.slider("", 
                                 min_value=1.0, 
                                 max_value=360.0, 
