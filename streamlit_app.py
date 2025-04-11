@@ -377,7 +377,6 @@ if submit_button:
             
         st.markdown('</div>', unsafe_allow_html=True)
         
-print("hello")
 
 # Add space at the bottom
 st.markdown("<br><br><br>", unsafe_allow_html=True)
