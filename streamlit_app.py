@@ -74,7 +74,7 @@ def transform_features_for_models(df):
     
     return transformed_features
 
-# Construct the relative paths
+# Construct the relative paths1
 rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
 xgb_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
 
@@ -269,6 +269,11 @@ if submit_button:
         'loan_amount_term_log': np.log1p(loan_amount_term_log)
     }
 
+    # Calculate DTI ratio
+    monthly_income = applicant_income_log
+    monthly_loan_payment = loan_amount_log / loan_amount_term_log
+    dti_ratio = (monthly_loan_payment / monthly_income) * 100  # Convert to percentage
+
     # Summary card with collected data
     st.markdown('<div class="card highlight">', unsafe_allow_html=True)
     st.subheader("Loan Application Summary")
@@ -288,9 +293,11 @@ if submit_button:
         st.write("**Financial Details:**")
         st.write(f"• Credit History: {credit_history}")
         st.write(f"• Property Area: {property_area}")
-        st.write(f"• Monthly Income: ₱{applicant_income_log:,.2f}")
+        st.write(f"• Monthly Income: ₱{monthly_income:,.2f}")
         st.write(f"• Loan Amount: ₱{loan_amount_log:,.2f}")
         st.write(f"• Loan Term: {loan_amount_term_log} months")
+        st.write(f"• Monthly Payment: ₱{monthly_loan_payment:,.2f}")
+        st.write(f"• Debt-to-Income Ratio: {dti_ratio:.1f}%")
     
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -327,7 +334,7 @@ if submit_button:
         res_col1, res_col2 = st.columns([3, 2])
         
         with res_col1:
-            threshold = 0.5  # Define your threshold
+            threshold = 0.7  # Define your threshold
             
             if prediction == 1:
                 st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
@@ -382,6 +389,7 @@ if submit_button:
             
         st.markdown('</div>', unsafe_allow_html=True)
         
+print("hello")
 
 # Add space at the bottom
 st.markdown("<br><br><br>", unsafe_allow_html=True)
