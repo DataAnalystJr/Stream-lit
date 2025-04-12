@@ -327,7 +327,7 @@ if submit_button:
         res_col1, res_col2 = st.columns([3, 2])
         
         with res_col1:
-            threshold = 0.7  # Define your threshold
+            threshold = 0.5  # Define your threshold
             
             if prediction == 1:
                 st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
@@ -382,7 +382,6 @@ if submit_button:
             
         st.markdown('</div>', unsafe_allow_html=True)
         
-print("hello")
 
 # Add space at the bottom
 st.markdown("<br><br><br>", unsafe_allow_html=True)
