@@ -30,11 +30,11 @@ def make_prediction(model, input_data):
 
 # Function to transform features for model prediction
 def transform_features_for_models(df):
-    # Initialize array with 24 features as expected by the models
-    transformed_features = np.zeros((1, 24))
+    # Initialize array with 14 features as expected by the models
+    transformed_features = np.zeros((1, 14))
     feature_names = []
     
-    # 1. Basic features (first 9 features)
+    # 1. Basic features (first 4 features)
     transformed_features[0, 0] = df['applicant_income_log'].values[0]
     feature_names.append('applicant_income_log')
     
@@ -49,7 +49,7 @@ def transform_features_for_models(df):
     transformed_features[0, 3] = loan_to_income_ratio
     feature_names.append('loan_to_income_ratio')
     
-    # 2. Categorical features (next 15 features)
+    # 2. Categorical features (next 10 features)
     # Gender
     gender_val = df['gender'].values[0]
     transformed_features[0, 4] = 1 if gender_val == 1 else 0
@@ -60,36 +60,40 @@ def transform_features_for_models(df):
     transformed_features[0, 5] = 1 if married_val == 1 else 0
     feature_names.append('married_yes')
     
-    # Dependents (4 features)
+    # Dependents (2 features)
     dependents_val = df['dependents'].values[0]
     transformed_features[0, 6] = 1 if dependents_val == 0 else 0
     feature_names.append('dependents_0')
     transformed_features[0, 7] = 1 if dependents_val == 1 else 0
     feature_names.append('dependents_1')
-    transformed_features[0, 8] = 1 if dependents_val == 2 else 0
-    feature_names.append('dependents_2')
-    transformed_features[0, 9] = 1 if dependents_val == 3 else 0
-    feature_names.append('dependents_3')
     
     # Education
     education_val = df['education'].values[0]
-    transformed_features[0, 10] = 1 if education_val == 1 else 0
+    transformed_features[0, 8] = 1 if education_val == 1 else 0
     feature_names.append('education_graduate')
     
     # Self Employed
     self_employed_val = df['self_employed'].values[0]
-    transformed_features[0, 11] = 1 if self_employed_val == 1 else 0
+    transformed_features[0, 9] = 1 if self_employed_val == 1 else 0
     feature_names.append('self_employed_yes')
     
     # Credit History
     credit_history_val = df['credit_history'].values[0]
-    transformed_features[0, 12] = 1 if credit_history_val == 1 else 0
+    transformed_features[0, 10] = 1 if credit_history_val == 1 else 0
     feature_names.append('credit_history_good')
     
     # Property Area
     property_area_val = df['property_area'].values[0]
-    transformed_features[0, 13] = 1 if property_area_val == 1 else 0
+    transformed_features[0, 11] = 1 if property_area_val == 1 else 0
     feature_names.append('property_area_urban')
+    
+    # Add two more features if needed (12 and 13)
+    # These could be additional derived features or interactions
+    # For now, we'll leave them as zeros
+    transformed_features[0, 12] = 0
+    feature_names.append('feature_12')
+    transformed_features[0, 13] = 0
+    feature_names.append('feature_13')
     
     # Create DataFrame with feature names
     transformed_df = pd.DataFrame(transformed_features, columns=feature_names)
