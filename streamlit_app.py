@@ -182,8 +182,8 @@ with col1:
     st.subheader("Personal Information")
     Gender = st.selectbox("Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
     Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0, key="married")
-    dependents_options = [0, 1, 2, "3+"]
-    Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0, key="dependents")
+    dependents_options = [0, 1, 2, 3]
+    Dependents = st.selectbox("Dependents:", options=dependents_options, index=0, key="dependents")
     Education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0, key="education")
     
     st.subheader("Property Information")
