@@ -7,153 +7,72 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 import xgboost
-from functools import lru_cache
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
-
-def make_prediction(model, input_data):
-    """
-    Make prediction with the given model and input data
-    """
-    # Create DataFrame from input data
-    input_df = pd.DataFrame([input_data])
-    
-    # Transform features
-    input_df = transform_features_for_models(input_df)
-    
-    # Get prediction and probability
-    prediction = model.predict(input_df)[0]
-    probability = model.predict_proba(input_df)[0][1]
-    
-    return prediction, probability
 
 # Function to transform features for model prediction
 def transform_features_for_models(df):
     # Initialize array with 102 features as expected by the models
     transformed_features = np.zeros((1, 102))
-    feature_names = []
     
     # 1. Handle continuous variables first - apply log transformation only once
     transformed_features[0, 0] = df['applicant_income_log'].values[0]  # ApplicantIncomeLog
-    feature_names.append('applicant_income_log')
-    
     transformed_features[0, 1] = df['loan_amount_log'].values[0]  # LoanAmountLog
-    feature_names.append('loan_amount_log')
-    
     transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Monthly_Loan_Amount_TermLog
-    feature_names.append('loan_amount_term_log')
     
     # Calculate and store derived features
     loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
     transformed_features[0, 3] = loan_to_income_ratio  # Loan_to_Income_RatioLog
-    feature_names.append('loan_to_income_ratio')
-    
     transformed_features[0, 4] = loan_to_income_ratio  # DTI_Log (same as Loan_to_Income_RatioLog)
-    feature_names.append('dti_ratio')
     
     # 2. Handle categorical variables
     # Gender (2 features)
     gender_val = df['gender'].values[0]
     transformed_features[0, 5] = 1 if gender_val == 1 else 0  # Male
-    feature_names.append('gender_male')
     transformed_features[0, 6] = 1 if gender_val == 0 else 0  # Female
-    feature_names.append('gender_female')
     
     # Married (2 features)
     married_val = df['married'].values[0]
     transformed_features[0, 7] = 1 if married_val == 1 else 0  # Married
-    feature_names.append('married_yes')
     transformed_features[0, 8] = 1 if married_val == 0 else 0  # Single
-    feature_names.append('married_no')
     
     # Dependents (4 features)
     dependents_val = df['dependents'].values[0]
     transformed_features[0, 9] = 1 if dependents_val == 0 else 0   # 0 dependents
-    feature_names.append('dependents_0')
     transformed_features[0, 10] = 1 if dependents_val == 1 else 0  # 1 dependent
-    feature_names.append('dependents_1')
     transformed_features[0, 11] = 1 if dependents_val == 2 else 0  # 2 dependents
-    feature_names.append('dependents_2')
-    transformed_features[0, 12] = 1 if dependents_val == 3 else 0  # 3 dependents
-    feature_names.append('dependents_3')
+    transformed_features[0, 12] = 1 if dependents_val == "3+" else 0  # 3+ dependents
     
     # Education (2 features)
     education_val = df['education'].values[0]
     transformed_features[0, 13] = 1 if education_val == 1 else 0  # Graduate
-    feature_names.append('education_graduate')
     transformed_features[0, 14] = 1 if education_val == 0 else 0  # Not Graduate
-    feature_names.append('education_not_graduate')
     
     # Self_Employed (2 features)
     self_employed_val = df['self_employed'].values[0]
     transformed_features[0, 15] = 1 if self_employed_val == 1 else 0  # Yes
-    feature_names.append('self_employed_yes')
     transformed_features[0, 16] = 1 if self_employed_val == 0 else 0  # No
-    feature_names.append('self_employed_no')
     
     # Credit_History (2 features)
     credit_history_val = df['credit_history'].values[0]
     transformed_features[0, 17] = 1 if credit_history_val == 1 else 0  # Good
-    feature_names.append('credit_history_good')
     transformed_features[0, 18] = 1 if credit_history_val == 0 else 0  # Bad
-    feature_names.append('credit_history_bad')
     
     # Property_Area (2 features)
     property_area_val = df['property_area'].values[0]
-    transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Urban
-    feature_names.append('property_area_urban')
-    transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # Rural
-    feature_names.append('property_area_rural')
+    transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Y
+    transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # N
     
-    # Add interaction features
-    current_idx = 21
+    # Add some interaction features (indices 21-101)
+    # Income * Loan Amount interaction
+    transformed_features[0, 21] = transformed_features[0, 0] * transformed_features[0, 1]
+    # Income * Loan Term interaction
+    transformed_features[0, 22] = transformed_features[0, 0] * transformed_features[0, 2]
+    # Loan Amount * Loan Term interaction
+    transformed_features[0, 23] = transformed_features[0, 1] * transformed_features[0, 2]
     
-    # Interactions between continuous variables
-    continuous_vars = ['applicant_income_log', 'loan_amount_log', 'loan_amount_term_log']
-    for i, var1 in enumerate(continuous_vars):
-        for j, var2 in enumerate(continuous_vars[i:]):
-            transformed_features[0, current_idx] = df[var1].values[0] * df[var2].values[0]
-            feature_names.append(f'{var1}_{var2}_interaction')
-            current_idx += 1
-    
-    # Interactions between categorical variables
-    categorical_vars = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
-    for i, var1 in enumerate(categorical_vars):
-        for j, var2 in enumerate(categorical_vars[i:]):
-            transformed_features[0, current_idx] = df[var1].values[0] * df[var2].values[0]
-            feature_names.append(f'{var1}_{var2}_interaction')
-            current_idx += 1
-    
-    # Interactions between continuous and categorical variables
-    for cont_var in continuous_vars:
-        for cat_var in categorical_vars:
-            transformed_features[0, current_idx] = df[cont_var].values[0] * df[cat_var].values[0]
-            feature_names.append(f'{cont_var}_{cat_var}_interaction')
-            current_idx += 1
-    
-    # Polynomial features for continuous variables (degree 2)
-    for var in continuous_vars:
-        transformed_features[0, current_idx] = df[var].values[0] ** 2
-        feature_names.append(f'{var}_squared')
-        current_idx += 1
-    
-    # Interactions between dependents and other variables
-    for var in continuous_vars + categorical_vars:
-        transformed_features[0, current_idx] = df['dependents'].values[0] * df[var].values[0]
-        feature_names.append(f'dependents_{var}_interaction')
-        current_idx += 1
-    
-    # Fill remaining features with zeros
-    while current_idx < 102:
-        transformed_features[0, current_idx] = 0
-        feature_names.append(f'feature_{current_idx}')
-        current_idx += 1
-    
-    # Create DataFrame with feature names
-    transformed_df = pd.DataFrame(transformed_features, columns=feature_names)
-    
-    return transformed_df
+    return transformed_features
 
 # Construct the relative paths1
 rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
@@ -263,8 +182,8 @@ with col1:
     st.subheader("Personal Information")
     Gender = st.selectbox("Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
     Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0, key="married")
-    dependents_options = [0, 1, 2, 3]
-    Dependents = st.selectbox("Dependents:", options=dependents_options, index=0, key="dependents")
+    dependents_options = [0, 1, 2, "3+"]
+    Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0, key="dependents")
     Education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0, key="education")
     
     st.subheader("Property Information")
@@ -296,25 +215,18 @@ loan_amount_term_log = st.slider("",
 
 # Validation function
 def is_valid_input():
-    try:
-        # Basic validation
-        if not all([Gender != "", Married != "", Dependents is not None, Education != "", 
-                   self_employed != "", credit_history != "", property_area != ""]):
-            return False
-            
-        # Numerical validation
-        if not all([applicant_income_log is not None and applicant_income_log > 0,
-                   loan_amount_log is not None and loan_amount_log > 0,
-                   loan_amount_term_log is not None and loan_amount_term_log > 0]):
-            return False
-            
-        # Additional validation
-        if applicant_income_log == 0:
-            return False
-            
-        return True
-    except Exception:
-        return False
+    return all([
+        Gender != "", 
+        Married != "", 
+        Dependents is not None, 
+        Education != "", 
+        self_employed != "", 
+        credit_history != "", 
+        property_area != "", 
+        applicant_income_log is not None and applicant_income_log > 0, 
+        loan_amount_log is not None and loan_amount_log > 0, 
+        loan_amount_term_log is not None and loan_amount_term_log > 0
+    ])
 
 # Function to reset all fields
 def clear_fields():
@@ -395,77 +307,87 @@ if submit_button:
         "XGBoost": xgb_model
     }
 
-    with st.spinner('Making predictions...'):
-        for model_name, model in models.items():
-            try:
-                # Use the cached prediction function
-                prediction, probability = make_prediction(model, input_data)
-                
-                # Result card for each model
-                st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
-                st.subheader(f"{model_name} Model Prediction")
-                
-                # Create columns for text and visualization
-                res_col1, res_col2 = st.columns([3, 2])
-                
-                with res_col1:
-                    threshold = 0.7  # Define your threshold
-                    
-                    if prediction == 1:
-                        st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
-                        st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
-                    else:
-                        st.markdown(f"<h3 style='color: #F1C40F;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
-                        st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
+    for model_name, model in models.items():
+        # Create DataFrame from input data
+        input_df = pd.DataFrame([input_data])
+        
+        # Transform features for both models
+        try:
+            input_df = transform_features_for_models(input_df)
+        except Exception as e:
+            st.error(f"Error transforming features for {model_name} model: {str(e)}")
+            continue
+        
+        # Get prediction and probability from the current model
+        try:
+            prediction = model.predict(input_df)[0]
+            probability = model.predict_proba(input_df)[0][1]
+        except Exception as e:
+            st.error(f"Error making prediction with {model_name}: {str(e)}")
+            continue
+        
+        # Result card for each model
+        st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
+        st.subheader(f"{model_name} Model Prediction")
+        
+        # Create columns for text and visualization
+        res_col1, res_col2 = st.columns([3, 2])
+        
+        with res_col1:
+            threshold = 0.7  # Define your threshold
+            
+            if prediction == 1:
+                st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
+                st.write(f"The applicant is likely to pay the loan. (Confidence: {probability:.2f})")
+            else:
+                st.markdown(f"<h3 style='color: #F1C40F;'>❌ Approval Unlikely</h3>", unsafe_allow_html=True)
+                st.write(f"The applicant is unlikely to pay the loan. (Confidence: {1 - probability:.2f})")
 
-                    if probability > threshold:
-                        st.write(f"**Risk Assessment:** Low risk applicant (Score: {probability:.2f})")
-                    else:
-                        st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
+            if probability > threshold:
+                st.write(f"**Risk Assessment:** Low risk applicant (Score: {probability:.2f})")
+            else:
+                st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
 
-                with res_col2:
-                    # Visualization with better colors and spacing
-                    fig, ax = plt.subplots(figsize=(4, 4.5))
-                    
-                    # Add more space at the top for labels
-                    plt.subplots_adjust(top=0.8)
-                    
-                    # New color theme with blue and yellow
-                    approval_color = '#3498DB'  # Bright blue
-                    denial_color = '#F1C40F'    # Bright yellow
-                    neutral_color = '#95A5A6'   # Modern gray
-                    
-                    bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
-                           color=[approval_color if probability > 0.5 else neutral_color, 
-                                  denial_color if probability <= 0.5 else neutral_color])
-                    
-                    # Set background color to light gray
-                    fig.patch.set_facecolor('#F8F9FA')
-                    ax.set_facecolor('#F8F9FA')
-                    
-                    # Customize grid and spines
-                    ax.grid(True, linestyle='--', alpha=0.3, color='#D5D8DC')
-                    for spine in ax.spines.values():
-                        spine.set_edgecolor('#ABB2B9')
-                        spine.set_linewidth(0.5)
-                    
-                    ax.set_ylim(0, 1)
-                    ax.set_ylabel('Probability', color='#2C3E50')
-                    ax.set_title(f'{model_name} Prediction', pad=20, color='#2C3E50')
-                    
-                    # Add percentage labels with more vertical spacing
-                    for bar in bars:
-                        height = bar.get_height()
-                        ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
-                                f'{height:.1%}', ha='center', va='bottom', color='#2C3E50')
-                    
-                    st.pyplot(fig)
-                    plt.close(fig)
-                    
-                st.markdown('</div>', unsafe_allow_html=True)
-            except Exception as e:
-                st.error(f"Error making prediction with {model_name}: {str(e)}")
-                continue
+        with res_col2:
+            # Visualization with better colors and spacing
+            fig, ax = plt.subplots(figsize=(4, 4.5))
+            
+            # Add more space at the top for labels
+            plt.subplots_adjust(top=0.8)
+            
+            # New color theme with blue and yellow
+            approval_color = '#3498DB'  # Bright blue
+            denial_color = '#F1C40F'    # Bright yellow
+            neutral_color = '#95A5A6'   # Modern gray
+            
+            bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
+                   color=[approval_color if probability > 0.5 else neutral_color, 
+                          denial_color if probability <= 0.5 else neutral_color])
+            
+            # Set background color to light gray
+            fig.patch.set_facecolor('#F8F9FA')
+            ax.set_facecolor('#F8F9FA')
+            
+            # Customize grid and spines
+            ax.grid(True, linestyle='--', alpha=0.3, color='#D5D8DC')
+            for spine in ax.spines.values():
+                spine.set_edgecolor('#ABB2B9')
+                spine.set_linewidth(0.5)
+            
+            ax.set_ylim(0, 1)
+            ax.set_ylabel('Probability', color='#2C3E50')
+            ax.set_title(f'{model_name} Prediction', pad=20, color='#2C3E50')
+            
+            # Add percentage labels with more vertical spacing
+            for bar in bars:
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
+                        f'{height:.1%}', ha='center', va='bottom', color='#2C3E50')
+                
+            st.pyplot(fig)
+            plt.close(fig)
+            
+        st.markdown('</div>', unsafe_allow_html=True)
         
 print("hello")
 
@@ -473,6 +395,3 @@ print("hello")
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 # End of file
-
-if 'clear_triggered' not in st.session_state:
-    st.session_state.clear_triggered = False
