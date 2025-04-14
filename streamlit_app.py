@@ -14,127 +14,66 @@ current_dir = os.path.dirname(__file__)
 
 # Function to transform features for model prediction
 def transform_features_for_models(df):
-    # Initialize array with 102 features as expected by the models
-    transformed_features = np.zeros((1, 102))
-    
-    # Create feature names list
+    # Initialize array with 24 features as expected by the models
+    transformed_features = np.zeros((1, 24))
     feature_names = []
     
-    # 1. Handle continuous variables first - apply log transformation only once
-    transformed_features[0, 0] = df['applicant_income_log'].values[0]  # ApplicantIncomeLog
+    # 1. Basic features (first 9 features)
+    transformed_features[0, 0] = df['applicant_income_log'].values[0]
     feature_names.append('applicant_income_log')
     
-    transformed_features[0, 1] = df['loan_amount_log'].values[0]  # LoanAmountLog
+    transformed_features[0, 1] = df['loan_amount_log'].values[0]
     feature_names.append('loan_amount_log')
     
-    transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Monthly_Loan_Amount_TermLog
+    transformed_features[0, 2] = df['loan_amount_term_log'].values[0]
     feature_names.append('loan_amount_term_log')
     
-    # Calculate and store derived features
+    # Calculate DTI ratio
     loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
-    transformed_features[0, 3] = loan_to_income_ratio  # Loan_to_Income_RatioLog
+    transformed_features[0, 3] = loan_to_income_ratio
     feature_names.append('loan_to_income_ratio')
     
-    transformed_features[0, 4] = loan_to_income_ratio  # DTI_Log (same as Loan_to_Income_RatioLog)
-    feature_names.append('dti_ratio')
-    
-    # 2. Handle categorical variables
-    # Gender (2 features)
+    # 2. Categorical features (next 15 features)
+    # Gender
     gender_val = df['gender'].values[0]
-    transformed_features[0, 5] = 1 if gender_val == 1 else 0  # Male
+    transformed_features[0, 4] = 1 if gender_val == 1 else 0
     feature_names.append('gender_male')
-    transformed_features[0, 6] = 1 if gender_val == 0 else 0  # Female
-    feature_names.append('gender_female')
     
-    # Married (2 features)
+    # Married
     married_val = df['married'].values[0]
-    transformed_features[0, 7] = 1 if married_val == 1 else 0  # Married
+    transformed_features[0, 5] = 1 if married_val == 1 else 0
     feature_names.append('married_yes')
-    transformed_features[0, 8] = 1 if married_val == 0 else 0  # Single
-    feature_names.append('married_no')
     
     # Dependents (4 features)
     dependents_val = df['dependents'].values[0]
-    transformed_features[0, 9] = 1 if dependents_val == 0 else 0   # 0 dependents
+    transformed_features[0, 6] = 1 if dependents_val == 0 else 0
     feature_names.append('dependents_0')
-    transformed_features[0, 10] = 1 if dependents_val == 1 else 0  # 1 dependent
+    transformed_features[0, 7] = 1 if dependents_val == 1 else 0
     feature_names.append('dependents_1')
-    transformed_features[0, 11] = 1 if dependents_val == 2 else 0  # 2 dependents
+    transformed_features[0, 8] = 1 if dependents_val == 2 else 0
     feature_names.append('dependents_2')
-    transformed_features[0, 12] = 1 if dependents_val == 3 else 0  # 3 dependents
+    transformed_features[0, 9] = 1 if dependents_val == 3 else 0
     feature_names.append('dependents_3')
     
-    # Education (2 features)
+    # Education
     education_val = df['education'].values[0]
-    transformed_features[0, 13] = 1 if education_val == 1 else 0  # Graduate
+    transformed_features[0, 10] = 1 if education_val == 1 else 0
     feature_names.append('education_graduate')
-    transformed_features[0, 14] = 1 if education_val == 0 else 0  # Not Graduate
-    feature_names.append('education_not_graduate')
     
-    # Self_Employed (2 features)
+    # Self Employed
     self_employed_val = df['self_employed'].values[0]
-    transformed_features[0, 15] = 1 if self_employed_val == 1 else 0  # Yes
+    transformed_features[0, 11] = 1 if self_employed_val == 1 else 0
     feature_names.append('self_employed_yes')
-    transformed_features[0, 16] = 1 if self_employed_val == 0 else 0  # No
-    feature_names.append('self_employed_no')
     
-    # Credit_History (2 features)
+    # Credit History
     credit_history_val = df['credit_history'].values[0]
-    transformed_features[0, 17] = 1 if credit_history_val == 1 else 0  # Good
+    transformed_features[0, 12] = 1 if credit_history_val == 1 else 0
     feature_names.append('credit_history_good')
-    transformed_features[0, 18] = 1 if credit_history_val == 0 else 0  # Bad
-    feature_names.append('credit_history_bad')
     
-    # Property_Area (2 features)
+    # Property Area
     property_area_val = df['property_area'].values[0]
-    transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Urban
+    transformed_features[0, 13] = 1 if property_area_val == 1 else 0
     feature_names.append('property_area_urban')
-    transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # Rural
-    feature_names.append('property_area_rural')
-    
-    # Add interaction features
-    current_idx = 21
-    
-    # Interactions between continuous variables
-    continuous_vars = ['applicant_income_log', 'loan_amount_log', 'loan_amount_term_log']
-    for i, var1 in enumerate(continuous_vars):
-        for j, var2 in enumerate(continuous_vars[i:]):
-            transformed_features[0, current_idx] = df[var1].values[0] * df[var2].values[0]
-            feature_names.append(f'{var1}_{var2}_interaction')
-            current_idx += 1
-    
-    # Interactions between categorical variables
-    categorical_vars = ['gender', 'married', 'education', 'self_employed', 'credit_history', 'property_area']
-    for i, var1 in enumerate(categorical_vars):
-        for j, var2 in enumerate(categorical_vars[i:]):
-            transformed_features[0, current_idx] = df[var1].values[0] * df[var2].values[0]
-            feature_names.append(f'{var1}_{var2}_interaction')
-            current_idx += 1
-    
-    # Interactions between continuous and categorical variables
-    for cont_var in continuous_vars:
-        for cat_var in categorical_vars:
-            transformed_features[0, current_idx] = df[cont_var].values[0] * df[cat_var].values[0]
-            feature_names.append(f'{cont_var}_{cat_var}_interaction')
-            current_idx += 1
-    
-    # Polynomial features for continuous variables (degree 2)
-    for var in continuous_vars:
-        transformed_features[0, current_idx] = df[var].values[0] ** 2
-        feature_names.append(f'{var}_squared')
-        current_idx += 1
-    
-    # Interactions between dependents and other variables
-    for var in continuous_vars + categorical_vars:
-        transformed_features[0, current_idx] = df['dependents'].values[0] * df[var].values[0]
-        feature_names.append(f'dependents_{var}_interaction')
-        current_idx += 1
-    
-    # Fill remaining features with zeros
-    while current_idx < 102:
-        transformed_features[0, current_idx] = 0
-        feature_names.append(f'feature_{current_idx}')
-        current_idx += 1
     
     # Create DataFrame with feature names
     transformed_df = pd.DataFrame(transformed_features, columns=feature_names)
