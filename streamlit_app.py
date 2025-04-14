@@ -12,6 +12,23 @@ from functools import lru_cache
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
+@st.cache_data  # This is Streamlit's built-in caching decorator
+def make_prediction(model, input_data):
+    """
+    Cache the prediction results for the same input data
+    """
+    # Create DataFrame from input data
+    input_df = pd.DataFrame([input_data])
+    
+    # Transform features
+    input_df = transform_features_for_models(input_df)
+    
+    # Get prediction and probability
+    prediction = model.predict(input_df)[0]
+    probability = model.predict_proba(input_df)[0][1]
+    
+    return prediction, probability
+
 # Function to transform features for model prediction
 def transform_features_for_models(df):
     # Initialize array with 24 features as expected by the models
@@ -401,20 +418,3 @@ st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 if 'clear_triggered' not in st.session_state:
     st.session_state.clear_triggered = False
-
-@st.cache_data  # This is Streamlit's built-in caching decorator
-def make_prediction(model, input_data):
-    """
-    Cache the prediction results for the same input data
-    """
-    # Create DataFrame from input data
-    input_df = pd.DataFrame([input_data])
-    
-    # Transform features
-    input_df = transform_features_for_models(input_df)
-    
-    # Get prediction and probability
-    prediction = model.predict(input_df)[0]
-    probability = model.predict_proba(input_df)[0][1]
-    
-    return prediction, probability
