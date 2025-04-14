@@ -12,10 +12,9 @@ from functools import lru_cache
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
-@st.cache_data  # This is Streamlit's built-in caching decorator
 def make_prediction(model, input_data):
     """
-    Cache the prediction results for the same input data
+    Make prediction with the given model and input data
     """
     # Create DataFrame from input data
     input_df = pd.DataFrame([input_data])
