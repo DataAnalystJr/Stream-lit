@@ -16,63 +16,98 @@ def transform_features_for_models(df):
     # Initialize array with 102 features as expected by the models
     transformed_features = np.zeros((1, 102))
     
+    # Create feature names
+    feature_names = []
+    
     # 1. Handle continuous variables first - apply log transformation only once
     transformed_features[0, 0] = df['applicant_income_log'].values[0]  # ApplicantIncomeLog
+    feature_names.append('applicant_income_log')
+    
     transformed_features[0, 1] = df['loan_amount_log'].values[0]  # LoanAmountLog
+    feature_names.append('loan_amount_log')
+    
     transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Monthly_Loan_Amount_TermLog
+    feature_names.append('loan_amount_term_log')
     
     # Calculate and store derived features
     loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
     transformed_features[0, 3] = loan_to_income_ratio  # Loan_to_Income_RatioLog
+    feature_names.append('loan_to_income_ratio')
+    
     transformed_features[0, 4] = loan_to_income_ratio  # DTI_Log (same as Loan_to_Income_RatioLog)
+    feature_names.append('dti_ratio')
     
     # 2. Handle categorical variables
     # Gender (2 features)
     gender_val = df['gender'].values[0]
     transformed_features[0, 5] = 1 if gender_val == 1 else 0  # Male
+    feature_names.append('gender_male')
     transformed_features[0, 6] = 1 if gender_val == 0 else 0  # Female
+    feature_names.append('gender_female')
     
     # Married (2 features)
     married_val = df['married'].values[0]
     transformed_features[0, 7] = 1 if married_val == 1 else 0  # Married
+    feature_names.append('married_yes')
     transformed_features[0, 8] = 1 if married_val == 0 else 0  # Single
+    feature_names.append('married_no')
     
     # Dependents (4 features)
     dependents_val = df['dependents'].values[0]
     transformed_features[0, 9] = 1 if dependents_val == 0 else 0   # 0 dependents
+    feature_names.append('dependents_0')
     transformed_features[0, 10] = 1 if dependents_val == 1 else 0  # 1 dependent
+    feature_names.append('dependents_1')
     transformed_features[0, 11] = 1 if dependents_val == 2 else 0  # 2 dependents
-    transformed_features[0, 12] = 1 if dependents_val == "3+" else 0  # 3+ dependents
+    feature_names.append('dependents_2')
+    transformed_features[0, 12] = 1 if dependents_val == 3 else 0  # 3 dependents
+    feature_names.append('dependents_3')
     
     # Education (2 features)
     education_val = df['education'].values[0]
     transformed_features[0, 13] = 1 if education_val == 1 else 0  # Graduate
+    feature_names.append('education_graduate')
     transformed_features[0, 14] = 1 if education_val == 0 else 0  # Not Graduate
+    feature_names.append('education_not_graduate')
     
     # Self_Employed (2 features)
     self_employed_val = df['self_employed'].values[0]
     transformed_features[0, 15] = 1 if self_employed_val == 1 else 0  # Yes
+    feature_names.append('self_employed_yes')
     transformed_features[0, 16] = 1 if self_employed_val == 0 else 0  # No
+    feature_names.append('self_employed_no')
     
     # Credit_History (2 features)
     credit_history_val = df['credit_history'].values[0]
     transformed_features[0, 17] = 1 if credit_history_val == 1 else 0  # Good
+    feature_names.append('credit_history_good')
     transformed_features[0, 18] = 1 if credit_history_val == 0 else 0  # Bad
+    feature_names.append('credit_history_bad')
     
     # Property_Area (2 features)
     property_area_val = df['property_area'].values[0]
     transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Y
+    feature_names.append('property_area_urban')
     transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # N
+    feature_names.append('property_area_rural')
     
     # Add some interaction features (indices 21-101)
     # Income * Loan Amount interaction
     transformed_features[0, 21] = transformed_features[0, 0] * transformed_features[0, 1]
+    feature_names.append('income_loan_interaction')
+    
     # Income * Loan Term interaction
     transformed_features[0, 22] = transformed_features[0, 0] * transformed_features[0, 2]
+    feature_names.append('income_term_interaction')
+    
     # Loan Amount * Loan Term interaction
     transformed_features[0, 23] = transformed_features[0, 1] * transformed_features[0, 2]
+    feature_names.append('loan_term_interaction')
     
-    return transformed_features
+    # Create DataFrame with feature names
+    transformed_df = pd.DataFrame(transformed_features, columns=feature_names)
+    
+    return transformed_df
 
 # Construct the relative paths1
 rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
