@@ -303,8 +303,7 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Random Forest": rf_model,
-        "XGBoost": xgb_model
+        "Random Forest": rf_model
     }
 
     for model_name, model in models.items():
