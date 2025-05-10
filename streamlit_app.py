@@ -16,63 +16,77 @@ def transform_features_for_models(df):
     # Initialize array with 20 features as expected by the decision tree model
     transformed_features = np.zeros((1, 20))
     
-    # 1. Handle continuous variables
-    transformed_features[0, 0] = df['applicant_income_log'].values[0]  # ApplicantIncomeLog
-    transformed_features[0, 1] = df['loan_amount_log'].values[0]  # LoanAmountLog
-    transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Monthly_Loan_Amount_TermLog
-    
-    # Calculate and store derived features
-    loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
-    transformed_features[0, 3] = loan_to_income_ratio  # Loan_to_Income_RatioLog
+    # 1. Handle continuous variables with log transformation
+    transformed_features[0, 0] = df['applicant_income_log'].values[0]  # Log of Applicant Income
+    transformed_features[0, 1] = df['loan_amount_log'].values[0]  # Log of Loan Amount
+    transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Log of Loan Term
     
     # 2. Handle categorical variables
     # Gender (1 feature)
     gender_val = df['gender'].values[0]
-    transformed_features[0, 4] = gender_val  # Gender (0 or 1)
+    transformed_features[0, 3] = 1 if gender_val == 1 else 0  # 1 for Male, 0 for Female
     
     # Married (1 feature)
     married_val = df['married'].values[0]
-    transformed_features[0, 5] = married_val  # Married (0 or 1)
+    transformed_features[0, 4] = 1 if married_val == 1 else 0  # 1 for Married, 0 for Single
     
     # Dependents (1 feature)
     dependents_val = df['dependents'].values[0]
     if dependents_val == "3+":
         dependents_val = 3
-    transformed_features[0, 6] = float(dependents_val)  # Dependents (0, 1, 2, or 3)
+    transformed_features[0, 5] = float(dependents_val)  # 0, 1, 2, or 3
     
     # Education (1 feature)
     education_val = df['education'].values[0]
-    transformed_features[0, 7] = education_val  # Education (0 or 1)
+    transformed_features[0, 6] = 1 if education_val == 1 else 0  # 1 for Graduate, 0 for Not Graduate
     
     # Self_Employed (1 feature)
     self_employed_val = df['self_employed'].values[0]
-    transformed_features[0, 8] = self_employed_val  # Self_Employed (0 or 1)
+    transformed_features[0, 7] = 1 if self_employed_val == 1 else 0  # 1 for Yes, 0 for No
     
     # Credit_History (1 feature)
     credit_history_val = df['credit_history'].values[0]
-    transformed_features[0, 9] = credit_history_val  # Credit_History (0 or 1)
+    transformed_features[0, 8] = 1 if credit_history_val == 1 else 0  # 1 for Good, 0 for Bad
     
     # Property_Area (1 feature)
     property_area_val = df['property_area'].values[0]
-    transformed_features[0, 10] = property_area_val  # Property_Area (0 or 1)
+    transformed_features[0, 9] = 1 if property_area_val == 1 else 0  # 1 for Urban, 0 for Rural/Semiurban
     
-    # Add some interaction features
-    # Income * Loan Amount interaction
-    transformed_features[0, 11] = transformed_features[0, 0] * transformed_features[0, 1]
-    # Income * Loan Term interaction
-    transformed_features[0, 12] = transformed_features[0, 0] * transformed_features[0, 2]
-    # Loan Amount * Loan Term interaction
-    transformed_features[0, 13] = transformed_features[0, 1] * transformed_features[0, 2]
+    # 3. Calculate derived features
+    # Loan to Income Ratio
+    loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
+    transformed_features[0, 10] = loan_to_income_ratio
     
-    # Add some polynomial features
-    transformed_features[0, 14] = transformed_features[0, 0] ** 2  # Income squared
-    transformed_features[0, 15] = transformed_features[0, 1] ** 2  # Loan amount squared
-    transformed_features[0, 16] = transformed_features[0, 2] ** 2  # Loan term squared
+    # Monthly Payment
+    monthly_payment = df['loan_amount_log'].values[0] / df['loan_amount_term_log'].values[0]
+    transformed_features[0, 11] = monthly_payment
     
-    # Add some ratio features
-    transformed_features[0, 17] = transformed_features[0, 0] / transformed_features[0, 2]  # Income per month
-    transformed_features[0, 18] = transformed_features[0, 1] / transformed_features[0, 2]  # Monthly payment
-    transformed_features[0, 19] = transformed_features[0, 3] * 100  # DTI ratio as percentage
+    # Income per Month
+    income_per_month = df['applicant_income_log'].values[0] / 12
+    transformed_features[0, 12] = income_per_month
+    
+    # 4. Interaction Features
+    # Income * Loan Amount
+    transformed_features[0, 13] = transformed_features[0, 0] * transformed_features[0, 1]
+    
+    # Income * Loan Term
+    transformed_features[0, 14] = transformed_features[0, 0] * transformed_features[0, 2]
+    
+    # Loan Amount * Loan Term
+    transformed_features[0, 15] = transformed_features[0, 1] * transformed_features[0, 2]
+    
+    # 5. Polynomial Features
+    # Income squared
+    transformed_features[0, 16] = transformed_features[0, 0] ** 2
+    
+    # Loan amount squared
+    transformed_features[0, 17] = transformed_features[0, 1] ** 2
+    
+    # Loan term squared
+    transformed_features[0, 18] = transformed_features[0, 2] ** 2
+    
+    # 6. DTI Ratio
+    transformed_features[0, 19] = (monthly_payment / income_per_month) * 100  # DTI ratio as percentage
     
     return transformed_features
 
@@ -174,7 +188,7 @@ marital_status_options = {'Married': 1, 'Single': 0}  # Married
 education_options = {'College Graduate': 1, 'High School Graduate': 0}  # Education
 employment_status_options = {'Yes': 1, 'No': 0}  # Self_Employed
 credit_history_options = {'Good': 1, 'Bad': 0}  # Credit_History
-property_area_options = {'Urban': 1, 'Rural': 0}  # Property_Area
+property_area_options = {'Urban': 1, 'Rural': 0, 'Semiurban': 0}  # Property_Area
 
 # Create two columns for the input form with adjusted ratio
 col1, col2 = st.columns([1, 1])
@@ -196,24 +210,24 @@ with col2:
     st.subheader("Financial Information")
     self_employed = st.selectbox("Self Employed:", options=[""] + list(employment_status_options.keys()), index=0)
     credit_history = st.selectbox("Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
-    applicant_income_log = st.number_input("Monthly Income:", min_value=0.0, value=None, step=1000.0)
+    applicant_income = st.number_input("Monthly Income:", min_value=0.0, value=None, step=1000.0)
 
 # Loan details
 st.subheader("Loan Details")
 st.write("**Loan Amount:**")
-loan_amount_log = st.number_input("", 
-                           min_value=1000.0, 
-                           max_value=1000000.0, 
-                           value=100000.0,
-                           format="%f")
+loan_amount = st.number_input("", 
+                       min_value=1000.0, 
+                       max_value=1000000.0, 
+                       value=100000.0,
+                       format="%f")
 
 st.write("**Loan Term (in Months):**")
-loan_amount_term_log = st.slider("", 
-                                min_value=1.0, 
-                                max_value=160.0, 
-                                value=60.0, 
-                                step=1.0,
-                                format="%d months")
+loan_amount_term = st.slider("", 
+                            min_value=1.0, 
+                            max_value=160.0, 
+                            value=60.0, 
+                            step=1.0,
+                            format="%d months")
 
 # Validation function
 def is_valid_input():
@@ -225,17 +239,17 @@ def is_valid_input():
         self_employed != "", 
         credit_history != "", 
         property_area != "", 
-        applicant_income_log is not None and applicant_income_log > 0, 
-        loan_amount_log is not None and loan_amount_log > 0, 
-        loan_amount_term_log is not None and loan_amount_term_log > 0
+        applicant_income is not None and applicant_income > 0, 
+        loan_amount is not None and loan_amount > 0, 
+        loan_amount_term is not None and loan_amount_term > 0
     ])
 
 # Function to reset all fields
 def clear_fields():
     # Reset all session state variables to default values
     for key in ["gender", "married", "dependents", "education", "self_employed", 
-                "credit_history", "property_area", "applicant_income_log", 
-                "loan_amount_log", "loan_amount_term_log"]:
+                "credit_history", "property_area", "applicant_income", 
+                "loan_amount", "loan_amount_term"]:
         if key in st.session_state:
             st.session_state[key] = ""
     
@@ -266,14 +280,14 @@ if submit_button:
         'self_employed': employment_status_options[self_employed],
         'credit_history': credit_history_options[credit_history],
         'property_area': property_area_options[property_area],
-        'applicant_income_log': np.log1p(applicant_income_log),
-        'loan_amount_log': np.log1p(loan_amount_log),
-        'loan_amount_term_log': np.log1p(loan_amount_term_log)
+        'applicant_income_log': np.log1p(applicant_income),
+        'loan_amount_log': np.log1p(loan_amount),
+        'loan_amount_term_log': np.log1p(loan_amount_term)
     }
 
     # Calculate DTI ratio
-    monthly_income = applicant_income_log
-    monthly_loan_payment = loan_amount_log / loan_amount_term_log
+    monthly_income = applicant_income
+    monthly_loan_payment = loan_amount / loan_amount_term
     dti_ratio = (monthly_loan_payment / monthly_income) * 100  # Convert to percentage
 
     # Summary card with collected data
@@ -296,8 +310,8 @@ if submit_button:
         st.write(f"• Credit History: {credit_history}")
         st.write(f"• Property Area: {property_area}")
         st.write(f"• Monthly Income: ₱{monthly_income:,.2f}")
-        st.write(f"• Loan Amount: ₱{loan_amount_log:,.2f}")
-        st.write(f"• Loan Term: {loan_amount_term_log} months")
+        st.write(f"• Loan Amount: ₱{loan_amount:,.2f}")
+        st.write(f"• Loan Term: {loan_amount_term} months")
         st.write(f"• Monthly Payment: ₱{monthly_loan_payment:,.2f}")
         st.write(f"• Debt-to-Income Ratio: {dti_ratio:.1f}%")
     
