@@ -50,7 +50,7 @@ def transform_features_for_models(df):
     
     # Property_Area (1 feature)
     property_area_val = df['property_area'].values[0]
-    transformed_features[0, 9] = 1 if property_area_val == 1 else 0  # 1 for Urban, 0 for Rural/Semiurban
+    transformed_features[0, 9] = 1 if property_area_val == 1 else 0  # 1 for Urban, 0 for Rural
     
     # 3. Calculate derived features
     # Loan to Income Ratio
@@ -188,7 +188,7 @@ marital_status_options = {'Married': 1, 'Single': 0}  # Married
 education_options = {'College Graduate': 1, 'High School Graduate': 0}  # Education
 employment_status_options = {'Yes': 1, 'No': 0}  # Self_Employed
 credit_history_options = {'Good': 1, 'Bad': 0}  # Credit_History
-property_area_options = {'Urban': 1, 'Rural': 0, 'Semiurban': 0}  # Property_Area
+property_area_options = {'Urban': 1, 'Rural': 0}  # Property_Area (Rural includes both Rural and Semiurban)
 
 # Create two columns for the input form with adjusted ratio
 col1, col2 = st.columns([1, 1])
@@ -410,3 +410,34 @@ print("hello")
 st.markdown("<br><br><br>", unsafe_allow_html=True)
 
 # End of file
+
+def main():
+    st.title("Loan Approval Prediction")
+    
+    # Test case from dataset row 2
+    test_data = {
+        'Gender': 'M',
+        'Married': 'Married',
+        'Dependents': '0',
+        'Education': 'College Graduate',
+        'Self_Employed': 'Yes',
+        'ApplicantIncome': 60000,
+        'LoanAmount': 211881,
+        'Loan_Amount_Term': 24,
+        'Credit_History': 0,
+        'Property_Area': 'Rural'
+    }
+    
+    # Transform test data
+    test_features = transform_features_for_models(test_data)
+    
+    # Make prediction
+    prediction = make_prediction(test_features)
+    
+    st.write("Test Case from Dataset Row 2:")
+    st.write(f"Input Data: {test_data}")
+    st.write(f"Model Prediction: {prediction}")
+    st.write(f"Actual Dataset Value: Y")
+    
+    # Original input form
+    st.subheader("Enter Loan Application Details")
