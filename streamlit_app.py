@@ -1,349 +1,215 @@
-import subprocess
-import sys
 import streamlit as st
 import pandas as pd
-import joblib
-import matplotlib.pyplot as plt
-import os
 import numpy as np
-import xgboost
+import matplotlib.pyplot as plt
+from joblib import load
+import os
 
-# Get the current directory of the script
-current_dir = os.path.dirname(__file__)
+# Set page configuration
+st.set_page_config(
+    page_title="Loan Approval Prediction",
+    page_icon="💰",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# Function to transform features for model prediction
-def transform_features_for_models(df):
-    # Initialize array with 20 features as expected by the decision tree model
-    transformed_features = np.zeros((1, 20))
-    
-    # 1. Handle continuous variables with log transformation
-    transformed_features[0, 0] = df['applicant_income_log'].values[0]  # Log of Applicant Income
-    transformed_features[0, 1] = df['loan_amount_log'].values[0]  # Log of Loan Amount
-    transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Log of Loan Term
-    
-    # 2. Handle categorical variables
-    # Gender (1 feature)
-    gender_val = df['gender'].values[0]
-    transformed_features[0, 3] = 1 if gender_val == 1 else 0  # 1 for Male, 0 for Female
-    
-    # Married (1 feature)
-    married_val = df['married'].values[0]
-    transformed_features[0, 4] = 1 if married_val == 1 else 0  # 1 for Married, 0 for Single
-    
-    # Dependents (1 feature)
-    dependents_val = df['dependents'].values[0]
-    if dependents_val == "3+":
-        dependents_val = 3
-    transformed_features[0, 5] = float(dependents_val)  # 0, 1, 2, or 3
-    
-    # Education (1 feature)
-    education_val = df['education'].values[0]
-    transformed_features[0, 6] = 1 if education_val == 1 else 0  # 1 for Graduate, 0 for Not Graduate
-    
-    # Self_Employed (1 feature)
-    self_employed_val = df['self_employed'].values[0]
-    transformed_features[0, 7] = 1 if self_employed_val == 1 else 0  # 1 for Yes, 0 for No
-    
-    # Credit_History (1 feature)
-    credit_history_val = df['credit_history'].values[0]
-    transformed_features[0, 8] = 1 if credit_history_val == 1 else 0  # 1 for Good, 0 for Bad
-    
-    # Property_Area (1 feature)
-    property_area_val = df['property_area'].values[0]
-    transformed_features[0, 9] = 1 if property_area_val == 1 else 0  # 1 for Urban, 0 for Rural
-    
-    # 3. Calculate derived features
-    # Loan to Income Ratio
-    loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
-    transformed_features[0, 10] = loan_to_income_ratio
-    
-    # Monthly Payment
-    monthly_payment = df['loan_amount_log'].values[0] / df['loan_amount_term_log'].values[0]
-    transformed_features[0, 11] = monthly_payment
-    
-    # Income per Month
-    income_per_month = df['applicant_income_log'].values[0] / 12
-    transformed_features[0, 12] = income_per_month
-    
-    # 4. Interaction Features
-    # Income * Loan Amount
-    transformed_features[0, 13] = transformed_features[0, 0] * transformed_features[0, 1]
-    
-    # Income * Loan Term
-    transformed_features[0, 14] = transformed_features[0, 0] * transformed_features[0, 2]
-    
-    # Loan Amount * Loan Term
-    transformed_features[0, 15] = transformed_features[0, 1] * transformed_features[0, 2]
-    
-    # 5. Polynomial Features
-    # Income squared
-    transformed_features[0, 16] = transformed_features[0, 0] ** 2
-    
-    # Loan amount squared
-    transformed_features[0, 17] = transformed_features[0, 1] ** 2
-    
-    # Loan term squared
-    transformed_features[0, 18] = transformed_features[0, 2] ** 2
-    
-    # 6. DTI Ratio
-    transformed_features[0, 19] = (monthly_payment / income_per_month) * 100  # DTI ratio as percentage
-    
-    return transformed_features
+# Load the model
+model_path = os.path.join('SWIFT', 'Models', 'decision_tree_smote_model.joblib')
+dt_model = load(model_path)
 
-# Construct the relative paths1
-dt_path = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_smote_model.joblib')
-xgb_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
+# Define options for categorical variables
+gender_options = {"Male": 1, "Female": 0}
+marital_status_options = {"Married": 1, "Single": 0}
+education_options = {"College Graduate": 1, "High School Graduate": 0}
+employment_status_options = {"Yes": 1, "No": 0}
+credit_history_options = {"Yes": 1, "No": 0}
+property_area_options = {"Urban": 1, "Rural": 0}
 
-# Load the models silently without success messages
-dt_model = joblib.load(dt_path)
-xgb_model = joblib.load(xgb_path)
-
-# Center the title with a border using HTML and CSS
-st.markdown("""
-    <style>
-    .title-container {
-        padding: 2rem 1rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, #202020, #202020);
-        border-radius: 15px;
-        border: 2px solid #585858;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .card {
-        background-color: transparent;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .result-card {
-        background-color: transparent;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .loan-slider-container {
-        background-color: transparent;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-    }
-    div[data-testid="stHorizontalBlock"] {
-        gap: 2rem !important;
-        padding: 0;
-    }
-    div[data-testid="column"] {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    div[class*="stMarkdown"] {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    .block-container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
-        max-width: 64rem !important;
-    }
-    section[data-testid="stSidebar"] {
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    div[class*="stVerticalBlock"] {
-        gap: 0 !important;
-        padding: 0 !important;
-    }
-    .main > .block-container {
-        max-width: 64rem;
-        padding-left: 2rem;
-        padding-right: 2rem;
-        margin: 0 auto;
-    }
-    /* New background color styles */
-    .stApp {
-        background-color: #EBE8DB;
-    }
-    .stApp > header {
-        background-color: #EBE8DB;
-    }
-    .stApp > div {
-        background-color: #EBE8DB;
-    }
-    .stApp > div > div {
-        background-color: #EBE8DB;
-    }
-    .stApp > div > div > div {
-        background-color: #EBE8DB;
-    }
-    .stApp > div > div > div > div {
-        background-color: #EBE8DB;
-    }
-    </style>
-    <div class="title-container">
-        <h1 style='color: white;'>Loan Approval Prediction </h1>
-        <p style='color: #aaa; margin-bottom: 0;'>Predict your loan approval chances with machine learning</p>
-    </div>
-""", unsafe_allow_html=True)
-
-# Create a mapping for user-friendly labels
-gender_options = {'M': 1, 'F': 0}  # Gender
-marital_status_options = {'Married': 1, 'Single': 0}  # Married
-education_options = {'College Graduate': 1, 'High School Graduate': 0}  # Education
-employment_status_options = {'Yes': 1, 'No': 0}  # Self_Employed
-credit_history_options = {'Good': 1, 'Bad': 0}  # Credit_History
-property_area_options = {'Urban': 1, 'Rural': 0}  # Property_Area (Rural includes both Rural and Semiurban)
-
-# Create two columns for the input form with adjusted ratio
-col1, col2 = st.columns([1, 1])
-
-# Personal information
-with col1:
-    st.subheader("Personal Information")
-    Gender = st.selectbox("Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
-    Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0, key="married")
-    dependents_options = [0, 1, 2, "3+"]
-    Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0, key="dependents")
-    Education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0, key="education")
+# Feature transformation function
+def transform_features_for_models(input_data):
+    # Initialize array with 20 features
+    features = np.zeros(20)
     
-    st.subheader("Property Information")
-    property_area = st.selectbox("Property Area:", options=[""] + list(property_area_options.keys()), index=0, key="property_area")
-
-# Financial information
-with col2:
-    st.subheader("Financial Information")
-    self_employed = st.selectbox("Self Employed:", options=[""] + list(employment_status_options.keys()), index=0)
-    credit_history = st.selectbox("Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
-    applicant_income = st.number_input("Monthly Income:", min_value=0.0, value=None, step=1000.0)
-
-# Loan details
-st.subheader("Loan Details")
-st.write("**Loan Amount:**")
-loan_amount = st.number_input("", 
-                       min_value=1000.0, 
-                       max_value=1000000.0, 
-                       value=100000.0,
-                       format="%f")
-
-st.write("**Loan Term (in Months):**")
-loan_amount_term = st.slider("", 
-                            min_value=1.0, 
-                            max_value=160.0, 
-                            value=60.0, 
-                            step=1.0,
-                            format="%d months")
-
-# Validation function
-def is_valid_input():
-    return all([
-        Gender != "", 
-        Married != "", 
-        Dependents is not None, 
-        Education != "", 
-        self_employed != "", 
-        credit_history != "", 
-        property_area != "", 
-        applicant_income is not None and applicant_income > 0, 
-        loan_amount is not None and loan_amount > 0, 
-        loan_amount_term is not None and loan_amount_term > 0
-    ])
-
-# Function to reset all fields
-def clear_fields():
-    # Reset all session state variables to default values
-    for key in ["gender", "married", "dependents", "education", "self_employed", 
-                "credit_history", "property_area", "applicant_income", 
-                "loan_amount", "loan_amount_term"]:
-        if key in st.session_state:
-            st.session_state[key] = ""
+    # Continuous variables with log transformation
+    features[0] = np.log1p(input_data['ApplicantIncome'])
+    features[1] = np.log1p(input_data['LoanAmount'])
+    features[2] = np.log1p(input_data['Loan_Amount_Term'])
     
-    # Set the flag for triggering a rerun
-    st.session_state.clear_triggered = True
+    # Categorical variables
+    features[3] = input_data['Gender']
+    features[4] = input_data['Married']
+    features[5] = input_data['Dependents']
+    features[6] = input_data['Education']
+    features[7] = input_data['Self_Employed']
+    features[8] = input_data['Credit_History']
+    features[9] = input_data['Property_Area']
+    
+    # Derived features
+    features[10] = input_data['LoanAmount'] / input_data['ApplicantIncome']  # Loan-to-income ratio
+    features[11] = input_data['LoanAmount'] / input_data['Loan_Amount_Term']  # Monthly payment
+    features[12] = input_data['ApplicantIncome'] / 12  # Income per month
+    
+    # Interaction features
+    features[13] = input_data['ApplicantIncome'] * input_data['LoanAmount']
+    features[14] = input_data['ApplicantIncome'] * input_data['Loan_Amount_Term']
+    features[15] = input_data['LoanAmount'] * input_data['Loan_Amount_Term']
+    
+    # Polynomial features
+    features[16] = input_data['ApplicantIncome'] ** 2
+    features[17] = input_data['LoanAmount'] ** 2
+    features[18] = input_data['Loan_Amount_Term'] ** 2
+    
+    # DTI ratio
+    features[19] = (features[11] / features[12]) * 100  # DTI as percentage
+    
+    return features.reshape(1, -1)
 
-# Action buttons - centered and styled
-button_col1, button_col2, button_col3 = st.columns([1, 2, 1])
-with button_col2:
-    col1, col2 = st.columns(2)
+# Prediction function
+def make_prediction(features):
+    return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
+
+# Main function
+def main():
+    st.title("Loan Approval Prediction")
+    
+    st.subheader("Enter Loan Application Details")
+    
+    # Create three columns for the input form
+    col1, col2, col3 = st.columns(3)
+
+    # Personal information
     with col1:
-        submit_button = st.button("Submit", disabled=not is_valid_input(), use_container_width=True)
+        st.subheader("Personal Information")
+        Gender = st.selectbox("Gender:", options=[""] + list(gender_options.keys()), index=0, key="gender")
+        Married = st.selectbox("Married:", options=[""] + list(marital_status_options.keys()), index=0, key="married")
+        dependents_options = [0, 1, 2, "3+"]
+        Dependents = st.selectbox("Dependents:", options=[""] + dependents_options, index=0, key="dependents")
+        Education = st.selectbox("Education:", options=[""] + list(education_options.keys()), index=0, key="education")
+        
+        st.subheader("Property Information")
+        property_area = st.selectbox("Property Area:", options=[""] + list(property_area_options.keys()), index=0, key="property_area")
+
+    # Financial information
     with col2:
-        clear_button = st.button("Clear", use_container_width=True)
+        st.subheader("Financial Information")
+        self_employed = st.selectbox("Self Employed:", options=[""] + list(employment_status_options.keys()), index=0)
+        credit_history = st.selectbox("Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
+        applicant_income = st.number_input("Monthly Income:", min_value=0.0, value=None, step=1000.0)
 
-# Handle clear button
-if clear_button:
-    clear_fields()
+    # Loan details
+    st.subheader("Loan Details")
+    st.write("**Loan Amount:**")
+    loan_amount = st.number_input("", 
+                           min_value=1000.0, 
+                           max_value=1000000.0, 
+                           value=100000.0,
+                           format="%f")
 
-# Results section    
-if submit_button:
-    # Prepare input data for prediction
-    input_data = {
-        'gender': gender_options[Gender],
-        'married': marital_status_options[Married],
-        'dependents': Dependents,
-        'education': education_options[Education],
-        'self_employed': employment_status_options[self_employed],
-        'credit_history': credit_history_options[credit_history],
-        'property_area': property_area_options[property_area],
-        'applicant_income_log': np.log1p(applicant_income),
-        'loan_amount_log': np.log1p(loan_amount),
-        'loan_amount_term_log': np.log1p(loan_amount_term)
-    }
+    st.write("**Loan Term (in Months):**")
+    loan_amount_term = st.slider("", 
+                                min_value=1.0, 
+                                max_value=160.0, 
+                                value=60.0, 
+                                step=1.0,
+                                format="%d months")
 
-    # Calculate DTI ratio
-    monthly_income = applicant_income
-    monthly_loan_payment = loan_amount / loan_amount_term
-    dti_ratio = (monthly_loan_payment / monthly_income) * 100  # Convert to percentage
+    # Validation function
+    def is_valid_input():
+        return all([
+            Gender != "", 
+            Married != "", 
+            Dependents is not None, 
+            Education != "", 
+            self_employed != "", 
+            credit_history != "", 
+            property_area != "", 
+            applicant_income is not None and applicant_income > 0, 
+            loan_amount is not None and loan_amount > 0, 
+            loan_amount_term is not None and loan_amount_term > 0
+        ])
 
-    # Summary card with collected data
-    st.markdown('<div class="card highlight">', unsafe_allow_html=True)
-    st.subheader("Loan Application Summary")
-    
-    # Create two columns for the summary data
-    sum_col1, sum_col2 = st.columns(2)
-    
-    with sum_col1:
-        st.write("**Personal Details:**")
-        st.write(f"• Gender: {Gender}")
-        st.write(f"• Marital Status: {Married}")
-        st.write(f"• Number of Dependents: {Dependents}")
-        st.write(f"• Education: {Education}")
-        st.write(f"• Employment Status: {self_employed}")
+    # Function to reset all fields
+    def clear_fields():
+        # Reset all session state variables to default values
+        for key in ["gender", "married", "dependents", "education", "self_employed", 
+                    "credit_history", "property_area", "applicant_income", 
+                    "loan_amount", "loan_amount_term"]:
+            if key in st.session_state:
+                st.session_state[key] = ""
         
-    with sum_col2:
-        st.write("**Financial Details:**")
-        st.write(f"• Credit History: {credit_history}")
-        st.write(f"• Property Area: {property_area}")
-        st.write(f"• Monthly Income: ₱{monthly_income:,.2f}")
-        st.write(f"• Loan Amount: ₱{loan_amount:,.2f}")
-        st.write(f"• Loan Term: {loan_amount_term} months")
-        st.write(f"• Monthly Payment: ₱{monthly_loan_payment:,.2f}")
-        st.write(f"• Debt-to-Income Ratio: {dti_ratio:.1f}%")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+        # Set the flag for triggering a rerun
+        st.session_state.clear_triggered = True
 
-    # Make predictions with each model
-    models = {
-        "Decision Tree with SMOTE": dt_model
-    }
+    # Action buttons - centered and styled
+    button_col1, button_col2, button_col3 = st.columns([1, 2, 1])
+    with button_col2:
+        col1, col2 = st.columns(2)
+        with col1:
+            submit_button = st.button("Submit", disabled=not is_valid_input(), use_container_width=True)
+        with col2:
+            clear_button = st.button("Clear", use_container_width=True)
 
-    for model_name, model in models.items():
-        # Create DataFrame from input data
-        input_df = pd.DataFrame([input_data])
+    # Handle clear button
+    if clear_button:
+        clear_fields()
+
+    # Results section    
+    if submit_button:
+        # Prepare input data for prediction
+        input_data = {
+            'gender': gender_options[Gender],
+            'married': marital_status_options[Married],
+            'dependents': Dependents,
+            'education': education_options[Education],
+            'self_employed': employment_status_options[self_employed],
+            'credit_history': credit_history_options[credit_history],
+            'property_area': property_area_options[property_area],
+            'applicant_income': applicant_income,
+            'loan_amount': loan_amount,
+            'loan_amount_term': loan_amount_term
+        }
+
+        # Calculate DTI ratio
+        monthly_income = applicant_income
+        monthly_loan_payment = loan_amount / loan_amount_term
+        dti_ratio = (monthly_loan_payment / monthly_income) * 100  # Convert to percentage
+
+        # Summary card with collected data
+        st.markdown('<div class="card highlight">', unsafe_allow_html=True)
+        st.subheader("Loan Application Summary")
         
-        # Transform features for both models
-        try:
-            input_df = transform_features_for_models(input_df)
-        except Exception as e:
-            st.error(f"Error transforming features for {model_name} model: {str(e)}")
-            continue
+        # Create two columns for the summary data
+        sum_col1, sum_col2 = st.columns(2)
         
-        # Get prediction and probability from the current model
-        try:
-            prediction = model.predict(input_df)[0]
-            probability = model.predict_proba(input_df)[0][1]
-        except Exception as e:
-            st.error(f"Error making prediction with {model_name}: {str(e)}")
-            continue
+        with sum_col1:
+            st.write("**Personal Details:**")
+            st.write(f"• Gender: {Gender}")
+            st.write(f"• Marital Status: {Married}")
+            st.write(f"• Number of Dependents: {Dependents}")
+            st.write(f"• Education: {Education}")
+            st.write(f"• Employment Status: {self_employed}")
+            
+        with sum_col2:
+            st.write("**Financial Details:**")
+            st.write(f"• Credit History: {credit_history}")
+            st.write(f"• Property Area: {property_area}")
+            st.write(f"• Monthly Income: ₱{monthly_income:,.2f}")
+            st.write(f"• Loan Amount: ₱{loan_amount:,.2f}")
+            st.write(f"• Loan Term: {loan_amount_term} months")
+            st.write(f"• Monthly Payment: ₱{monthly_loan_payment:,.2f}")
+            st.write(f"• Debt-to-Income Ratio: {dti_ratio:.1f}%")
         
-        # Result card for each model
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # Transform features for prediction
+        features = transform_features_for_models(input_data)
+
+        # Make prediction
+        prediction, probability = make_prediction(features)
+
+        # Result card for prediction
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
-        st.subheader(f"{model_name} Model Prediction")
+        st.subheader("Prediction Result")
         
         # Create columns for text and visualization
         res_col1, res_col2 = st.columns([3, 2])
@@ -391,7 +257,7 @@ if submit_button:
             
             ax.set_ylim(0, 1)
             ax.set_ylabel('Probability', color='#2C3E50')
-            ax.set_title(f'{model_name} Prediction', pad=20, color='#2C3E50')
+            ax.set_title('Decision Tree Prediction', pad=20, color='#2C3E50')
             
             # Add percentage labels with more vertical spacing
             for bar in bars:
@@ -403,41 +269,7 @@ if submit_button:
             plt.close(fig)
             
         st.markdown('</div>', unsafe_allow_html=True)
-        
-print("hello")
 
-# Add space at the bottom
-st.markdown("<br><br><br>", unsafe_allow_html=True)
-
-# End of file
-
-def main():
-    st.title("Loan Approval Prediction")
-    
-    # Test case from dataset row 2
-    test_data = {
-        'Gender': 'M',
-        'Married': 'Married',
-        'Dependents': '0',
-        'Education': 'College Graduate',
-        'Self_Employed': 'Yes',
-        'ApplicantIncome': 60000,
-        'LoanAmount': 211881,
-        'Loan_Amount_Term': 24,
-        'Credit_History': 0,
-        'Property_Area': 'Rural'
-    }
-    
-    # Transform test data
-    test_features = transform_features_for_models(test_data)
-    
-    # Make prediction
-    prediction = make_prediction(test_features)
-    
-    st.write("Test Case from Dataset Row 2:")
-    st.write(f"Input Data: {test_data}")
-    st.write(f"Model Prediction: {prediction}")
-    st.write(f"Actual Dataset Value: Y")
-    
-    # Original input form
-    st.subheader("Enter Loan Application Details")
+# Run the main function
+if __name__ == "__main__":
+    main()
