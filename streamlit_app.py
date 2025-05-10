@@ -75,11 +75,11 @@ def transform_features_for_models(df):
     return transformed_features
 
 # Construct the relative paths1
-rf_path = os.path.join(current_dir, 'SWIFT', 'Models', 'RF.pkl')
+dt_path = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_smote_model.joblib')
 xgb_path = os.path.join(current_dir, 'SWIFT', 'Models', 'XGB.pkl')
 
 # Load the models silently without success messages
-rf_model = joblib.load(rf_path)
+dt_model = joblib.load(dt_path)
 xgb_model = joblib.load(xgb_path)
 
 # Center the title with a border using HTML and CSS
@@ -303,7 +303,7 @@ if submit_button:
 
     # Make predictions with each model
     models = {
-        "Random Forest": rf_model
+        "Decision Tree with SMOTE": dt_model
     }
 
     for model_name, model in models.items():
