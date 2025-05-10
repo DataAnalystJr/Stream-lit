@@ -13,10 +13,10 @@ current_dir = os.path.dirname(__file__)
 
 # Function to transform features for model prediction
 def transform_features_for_models(df):
-    # Initialize array with 102 features as expected by the models
-    transformed_features = np.zeros((1, 102))
+    # Initialize array with 20 features as expected by the decision tree model
+    transformed_features = np.zeros((1, 20))
     
-    # 1. Handle continuous variables first - apply log transformation only once
+    # 1. Handle continuous variables
     transformed_features[0, 0] = df['applicant_income_log'].values[0]  # ApplicantIncomeLog
     transformed_features[0, 1] = df['loan_amount_log'].values[0]  # LoanAmountLog
     transformed_features[0, 2] = df['loan_amount_term_log'].values[0]  # Monthly_Loan_Amount_TermLog
@@ -24,53 +24,53 @@ def transform_features_for_models(df):
     # Calculate and store derived features
     loan_to_income_ratio = df['loan_amount_log'].values[0] / df['applicant_income_log'].values[0]
     transformed_features[0, 3] = loan_to_income_ratio  # Loan_to_Income_RatioLog
-    transformed_features[0, 4] = loan_to_income_ratio  # DTI_Log (same as Loan_to_Income_RatioLog)
     
     # 2. Handle categorical variables
-    # Gender (2 features)
+    # Gender (1 feature)
     gender_val = df['gender'].values[0]
-    transformed_features[0, 5] = 1 if gender_val == 1 else 0  # Male
-    transformed_features[0, 6] = 1 if gender_val == 0 else 0  # Female
+    transformed_features[0, 4] = gender_val  # Gender (0 or 1)
     
-    # Married (2 features)
+    # Married (1 feature)
     married_val = df['married'].values[0]
-    transformed_features[0, 7] = 1 if married_val == 1 else 0  # Married
-    transformed_features[0, 8] = 1 if married_val == 0 else 0  # Single
+    transformed_features[0, 5] = married_val  # Married (0 or 1)
     
-    # Dependents (4 features)
+    # Dependents (1 feature)
     dependents_val = df['dependents'].values[0]
-    transformed_features[0, 9] = 1 if dependents_val == 0 else 0   # 0 dependents
-    transformed_features[0, 10] = 1 if dependents_val == 1 else 0  # 1 dependent
-    transformed_features[0, 11] = 1 if dependents_val == 2 else 0  # 2 dependents
-    transformed_features[0, 12] = 1 if dependents_val == "3+" else 0  # 3+ dependents
+    transformed_features[0, 6] = dependents_val  # Dependents (0, 1, 2, or 3)
     
-    # Education (2 features)
+    # Education (1 feature)
     education_val = df['education'].values[0]
-    transformed_features[0, 13] = 1 if education_val == 1 else 0  # Graduate
-    transformed_features[0, 14] = 1 if education_val == 0 else 0  # Not Graduate
+    transformed_features[0, 7] = education_val  # Education (0 or 1)
     
-    # Self_Employed (2 features)
+    # Self_Employed (1 feature)
     self_employed_val = df['self_employed'].values[0]
-    transformed_features[0, 15] = 1 if self_employed_val == 1 else 0  # Yes
-    transformed_features[0, 16] = 1 if self_employed_val == 0 else 0  # No
+    transformed_features[0, 8] = self_employed_val  # Self_Employed (0 or 1)
     
-    # Credit_History (2 features)
+    # Credit_History (1 feature)
     credit_history_val = df['credit_history'].values[0]
-    transformed_features[0, 17] = 1 if credit_history_val == 1 else 0  # Good
-    transformed_features[0, 18] = 1 if credit_history_val == 0 else 0  # Bad
+    transformed_features[0, 9] = credit_history_val  # Credit_History (0 or 1)
     
-    # Property_Area (2 features)
+    # Property_Area (1 feature)
     property_area_val = df['property_area'].values[0]
-    transformed_features[0, 19] = 1 if property_area_val == 1 else 0  # Y
-    transformed_features[0, 20] = 1 if property_area_val == 0 else 0  # N
+    transformed_features[0, 10] = property_area_val  # Property_Area (0 or 1)
     
-    # Add some interaction features (indices 21-101)
+    # Add some interaction features
     # Income * Loan Amount interaction
-    transformed_features[0, 21] = transformed_features[0, 0] * transformed_features[0, 1]
+    transformed_features[0, 11] = transformed_features[0, 0] * transformed_features[0, 1]
     # Income * Loan Term interaction
-    transformed_features[0, 22] = transformed_features[0, 0] * transformed_features[0, 2]
+    transformed_features[0, 12] = transformed_features[0, 0] * transformed_features[0, 2]
     # Loan Amount * Loan Term interaction
-    transformed_features[0, 23] = transformed_features[0, 1] * transformed_features[0, 2]
+    transformed_features[0, 13] = transformed_features[0, 1] * transformed_features[0, 2]
+    
+    # Add some polynomial features
+    transformed_features[0, 14] = transformed_features[0, 0] ** 2  # Income squared
+    transformed_features[0, 15] = transformed_features[0, 1] ** 2  # Loan amount squared
+    transformed_features[0, 16] = transformed_features[0, 2] ** 2  # Loan term squared
+    
+    # Add some ratio features
+    transformed_features[0, 17] = transformed_features[0, 0] / transformed_features[0, 2]  # Income per month
+    transformed_features[0, 18] = transformed_features[0, 1] / transformed_features[0, 2]  # Monthly payment
+    transformed_features[0, 19] = transformed_features[0, 3] * 100  # DTI ratio as percentage
     
     return transformed_features
 
