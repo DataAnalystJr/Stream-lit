@@ -36,7 +36,9 @@ def transform_features_for_models(df):
     
     # Dependents (1 feature)
     dependents_val = df['dependents'].values[0]
-    transformed_features[0, 6] = dependents_val  # Dependents (0, 1, 2, or 3)
+    if dependents_val == "3+":
+        dependents_val = 3
+    transformed_features[0, 6] = float(dependents_val)  # Dependents (0, 1, 2, or 3)
     
     # Education (1 feature)
     education_val = df['education'].values[0]
