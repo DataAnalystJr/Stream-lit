@@ -157,16 +157,16 @@ def main():
     if submit_button:
         # Prepare input data for prediction
         input_data = {
-            'gender': gender_options[Gender],
-            'married': marital_status_options[Married],
-            'dependents': Dependents,
-            'education': education_options[Education],
-            'self_employed': employment_status_options[self_employed],
-            'credit_history': credit_history_options[credit_history],
-            'property_area': property_area_options[property_area],
-            'applicant_income': applicant_income,
-            'loan_amount': loan_amount,
-            'loan_amount_term': loan_amount_term
+            'Gender': gender_options[Gender],
+            'Married': marital_status_options[Married],
+            'Dependents': Dependents,
+            'Education': education_options[Education],
+            'Self_Employed': employment_status_options[self_employed],
+            'Credit_History': credit_history_options[credit_history],
+            'Property_Area': property_area_options[property_area],
+            'ApplicantIncome': applicant_income,
+            'LoanAmount': loan_amount,
+            'Loan_Amount_Term': loan_amount_term
         }
 
         # Calculate DTI ratio
