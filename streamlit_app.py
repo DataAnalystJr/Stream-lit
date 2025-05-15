@@ -43,8 +43,7 @@ def make_prediction(input_data):
         input_data['Gender'],  # Gender
         input_data['Credit_History'],  # Credit history
         input_data['Education'],  # Education
-        input_data['Self_Employed'],  # Self employed
-        input_data['Married']  # Married status
+        input_data['Self_Employed']  # Self employed
     ]).reshape(1, -1)
     
     # Print debug information
@@ -61,8 +60,7 @@ def make_prediction(input_data):
         'Gender',
         'CreditHistory',
         'Education',
-        'SelfEmployed',
-        'Married'
+        'SelfEmployed'
     ])
     
     # Ensure we have the correct number of features
