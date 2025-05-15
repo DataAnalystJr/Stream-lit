@@ -27,40 +27,39 @@ property_area_options = {"Urban": 1, "Rural": 0}
 
 # Feature transformation function
 def transform_features_for_models(input_data):
-    # Initialize array with 20 features
-    features = np.zeros(20)
+    # Initialize array with 10 features (matching your model's features)
+    features = np.zeros(10)
     
-    # Continuous variables with log transformation
-    features[0] = np.log1p(input_data['ApplicantIncome'])
-    features[1] = np.log1p(input_data['LoanAmount'])
-    features[2] = np.log1p(input_data['Loan_Amount_Term'])
+    # 1. Loan Amount (log) - Most important
+    features[0] = np.log1p(input_data['LoanAmount'])
     
-    # Categorical variables
-    features[3] = input_data['Gender']
-    features[4] = input_data['Married']
-    features[5] = float(input_data['Dependents'])  # Convert to float to handle "3+" case
-    features[6] = input_data['Education']
-    features[7] = input_data['Self_Employed']
-    features[8] = input_data['Credit_History']
-    features[9] = input_data['Property_Area']
+    # 2. Loan-to-Income Ratio (log)
+    loan_to_income = input_data['LoanAmount'] / input_data['ApplicantIncome']
+    features[1] = np.log1p(loan_to_income)
     
-    # Derived features
-    features[10] = input_data['LoanAmount'] / input_data['ApplicantIncome']  # Loan-to-income ratio
-    features[11] = input_data['LoanAmount'] / input_data['Loan_Amount_Term']  # Monthly payment
-    features[12] = input_data['ApplicantIncome'] / 12  # Income per month
+    # 3. Applicant Income (log)
+    features[2] = np.log1p(input_data['ApplicantIncome'])
     
-    # Interaction features
-    features[13] = input_data['ApplicantIncome'] * input_data['LoanAmount']
-    features[14] = input_data['ApplicantIncome'] * input_data['Loan_Amount_Term']
-    features[15] = input_data['LoanAmount'] * input_data['Loan_Amount_Term']
+    # 4. Monthly Loan Term (log)
+    features[3] = np.log1p(input_data['Loan_Amount_Term'])
     
-    # Polynomial features
-    features[16] = input_data['ApplicantIncome'] ** 2
-    features[17] = input_data['LoanAmount'] ** 2
-    features[18] = input_data['Loan_Amount_Term'] ** 2
+    # 5. Dependents
+    features[4] = float(input_data['Dependents'])
     
-    # DTI ratio
-    features[19] = (features[11] / features[12]) * 100  # DTI as percentage
+    # 6. Property Area
+    features[5] = input_data['Property_Area']
+    
+    # 7. Gender
+    features[6] = input_data['Gender']
+    
+    # 8. Credit History
+    features[7] = input_data['Credit_History']
+    
+    # 9. Education
+    features[8] = input_data['Education']
+    
+    # 10. Self Employed
+    features[9] = input_data['Self_Employed']
     
     return features.reshape(1, -1)
 
@@ -213,18 +212,15 @@ def main():
         # Display feature importance
         st.subheader("Feature Importance")
         feature_names = [
-            'Log Income', 'Log Loan Amount', 'Log Loan Term',
-            'Gender', 'Married', 'Dependents', 'Education',
-            'Self Employed', 'Credit History', 'Property Area',
-            'Loan-to-Income', 'Monthly Payment', 'Monthly Income',
-            'Income*Loan', 'Income*Term', 'Loan*Term',
-            'Income²', 'Loan²', 'Term²', 'DTI Ratio'
+            'Loan Amount (log)', 'Loan-to-Income Ratio (log)', 'Applicant Income (log)',
+            'Monthly Loan Term (log)', 'Dependents', 'Property Area', 'Gender',
+            'Credit History', 'Education', 'Self Employed'
         ]
         
         # Get feature importance from the model
         importance = dt_model.feature_importances_
         # Sort features by importance
-        sorted_idx = np.argsort(importance)
+        sorted_idx = np.argsort(importance)[::-1]  # Reverse to get descending order
         pos = np.arange(sorted_idx.shape[0]) + .5
         
         # Create feature importance plot
