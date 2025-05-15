@@ -39,38 +39,37 @@ st.title("Loan Application Input Form")
 # Create a mapping for user-friendly labels
 gender_options = {'Female': 0, 'Male': 1}
 marital_status_options = {'Single': 0, 'Married': 1}
-education_options = {'Graduate': 0, 'Not Graduate': 1}
-employment_status_options = {'Unemployed': 0, 'Employed': 1}
-credit_history_options = {'No/Bad Credit History': 0, 'Good Credit History': 1}
-property_area_options = {'Rural': 0, 'Semiurban': 1, 'Urban': 2}
+dependents_options = {'0': 0, '1': 1, '2': 2, '3+': 3}
+education_options = {'High School Graduate': 0, 'College Graduate': 1}
+employment_status_options = {'No': 0, 'Yes': 1}
+credit_history_options = {'Bad Credit History': 0, 'Good Credit History': 1}
+property_area_options = {'Rural': 0, 'Urban': 1}
 
 # Input Fields
 gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
 married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
-dependents = st.number_input("Enter Number of Dependents (e.g., 0, 1, 2):", value=None)
+dependents = st.selectbox("Select Number of Dependents:", options=[""] + list(dependents_options.keys()), index=0)
 education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
-self_employed = st.selectbox("Select Employment Status:", options=[""] + list(employment_status_options.keys()), index=0)
+self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
+applicant_income = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
+loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
+loan_term = st.number_input("Enter Monthly Loan Term:", min_value=0.0, value=None)
 credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
 property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
-applicant_income_log = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
-loan_amount_log = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
-loan_amount_term_log = st.number_input("Enter Loan Amount Term (in Days):", min_value=0.0, value=None)
-total_income_log = st.number_input("Enter Total Income (Payroll Amount):", min_value=0.0, value=None)
 
 # Validation function
 def is_valid_input():
     return all([
         gender != "", 
         married != "", 
-        dependents is not None, 
+        dependents != "", 
         education != "", 
         self_employed != "", 
         credit_history != "", 
         property_area != "", 
-        applicant_income_log is not None and applicant_income_log > 0, 
-        loan_amount_log is not None and loan_amount_log > 0, 
-        loan_amount_term_log is not None and loan_amount_term_log > 0, 
-        total_income_log is not None and total_income_log > 0
+        applicant_income is not None and applicant_income > 0, 
+        loan_amount is not None and loan_amount > 0, 
+        loan_term is not None and loan_term > 0
     ])
 
 # Function to reset all fields
@@ -78,15 +77,14 @@ def clear_fields():
     # Reset all session state variables to default values
     st.session_state.gender = ""
     st.session_state.married = ""
-    st.session_state.dependents = None
+    st.session_state.dependents = ""
     st.session_state.education = ""
     st.session_state.self_employed = ""
     st.session_state.credit_history = ""
     st.session_state.property_area = ""
-    st.session_state.applicant_income_log = None
-    st.session_state.loan_amount_log = None
-    st.session_state.loan_amount_term_log = None
-    st.session_state.total_income_log = None
+    st.session_state.applicant_income = None
+    st.session_state.loan_amount = None
+    st.session_state.loan_term = None
     
     # Set the flag for triggering a rerun
     st.session_state.clear_triggered = True
@@ -102,15 +100,14 @@ with col1:
         input_data = {
             'Gender': gender_options[gender],
             'Married': marital_status_options[married],
-            'Dependents': dependents,
+            'Dependents': dependents_options[dependents],
             'Education': education_options[education],
             'Self_Employed': employment_status_options[self_employed],
+            'ApplicantIncome': applicant_income,
+            'LoanAmount': loan_amount,
+            'Loan_Amount_Term': loan_term,
             'Credit_History': credit_history_options[credit_history],
-            'Property_Area': property_area_options[property_area],
-            'ApplicantIncomelog': applicant_income_log,
-            'LoanAmountlog': loan_amount_log,
-            'Loan_Amount_Term_log': loan_amount_term_log,
-            'Total_Income_log': total_income_log
+            'Property_Area': property_area_options[property_area]
         }
 
         # Display the input data as text
@@ -119,13 +116,12 @@ with col1:
         st.write(f"Marital Status: {married}")
         st.write(f"Number of Dependents: {dependents}")
         st.write(f"Education: {education}")
-        st.write(f"Employment Status: {self_employed}")
+        st.write(f"Self Employed: {self_employed}")
+        st.write(f"Applicant Income: {applicant_income}")
+        st.write(f"Loan Amount: {loan_amount}")
+        st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
         st.write(f"Property Area: {property_area}")
-        st.write(f"Applicant Income: {applicant_income_log}")
-        st.write(f"Loan Amount: {loan_amount_log}")
-        st.write(f"Loan Amount Term (in Days): {loan_amount_term_log}")
-        st.write(f"Total Income: {total_income_log}")
 
         # Make predictions
         prediction = predict_loan_status(input_data)
