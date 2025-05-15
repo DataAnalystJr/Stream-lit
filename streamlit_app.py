@@ -21,16 +21,24 @@ def predict_loan_status(input_data):
     # Create a DataFrame from the input data
     input_df = pd.DataFrame([input_data])
     
-    # Ensure columns are in the correct order
-    expected_columns = [
+    # Create a full feature set with all possible features
+    all_features = pd.DataFrame(columns=[
         'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
         'ApplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History',
-        'Property_Area'
-    ]
-    input_df = input_df[expected_columns]
+        'Property_Area', 'CoapplicantIncome', 'LoanAmount_log', 'TotalIncome',
+        'TotalIncome_log', 'EMI', 'Balance_Income', 'LoanAmount_log_2',
+        'ApplicantIncome_log', 'CoapplicantIncome_log', 'Loan_Amount_Term_log'
+    ])
+    
+    # Fill in the features we have
+    for feature in input_df.columns:
+        all_features[feature] = input_df[feature]
+    
+    # Fill missing features with 0
+    all_features = all_features.fillna(0)
     
     # Make prediction using the loaded model
-    prediction = decision_tree_smote_model.predict(input_df)[0]
+    prediction = decision_tree_smote_model.predict(all_features)[0]
     return prediction
 
 # Center the title using HTML
@@ -61,6 +69,7 @@ dependents = st.selectbox("Select Number of Dependents:", options=[""] + list(de
 education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
 self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
 applicant_income = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
+coapplicant_income = st.number_input("Enter Co-applicant Income (Monthly):", min_value=0.0, value=0.0)
 loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
 loan_term = st.number_input("Enter Monthly Loan Term:", min_value=0.0, value=None)
 credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
@@ -92,6 +101,7 @@ def clear_fields():
     st.session_state.credit_history = ""
     st.session_state.property_area = ""
     st.session_state.applicant_income = None
+    st.session_state.coapplicant_income = 0.0
     st.session_state.loan_amount = None
     st.session_state.loan_term = None
     
@@ -105,6 +115,11 @@ col1, col2 = st.columns(2)
 with col1:
     # Submit button
     if st.button("Submit", disabled=not is_valid_input()):
+        # Calculate derived features
+        total_income = float(applicant_income) + float(coapplicant_income)
+        emi = float(loan_amount) / float(loan_term) if float(loan_term) > 0 else 0
+        balance_income = total_income - emi if total_income > 0 else 0
+        
         # Prepare input data for prediction
         input_data = {
             'Gender': gender_options[gender],
@@ -113,10 +128,20 @@ with col1:
             'Education': education_options[education],
             'Self_Employed': employment_status_options[self_employed],
             'ApplicantIncome': float(applicant_income),
+            'CoapplicantIncome': float(coapplicant_income),
             'LoanAmount': float(loan_amount),
             'Loan_Amount_Term': float(loan_term),
             'Credit_History': credit_history_options[credit_history],
-            'Property_Area': property_area_options[property_area]
+            'Property_Area': property_area_options[property_area],
+            'TotalIncome': total_income,
+            'EMI': emi,
+            'Balance_Income': balance_income,
+            'LoanAmount_log': np.log1p(float(loan_amount)),
+            'TotalIncome_log': np.log1p(total_income),
+            'ApplicantIncome_log': np.log1p(float(applicant_income)),
+            'CoapplicantIncome_log': np.log1p(float(coapplicant_income)),
+            'Loan_Amount_Term_log': np.log1p(float(loan_term)),
+            'LoanAmount_log_2': np.log1p(float(loan_amount)) ** 2
         }
 
         # Display the input data as text
@@ -127,6 +152,7 @@ with col1:
         st.write(f"Education: {education}")
         st.write(f"Self Employed: {self_employed}")
         st.write(f"Applicant Income: {applicant_income}")
+        st.write(f"Co-applicant Income: {coapplicant_income}")
         st.write(f"Loan Amount: {loan_amount}")
         st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
