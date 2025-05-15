@@ -27,18 +27,18 @@ property_area_options = {"Urban": 1, "Rural": 0}
 
 # Prediction function
 def make_prediction(input_data):
-    # Convert input data to array
+    # Convert input data to array using raw values
     features = np.array([
-        input_data['LoanAmount'],
-        input_data['LoanAmount'] / input_data['ApplicantIncome'],
-        input_data['ApplicantIncome'],
-        input_data['Loan_Amount_Term'],
-        input_data['Dependents'],
-        input_data['Property_Area'],
-        input_data['Gender'],
-        input_data['Credit_History'],
-        input_data['Education'],
-        input_data['Self_Employed']
+        input_data['LoanAmount'],  # Loan amount
+        input_data['LoanAmount'] / input_data['ApplicantIncome'],  # Loan-to-income ratio
+        input_data['ApplicantIncome'],  # Applicant income
+        input_data['Loan_Amount_Term'],  # Loan term
+        float(input_data['Dependents']),  # Dependents
+        input_data['Property_Area'],  # Property area
+        input_data['Gender'],  # Gender
+        input_data['Credit_History'],  # Credit history
+        input_data['Education'],  # Education
+        input_data['Self_Employed']  # Self employed
     ]).reshape(1, -1)
     
     return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
