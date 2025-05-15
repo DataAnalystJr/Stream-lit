@@ -28,7 +28,7 @@ def predict_loan_status(input_data):
         'Property_Area', 'EMI', 'Balance_Income', 'LoanAmount_log', 
         'ApplicantIncome_log', 'Loan_Amount_Term_log', 'LoanAmount_log_2',
         'ApplicantIncome_log_2', 'Loan_Amount_Term_log_2', 'EMI_log',
-        'Balance_Income_log', 'Loan_Income_Ratio', 'Loan_Income_Ratio_log'
+        'Balance_Income_log'
     ])
     
     # Fill in the features we have
@@ -117,7 +117,6 @@ with col1:
         # Calculate derived features
         emi = float(loan_amount) / float(loan_term) if float(loan_term) > 0 else 0
         balance_income = float(applicant_income) - emi if float(applicant_income) > 0 else 0
-        loan_income_ratio = float(loan_amount) / float(applicant_income) if float(applicant_income) > 0 else 0
         
         # Calculate log-transformed features
         loan_amount_log = np.log1p(float(loan_amount))
@@ -125,7 +124,6 @@ with col1:
         loan_term_log = np.log1p(float(loan_term))
         emi_log = np.log1p(emi)
         balance_income_log = np.log1p(balance_income)
-        loan_income_ratio_log = np.log1p(loan_income_ratio)
         
         # Prepare input data for prediction
         input_data = {
@@ -148,9 +146,7 @@ with col1:
             'ApplicantIncome_log_2': applicant_income_log ** 2,
             'Loan_Amount_Term_log_2': loan_term_log ** 2,
             'EMI_log': emi_log,
-            'Balance_Income_log': balance_income_log,
-            'Loan_Income_Ratio': loan_income_ratio,
-            'Loan_Income_Ratio_log': loan_income_ratio_log
+            'Balance_Income_log': balance_income_log
         }
 
         # Display the input data as text
@@ -165,7 +161,7 @@ with col1:
         st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
         st.write(f"Property Area: {property_area}")
-        st.write(f"Loan to Income Ratio: {loan_income_ratio:.2f}")
+        st.write(f"Loan to Income Ratio: {float(loan_amount) / float(applicant_income):.2f}")
 
         try:
             # Make predictions
