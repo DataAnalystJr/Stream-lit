@@ -17,8 +17,10 @@ st.set_page_config(
 model_path = os.path.join('SWIFT', 'Models', 'dtree.joblib')
 dt_model = load(model_path)
 print("Model loaded successfully")
+print(f"Model type: {type(dt_model)}")
 print(f"Model expects {dt_model.n_features_in_} features")
 print(f"Model feature names: {dt_model.feature_names_in_ if hasattr(dt_model, 'feature_names_in_') else 'No feature names available'}")
+print(f"Model tree structure: {dt_model.tree_.n_features if hasattr(dt_model, 'tree_') else 'No tree structure available'}")
 
 # Define options for categorical variables
 gender_options = {"Male": 1, "Female": 0}
@@ -32,10 +34,10 @@ property_area_options = {"Urban": 1, "Rural": 0}
 def make_prediction(input_data):
     # Convert input data to array using raw values
     features = np.array([
-        np.log1p(input_data['LoanAmount']),  # Loan amount (log)
-        np.log1p(input_data['LoanAmount'] / input_data['ApplicantIncome']),  # Loan-to-income ratio (log)
-        np.log1p(input_data['ApplicantIncome']),  # Applicant income (log)
-        np.log1p(input_data['Loan_Amount_Term']),  # Loan term (log)
+        input_data['LoanAmount'],  # Loan amount
+        input_data['LoanAmount'] / input_data['ApplicantIncome'],  # Loan-to-income ratio
+        input_data['ApplicantIncome'],  # Applicant income
+        input_data['Loan_Amount_Term'],  # Loan term
         float(input_data['Dependents']),  # Dependents
         input_data['Property_Area'],  # Property area
         input_data['Gender'],  # Gender
@@ -49,10 +51,10 @@ def make_prediction(input_data):
     print(f"We are providing {features.shape[1]} features")
     print("Feature values:", features[0])
     print("Feature names:", [
-        'LoanAmount_log',
-        'LoanToIncome_log',
-        'ApplicantIncome_log',
-        'LoanTerm_log',
+        'LoanAmount',
+        'LoanToIncome',
+        'ApplicantIncome',
+        'LoanTerm',
         'Dependents',
         'PropertyArea',
         'Gender',
@@ -60,6 +62,10 @@ def make_prediction(input_data):
         'Education',
         'SelfEmployed'
     ])
+    
+    # Ensure we have the correct number of features
+    if features.shape[1] != dt_model.n_features_in_:
+        raise ValueError(f"Expected {dt_model.n_features_in_} features but got {features.shape[1]}")
     
     return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
 
