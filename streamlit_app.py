@@ -25,10 +25,9 @@ def predict_loan_status(input_data):
     all_features = pd.DataFrame(columns=[
         'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
         'ApplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History',
-        'Property_Area', 'EMI', 'Balance_Income', 'LoanAmount_log', 
-        'ApplicantIncome_log', 'Loan_Amount_Term_log', 'LoanAmount_log_2',
-        'ApplicantIncome_log_2', 'Loan_Amount_Term_log_2', 'EMI_log',
-        'Balance_Income_log'
+        'Property_Area', 'ApplicantIncome_log', 'LoanAmount_log', 'Loan_Amount_Term_log',
+        'ApplicantIncome_log_2', 'LoanAmount_log_2', 'Loan_Amount_Term_log_2',
+        'EMI', 'EMI_log', 'Balance_Income', 'Balance_Income_log'
     ])
     
     # Fill in the features we have
@@ -119,8 +118,8 @@ with col1:
         balance_income = float(applicant_income) - emi if float(applicant_income) > 0 else 0
         
         # Calculate log-transformed features
-        loan_amount_log = np.log1p(float(loan_amount))
         applicant_income_log = np.log1p(float(applicant_income))
+        loan_amount_log = np.log1p(float(loan_amount))
         loan_term_log = np.log1p(float(loan_term))
         emi_log = np.log1p(emi)
         balance_income_log = np.log1p(balance_income)
@@ -137,15 +136,15 @@ with col1:
             'Loan_Amount_Term': float(loan_term),
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area],
-            'EMI': emi,
-            'Balance_Income': balance_income,
-            'LoanAmount_log': loan_amount_log,
             'ApplicantIncome_log': applicant_income_log,
+            'LoanAmount_log': loan_amount_log,
             'Loan_Amount_Term_log': loan_term_log,
-            'LoanAmount_log_2': loan_amount_log ** 2,
             'ApplicantIncome_log_2': applicant_income_log ** 2,
+            'LoanAmount_log_2': loan_amount_log ** 2,
             'Loan_Amount_Term_log_2': loan_term_log ** 2,
+            'EMI': emi,
             'EMI_log': emi_log,
+            'Balance_Income': balance_income,
             'Balance_Income_log': balance_income_log
         }
 
