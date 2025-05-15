@@ -43,7 +43,8 @@ def make_prediction(input_data):
         input_data['Gender'],  # Gender
         input_data['Credit_History'],  # Credit history
         input_data['Education'],  # Education
-        input_data['Self_Employed']  # Self employed
+        input_data['Self_Employed'],  # Self employed
+        input_data['Married']  # Married status
     ]).reshape(1, -1)
     
     # Print debug information
@@ -60,7 +61,8 @@ def make_prediction(input_data):
         'Gender',
         'CreditHistory',
         'Education',
-        'SelfEmployed'
+        'SelfEmployed',
+        'Married'
     ])
     
     # Ensure we have the correct number of features
@@ -258,3 +260,6 @@ def main():
             
         st.markdown('</div>', unsafe_allow_html=True)
 
+# Run the main function
+if __name__ == "__main__":
+    main()
