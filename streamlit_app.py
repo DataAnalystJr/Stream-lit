@@ -20,11 +20,13 @@ print(f"Model file exists: {os.path.exists(model_path)}")
 
 try:
     dt_model = load(model_path)
-    print("Model loaded successfully")
+    print("\n=== MODEL INSPECTION ===")
     print(f"Model type: {type(dt_model)}")
     print(f"Model expects {dt_model.n_features_in_} features")
     print(f"Model feature names: {dt_model.feature_names_in_ if hasattr(dt_model, 'feature_names_in_') else 'No feature names available'}")
     print(f"Model tree structure: {dt_model.tree_.n_features if hasattr(dt_model, 'tree_') else 'No tree structure available'}")
+    print(f"Model classes: {dt_model.classes_ if hasattr(dt_model, 'classes_') else 'No classes available'}")
+    print("======================\n")
 except Exception as e:
     print(f"Error loading model: {str(e)}")
     raise
@@ -39,6 +41,12 @@ property_area_options = {"Urban": 1, "Rural": 0}
 
 # Prediction function
 def make_prediction(input_data):
+    # Print input data for debugging
+    print("\n=== INPUT DATA ===")
+    for key, value in input_data.items():
+        print(f"{key}: {value}")
+    print("================\n")
+    
     # Convert input data to array using raw values
     features = np.array([
         input_data['LoanAmount'],  # Loan amount
@@ -50,11 +58,11 @@ def make_prediction(input_data):
         input_data['Gender'],  # Gender
         input_data['Credit_History'],  # Credit history
         input_data['Education'],  # Education
-        input_data['Self_Employed'],  # Self employed
-        input_data['Married']  # Married status
+        input_data['Self_Employed']  # Self employed
     ]).reshape(1, -1)
     
     # Print debug information
+    print("\n=== FEATURE INFORMATION ===")
     print(f"Model expects {dt_model.n_features_in_} features")
     print(f"We are providing {features.shape[1]} features")
     print("Feature values:", features[0])
@@ -68,9 +76,9 @@ def make_prediction(input_data):
         'Gender',
         'CreditHistory',
         'Education',
-        'SelfEmployed',
-        'Married'
+        'SelfEmployed'
     ])
+    print("========================\n")
     
     # Ensure we have the correct number of features
     if features.shape[1] != dt_model.n_features_in_:
