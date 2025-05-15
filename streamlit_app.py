@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
+
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
 
 # Construct the path for the decision tree SMOTE model
-decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'dtree2.joblib')
+decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_smote_model.joblib')
 
 # Load the model
 decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
