@@ -16,6 +16,9 @@ st.set_page_config(
 # Load the model
 model_path = os.path.join('SWIFT', 'Models', 'dtree.joblib')
 dt_model = load(model_path)
+print("Model loaded successfully")
+print(f"Model expects {dt_model.n_features_in_} features")
+print(f"Model feature names: {dt_model.feature_names_in_ if hasattr(dt_model, 'feature_names_in_') else 'No feature names available'}")
 
 # Define options for categorical variables
 gender_options = {"Male": 1, "Female": 0}
@@ -29,10 +32,10 @@ property_area_options = {"Urban": 1, "Rural": 0}
 def make_prediction(input_data):
     # Convert input data to array using raw values
     features = np.array([
-        input_data['LoanAmount'],  # Loan amount
-        input_data['LoanAmount'] / input_data['ApplicantIncome'],  # Loan-to-income ratio
-        input_data['ApplicantIncome'],  # Applicant income
-        input_data['Loan_Amount_Term'],  # Loan term
+        np.log1p(input_data['LoanAmount']),  # Loan amount (log)
+        np.log1p(input_data['LoanAmount'] / input_data['ApplicantIncome']),  # Loan-to-income ratio (log)
+        np.log1p(input_data['ApplicantIncome']),  # Applicant income (log)
+        np.log1p(input_data['Loan_Amount_Term']),  # Loan term (log)
         float(input_data['Dependents']),  # Dependents
         input_data['Property_Area'],  # Property area
         input_data['Gender'],  # Gender
@@ -45,6 +48,18 @@ def make_prediction(input_data):
     print(f"Model expects {dt_model.n_features_in_} features")
     print(f"We are providing {features.shape[1]} features")
     print("Feature values:", features[0])
+    print("Feature names:", [
+        'LoanAmount_log',
+        'LoanToIncome_log',
+        'ApplicantIncome_log',
+        'LoanTerm_log',
+        'Dependents',
+        'PropertyArea',
+        'Gender',
+        'CreditHistory',
+        'Education',
+        'SelfEmployed'
+    ])
     
     return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
 
