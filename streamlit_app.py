@@ -210,6 +210,32 @@ def main():
         # Make prediction
         prediction, probability = make_prediction(features)
 
+        # Display feature importance
+        st.subheader("Feature Importance")
+        feature_names = [
+            'Log Income', 'Log Loan Amount', 'Log Loan Term',
+            'Gender', 'Married', 'Dependents', 'Education',
+            'Self Employed', 'Credit History', 'Property Area',
+            'Loan-to-Income', 'Monthly Payment', 'Monthly Income',
+            'Income*Loan', 'Income*Term', 'Loan*Term',
+            'Income²', 'Loan²', 'Term²', 'DTI Ratio'
+        ]
+        
+        # Get feature importance from the model
+        importance = dt_model.feature_importances_
+        # Sort features by importance
+        sorted_idx = np.argsort(importance)
+        pos = np.arange(sorted_idx.shape[0]) + .5
+        
+        # Create feature importance plot
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.barh(pos, importance[sorted_idx])
+        ax.set_yticks(pos)
+        ax.set_yticklabels([feature_names[i] for i in sorted_idx])
+        ax.set_xlabel('Feature Importance')
+        st.pyplot(fig)
+        plt.close(fig)
+
         # Result card for prediction
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
         st.subheader("Prediction Result")
