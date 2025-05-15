@@ -156,10 +156,13 @@ def main():
     # Results section    
     if submit_button:
         # Prepare input data for prediction
+        # Handle "3+" dependents case
+        dependents_value = 3 if Dependents == "3+" else Dependents
+        
         input_data = {
             'Gender': gender_options[Gender],
             'Married': marital_status_options[Married],
-            'Dependents': Dependents,
+            'Dependents': dependents_value,
             'Education': education_options[Education],
             'Self_Employed': employment_status_options[self_employed],
             'Credit_History': credit_history_options[credit_history],
