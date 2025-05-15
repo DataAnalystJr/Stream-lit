@@ -4,23 +4,14 @@ import pandas as pd
 # Load the model
 model = joblib.load('SWIFT/Models/decision_tree_smote_model.joblib')
 
-# Print feature names
-print("Model expects these features in order:")
-print(model.feature_names_in_)
+# Print feature names and count
+print("Number of features expected:", len(model.feature_names_in_))
+print("\nModel expects these features in order:")
+for i, feature in enumerate(model.feature_names_in_):
+    print(f"{i+1}. {feature}")
 
 # Create a sample input with all zeros to test
-sample_input = pd.DataFrame({
-    'Gender': [0],
-    'Married': [0],
-    'Dependents': [0],
-    'Education': [0],
-    'Self_Employed': [0],
-    'ApplicantIncome': [0],
-    'LoanAmount': [0],
-    'Loan_Amount_Term': [0],
-    'Credit_History': [0],
-    'Property_Area': [0]
-})
+sample_input = pd.DataFrame({feature: [0] for feature in model.feature_names_in_})
 
 # Try to predict with sample input
 try:
