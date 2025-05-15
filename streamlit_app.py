@@ -105,10 +105,8 @@ with col1:
         applicant_income_log = np.log1p(float(applicant_income))
         loan_amount_log = np.log1p(float(loan_amount))
         loan_term_log = np.log1p(float(loan_term))
-        emi_log = np.log1p(emi)
-        balance_income_log = np.log1p(balance_income)
         
-        # Prepare input data for prediction with exactly 20 features in the correct order
+        # Prepare input data for prediction with exactly 15 features
         input_data = {
             'Gender': gender_options[gender],
             'Married': marital_status_options[married],
@@ -123,13 +121,8 @@ with col1:
             'ApplicantIncome_log': applicant_income_log,
             'LoanAmount_log': loan_amount_log,
             'Loan_Amount_Term_log': loan_term_log,
-            'ApplicantIncome_log_2': applicant_income_log ** 2,
-            'LoanAmount_log_2': loan_amount_log ** 2,
-            'Loan_Amount_Term_log_2': loan_term_log ** 2,
             'EMI': emi,
-            'EMI_log': emi_log,
-            'Balance_Income': balance_income,
-            'Balance_Income_log': balance_income_log
+            'Balance_Income': balance_income
         }
 
         # Display the input data as text
