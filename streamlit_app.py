@@ -38,7 +38,7 @@ def transform_features_for_models(input_data):
     # Categorical variables
     features[3] = input_data['Gender']
     features[4] = input_data['Married']
-    features[5] = input_data['Dependents']
+    features[5] = float(input_data['Dependents'])  # Convert to float to handle "3+" case
     features[6] = input_data['Education']
     features[7] = input_data['Self_Employed']
     features[8] = input_data['Credit_History']
