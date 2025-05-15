@@ -5,6 +5,7 @@ import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
@@ -19,7 +20,15 @@ decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
 def predict_loan_status(input_data):
     # Create a DataFrame from the input data
     input_df = pd.DataFrame([input_data])
-
+    
+    # Ensure columns are in the correct order
+    expected_columns = [
+        'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
+        'ApplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History',
+        'Property_Area'
+    ]
+    input_df = input_df[expected_columns]
+    
     # Make prediction using the loaded model
     prediction = decision_tree_smote_model.predict(input_df)[0]
     return prediction
@@ -103,9 +112,9 @@ with col1:
             'Dependents': dependents_options[dependents],
             'Education': education_options[education],
             'Self_Employed': employment_status_options[self_employed],
-            'ApplicantIncome': applicant_income,
-            'LoanAmount': loan_amount,
-            'Loan_Amount_Term': loan_term,
+            'ApplicantIncome': float(applicant_income),
+            'LoanAmount': float(loan_amount),
+            'Loan_Amount_Term': float(loan_term),
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area]
         }
@@ -123,28 +132,33 @@ with col1:
         st.write(f"Credit History: {credit_history}")
         st.write(f"Property Area: {property_area}")
 
-        # Make predictions
-        prediction = predict_loan_status(input_data)
-        probability = decision_tree_smote_model.predict_proba(pd.DataFrame([input_data]))[0][1]
-        
-        st.title("Decision Tree SMOTE Model Prediction")
-        if prediction == 1:
-            st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-        else:
-            st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+        try:
+            # Make predictions
+            prediction = predict_loan_status(input_data)
+            probability = decision_tree_smote_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            
+            st.title("Decision Tree SMOTE Model Prediction")
+            if prediction == 1:
+                st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
 
-        threshold = 0.7  # Define your threshold
-        if probability > threshold:
-            st.write(f"The applicant is classified as low risk. (Probability: {probability:.2f})")
-        else:
-            st.write(f"The applicant is classified as high risk. (Probability: {1 - probability:.2f})")
+            threshold = 0.7  # Define your threshold
+            if probability > threshold:
+                st.write(f"The applicant is classified as low risk. (Probability: {probability:.2f})")
+            else:
+                st.write(f"The applicant is classified as high risk. (Probability: {1 - probability:.2f})")
 
-        # Visualization
-        plt.figure(figsize=(6, 4))
-        plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
-        plt.ylabel('Probability')
-        st.pyplot(plt)
-        plt.clf()
+            # Visualization
+            plt.figure(figsize=(6, 4))
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
+            plt.ylabel('Probability')
+            st.pyplot(plt)
+            plt.clf()
+        except Exception as e:
+            st.error(f"Error making prediction: {str(e)}")
+            st.write("Input data structure:")
+            st.write(input_data)
 
 with col2:
     if st.button("Clear"):
