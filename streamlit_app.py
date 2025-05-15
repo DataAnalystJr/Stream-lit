@@ -25,46 +25,22 @@ employment_status_options = {"Yes": 1, "No": 0}
 credit_history_options = {"Yes": 1, "No": 0}
 property_area_options = {"Urban": 1, "Rural": 0}
 
-# Feature transformation function
-def transform_features_for_models(input_data):
-    # Initialize array with 10 features (matching your model's features)
-    features = np.zeros(10)
-    
-    # 1. Loan Amount (log) - Most important
-    features[0] = np.log1p(input_data['LoanAmount'])
-    
-    # 2. Loan-to-Income Ratio (log)
-    loan_to_income = input_data['LoanAmount'] / input_data['ApplicantIncome']
-    features[1] = np.log1p(loan_to_income)
-    
-    # 3. Applicant Income (log)
-    features[2] = np.log1p(input_data['ApplicantIncome'])
-    
-    # 4. Monthly Loan Term (log)
-    features[3] = np.log1p(input_data['Loan_Amount_Term'])
-    
-    # 5. Dependents
-    features[4] = float(input_data['Dependents'])
-    
-    # 6. Property Area
-    features[5] = input_data['Property_Area']
-    
-    # 7. Gender
-    features[6] = input_data['Gender']
-    
-    # 8. Credit History
-    features[7] = input_data['Credit_History']
-    
-    # 9. Education
-    features[8] = input_data['Education']
-    
-    # 10. Self Employed
-    features[9] = input_data['Self_Employed']
-    
-    return features.reshape(1, -1)
-
 # Prediction function
-def make_prediction(features):
+def make_prediction(input_data):
+    # Convert input data to array
+    features = np.array([
+        input_data['LoanAmount'],
+        input_data['LoanAmount'] / input_data['ApplicantIncome'],
+        input_data['ApplicantIncome'],
+        input_data['Loan_Amount_Term'],
+        input_data['Dependents'],
+        input_data['Property_Area'],
+        input_data['Gender'],
+        input_data['Credit_History'],
+        input_data['Education'],
+        input_data['Self_Employed']
+    ]).reshape(1, -1)
+    
     return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
 
 # Main function
@@ -75,7 +51,7 @@ def main():
     
     # Create three columns for the input form
     col1, col2, col3 = st.columns(3)
-
+    
     # Personal information
     with col1:
         st.subheader("Personal Information")
@@ -129,17 +105,14 @@ def main():
 
     # Function to reset all fields
     def clear_fields():
-        # Reset all session state variables to default values
         for key in ["gender", "married", "dependents", "education", "self_employed", 
                     "credit_history", "property_area", "applicant_income", 
                     "loan_amount", "loan_amount_term"]:
             if key in st.session_state:
                 st.session_state[key] = ""
-        
-        # Set the flag for triggering a rerun
         st.session_state.clear_triggered = True
 
-    # Action buttons - centered and styled
+    # Action buttons
     button_col1, button_col2, button_col3 = st.columns([1, 2, 1])
     with button_col2:
         col1, col2 = st.columns(2)
@@ -155,7 +128,6 @@ def main():
     # Results section    
     if submit_button:
         # Prepare input data for prediction
-        # Handle "3+" dependents case
         dependents_value = 3 if Dependents == "3+" else Dependents
         
         input_data = {
@@ -174,13 +146,12 @@ def main():
         # Calculate DTI ratio
         monthly_income = applicant_income
         monthly_loan_payment = loan_amount / loan_amount_term
-        dti_ratio = (monthly_loan_payment / monthly_income) * 100  # Convert to percentage
+        dti_ratio = (monthly_loan_payment / monthly_income) * 100
 
-        # Summary card with collected data
+        # Summary card
         st.markdown('<div class="card highlight">', unsafe_allow_html=True)
         st.subheader("Loan Application Summary")
         
-        # Create two columns for the summary data
         sum_col1, sum_col2 = st.columns(2)
         
         with sum_col1:
@@ -203,44 +174,17 @@ def main():
         
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Transform features for prediction
-        features = transform_features_for_models(input_data)
-
         # Make prediction
-        prediction, probability = make_prediction(features)
+        prediction, probability = make_prediction(input_data)
 
-        # Display feature importance
-        st.subheader("Feature Importance")
-        feature_names = [
-            'Loan Amount (log)', 'Loan-to-Income Ratio (log)', 'Applicant Income (log)',
-            'Monthly Loan Term (log)', 'Dependents', 'Property Area', 'Gender',
-            'Credit History', 'Education', 'Self Employed'
-        ]
-        
-        # Get feature importance from the model
-        importance = dt_model.feature_importances_
-        # Sort features by importance
-        sorted_idx = np.argsort(importance)[::-1]  # Reverse to get descending order
-        pos = np.arange(sorted_idx.shape[0]) + .5
-        
-        # Create feature importance plot
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.barh(pos, importance[sorted_idx])
-        ax.set_yticks(pos)
-        ax.set_yticklabels([feature_names[i] for i in sorted_idx])
-        ax.set_xlabel('Feature Importance')
-        st.pyplot(fig)
-        plt.close(fig)
-
-        # Result card for prediction
+        # Result card
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
         st.subheader("Prediction Result")
         
-        # Create columns for text and visualization
         res_col1, res_col2 = st.columns([3, 2])
         
         with res_col1:
-            threshold = 0.7  # Define your threshold
+            threshold = 0.7
             
             if prediction == 1:
                 st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
@@ -255,26 +199,20 @@ def main():
                 st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
 
         with res_col2:
-            # Visualization with better colors and spacing
             fig, ax = plt.subplots(figsize=(4, 4.5))
-            
-            # Add more space at the top for labels
             plt.subplots_adjust(top=0.8)
             
-            # New color theme with blue and yellow
-            approval_color = '#3498DB'  # Bright blue
-            denial_color = '#F1C40F'    # Bright yellow
-            neutral_color = '#95A5A6'   # Modern gray
+            approval_color = '#3498DB'
+            denial_color = '#F1C40F'
+            neutral_color = '#95A5A6'
             
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
-                   color=[approval_color if probability > 0.5 else neutral_color, 
-                          denial_color if probability <= 0.5 else neutral_color])
+                    color=[approval_color if probability > 0.5 else neutral_color, 
+                           denial_color if probability <= 0.5 else neutral_color])
             
-            # Set background color to light gray
             fig.patch.set_facecolor('#F8F9FA')
             ax.set_facecolor('#F8F9FA')
             
-            # Customize grid and spines
             ax.grid(True, linestyle='--', alpha=0.3, color='#D5D8DC')
             for spine in ax.spines.values():
                 spine.set_edgecolor('#ABB2B9')
@@ -284,7 +222,6 @@ def main():
             ax.set_ylabel('Probability', color='#2C3E50')
             ax.set_title('Decision Tree Prediction', pad=20, color='#2C3E50')
             
-            # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
                 ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
