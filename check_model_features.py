@@ -1,8 +1,14 @@
 import joblib
-import pandas as pd
+import os
+
+# Get the current directory of the script
+current_dir = os.path.dirname(__file__)
+
+# Construct the path for the decision tree SMOTE model
+model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'decision_tree_smote_model.joblib')
 
 # Load the model
-model = joblib.load('SWIFT/Models/decision_tree_smote_model.joblib')
+model = joblib.load(model_path)
 
 # Print feature names and count
 print("Number of features expected:", len(model.feature_names_in_))
