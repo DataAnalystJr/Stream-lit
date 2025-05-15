@@ -14,22 +14,8 @@ st.set_page_config(
 )
 
 # Load the model
-model_path = os.path.join('SWIFT', 'Models', 'dtree.joblib')
-print(f"Attempting to load model from: {model_path}")
-print(f"Model file exists: {os.path.exists(model_path)}")
-
-try:
-    dt_model = load(model_path)
-    print("\n=== MODEL INSPECTION ===")
-    print(f"Model type: {type(dt_model)}")
-    print(f"Model expects {dt_model.n_features_in_} features")
-    print(f"Model feature names: {dt_model.feature_names_in_ if hasattr(dt_model, 'feature_names_in_') else 'No feature names available'}")
-    print(f"Model tree structure: {dt_model.tree_.n_features if hasattr(dt_model, 'tree_') else 'No tree structure available'}")
-    print(f"Model classes: {dt_model.classes_ if hasattr(dt_model, 'classes_') else 'No classes available'}")
-    print("======================\n")
-except Exception as e:
-    print(f"Error loading model: {str(e)}")
-    raise
+model_path = os.path.join('SWIFT', 'Models', 'decision_tree_smote_model.joblib')
+dt_model = load(model_path)
 
 # Define options for categorical variables
 gender_options = {"Male": 1, "Female": 0}
@@ -39,51 +25,47 @@ employment_status_options = {"Yes": 1, "No": 0}
 credit_history_options = {"Yes": 1, "No": 0}
 property_area_options = {"Urban": 1, "Rural": 0}
 
+# Feature transformation function
+def transform_features_for_models(input_data):
+    # Initialize array with 20 features
+    features = np.zeros(20)
+    
+    # Continuous variables with log transformation
+    features[0] = np.log1p(input_data['ApplicantIncome'])
+    features[1] = np.log1p(input_data['LoanAmount'])
+    features[2] = np.log1p(input_data['Loan_Amount_Term'])
+    
+    # Categorical variables
+    features[3] = input_data['Gender']
+    features[4] = input_data['Married']
+    features[5] = input_data['Dependents']
+    features[6] = input_data['Education']
+    features[7] = input_data['Self_Employed']
+    features[8] = input_data['Credit_History']
+    features[9] = input_data['Property_Area']
+    
+    # Derived features
+    features[10] = input_data['LoanAmount'] / input_data['ApplicantIncome']  # Loan-to-income ratio
+    features[11] = input_data['LoanAmount'] / input_data['Loan_Amount_Term']  # Monthly payment
+    features[12] = input_data['ApplicantIncome'] / 12  # Income per month
+    
+    # Interaction features
+    features[13] = input_data['ApplicantIncome'] * input_data['LoanAmount']
+    features[14] = input_data['ApplicantIncome'] * input_data['Loan_Amount_Term']
+    features[15] = input_data['LoanAmount'] * input_data['Loan_Amount_Term']
+    
+    # Polynomial features
+    features[16] = input_data['ApplicantIncome'] ** 2
+    features[17] = input_data['LoanAmount'] ** 2
+    features[18] = input_data['Loan_Amount_Term'] ** 2
+    
+    # DTI ratio
+    features[19] = (features[11] / features[12]) * 100  # DTI as percentage
+    
+    return features.reshape(1, -1)
+
 # Prediction function
-def make_prediction(input_data):
-    # Print input data for debugging
-    print("\n=== INPUT DATA ===")
-    for key, value in input_data.items():
-        print(f"{key}: {value}")
-    print("================\n")
-    
-    # Convert input data to array using raw values
-    features = np.array([
-        input_data['LoanAmount'],  # Loan amount
-        input_data['LoanAmount'] / input_data['ApplicantIncome'],  # Loan-to-income ratio
-        input_data['ApplicantIncome'],  # Applicant income
-        input_data['Loan_Amount_Term'],  # Loan term
-        float(input_data['Dependents']),  # Dependents
-        input_data['Property_Area'],  # Property area
-        input_data['Gender'],  # Gender
-        input_data['Credit_History'],  # Credit history
-        input_data['Education'],  # Education
-        input_data['Self_Employed']  # Self employed
-    ]).reshape(1, -1)
-    
-    # Print debug information
-    print("\n=== FEATURE INFORMATION ===")
-    print(f"Model expects {dt_model.n_features_in_} features")
-    print(f"We are providing {features.shape[1]} features")
-    print("Feature values:", features[0])
-    print("Feature names:", [
-        'LoanAmount',
-        'LoanToIncome',
-        'ApplicantIncome',
-        'LoanTerm',
-        'Dependents',
-        'PropertyArea',
-        'Gender',
-        'CreditHistory',
-        'Education',
-        'SelfEmployed'
-    ])
-    print("========================\n")
-    
-    # Ensure we have the correct number of features
-    if features.shape[1] != dt_model.n_features_in_:
-        raise ValueError(f"Expected {dt_model.n_features_in_} features but got {features.shape[1]}")
-    
+def make_prediction(features):
     return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
 
 # Main function
@@ -94,7 +76,7 @@ def main():
     
     # Create three columns for the input form
     col1, col2, col3 = st.columns(3)
-    
+
     # Personal information
     with col1:
         st.subheader("Personal Information")
@@ -148,14 +130,17 @@ def main():
 
     # Function to reset all fields
     def clear_fields():
+        # Reset all session state variables to default values
         for key in ["gender", "married", "dependents", "education", "self_employed", 
                     "credit_history", "property_area", "applicant_income", 
                     "loan_amount", "loan_amount_term"]:
             if key in st.session_state:
                 st.session_state[key] = ""
+        
+        # Set the flag for triggering a rerun
         st.session_state.clear_triggered = True
 
-    # Action buttons
+    # Action buttons - centered and styled
     button_col1, button_col2, button_col3 = st.columns([1, 2, 1])
     with button_col2:
         col1, col2 = st.columns(2)
@@ -171,12 +156,10 @@ def main():
     # Results section    
     if submit_button:
         # Prepare input data for prediction
-        dependents_value = 3 if Dependents == "3+" else Dependents
-        
         input_data = {
             'Gender': gender_options[Gender],
             'Married': marital_status_options[Married],
-            'Dependents': dependents_value,
+            'Dependents': Dependents,
             'Education': education_options[Education],
             'Self_Employed': employment_status_options[self_employed],
             'Credit_History': credit_history_options[credit_history],
@@ -189,12 +172,13 @@ def main():
         # Calculate DTI ratio
         monthly_income = applicant_income
         monthly_loan_payment = loan_amount / loan_amount_term
-        dti_ratio = (monthly_loan_payment / monthly_income) * 100
+        dti_ratio = (monthly_loan_payment / monthly_income) * 100  # Convert to percentage
 
-        # Summary card
+        # Summary card with collected data
         st.markdown('<div class="card highlight">', unsafe_allow_html=True)
         st.subheader("Loan Application Summary")
         
+        # Create two columns for the summary data
         sum_col1, sum_col2 = st.columns(2)
         
         with sum_col1:
@@ -217,17 +201,21 @@ def main():
         
         st.markdown('</div>', unsafe_allow_html=True)
 
-        # Make prediction
-        prediction, probability = make_prediction(input_data)
+        # Transform features for prediction
+        features = transform_features_for_models(input_data)
 
-        # Result card
+        # Make prediction
+        prediction, probability = make_prediction(features)
+
+        # Result card for prediction
         st.markdown(f'<div class="result-card">', unsafe_allow_html=True)
         st.subheader("Prediction Result")
         
+        # Create columns for text and visualization
         res_col1, res_col2 = st.columns([3, 2])
         
         with res_col1:
-            threshold = 0.7
+            threshold = 0.7  # Define your threshold
             
             if prediction == 1:
                 st.markdown(f"<h3 style='color: #3498DB;'>✅ Approval Likely</h3>", unsafe_allow_html=True)
@@ -242,20 +230,26 @@ def main():
                 st.write(f"**Risk Assessment:** High risk applicant (Score: {1 - probability:.2f})")
 
         with res_col2:
+            # Visualization with better colors and spacing
             fig, ax = plt.subplots(figsize=(4, 4.5))
+            
+            # Add more space at the top for labels
             plt.subplots_adjust(top=0.8)
             
-            approval_color = '#3498DB'
-            denial_color = '#F1C40F'
-            neutral_color = '#95A5A6'
+            # New color theme with blue and yellow
+            approval_color = '#3498DB'  # Bright blue
+            denial_color = '#F1C40F'    # Bright yellow
+            neutral_color = '#95A5A6'   # Modern gray
             
             bars = ax.bar(['Approval', 'Denial'], [probability, 1 - probability], 
-                    color=[approval_color if probability > 0.5 else neutral_color, 
-                           denial_color if probability <= 0.5 else neutral_color])
+                   color=[approval_color if probability > 0.5 else neutral_color, 
+                          denial_color if probability <= 0.5 else neutral_color])
             
+            # Set background color to light gray
             fig.patch.set_facecolor('#F8F9FA')
             ax.set_facecolor('#F8F9FA')
             
+            # Customize grid and spines
             ax.grid(True, linestyle='--', alpha=0.3, color='#D5D8DC')
             for spine in ax.spines.values():
                 spine.set_edgecolor('#ABB2B9')
@@ -265,6 +259,7 @@ def main():
             ax.set_ylabel('Probability', color='#2C3E50')
             ax.set_title('Decision Tree Prediction', pad=20, color='#2C3E50')
             
+            # Add percentage labels with more vertical spacing
             for bar in bars:
                 height = bar.get_height()
                 ax.text(bar.get_x() + bar.get_width()/2. - 0.05, height + 0.05,
@@ -276,5 +271,4 @@ def main():
         st.markdown('</div>', unsafe_allow_html=True)
 
 # Run the main function
-if __name__ == "__main__":
-    main()
+main()
