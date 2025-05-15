@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 # Load the model
-model_path = os.path.join('SWIFT', 'Models', 'decision_tree_smote_model.joblib')
+model_path = os.path.join('SWIFT', 'Models', 'dtree.joblib')
 dt_model = load(model_path)
 
 # Define options for categorical variables
