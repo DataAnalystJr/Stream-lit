@@ -15,12 +15,19 @@ st.set_page_config(
 
 # Load the model
 model_path = os.path.join('SWIFT', 'Models', 'dtree.joblib')
-dt_model = load(model_path)
-print("Model loaded successfully")
-print(f"Model type: {type(dt_model)}")
-print(f"Model expects {dt_model.n_features_in_} features")
-print(f"Model feature names: {dt_model.feature_names_in_ if hasattr(dt_model, 'feature_names_in_') else 'No feature names available'}")
-print(f"Model tree structure: {dt_model.tree_.n_features if hasattr(dt_model, 'tree_') else 'No tree structure available'}")
+print(f"Attempting to load model from: {model_path}")
+print(f"Model file exists: {os.path.exists(model_path)}")
+
+try:
+    dt_model = load(model_path)
+    print("Model loaded successfully")
+    print(f"Model type: {type(dt_model)}")
+    print(f"Model expects {dt_model.n_features_in_} features")
+    print(f"Model feature names: {dt_model.feature_names_in_ if hasattr(dt_model, 'feature_names_in_') else 'No feature names available'}")
+    print(f"Model tree structure: {dt_model.tree_.n_features if hasattr(dt_model, 'tree_') else 'No tree structure available'}")
+except Exception as e:
+    print(f"Error loading model: {str(e)}")
+    raise
 
 # Define options for categorical variables
 gender_options = {"Male": 1, "Female": 0}
@@ -43,7 +50,8 @@ def make_prediction(input_data):
         input_data['Gender'],  # Gender
         input_data['Credit_History'],  # Credit history
         input_data['Education'],  # Education
-        input_data['Self_Employed']  # Self employed
+        input_data['Self_Employed'],  # Self employed
+        input_data['Married']  # Married status
     ]).reshape(1, -1)
     
     # Print debug information
@@ -60,7 +68,8 @@ def make_prediction(input_data):
         'Gender',
         'CreditHistory',
         'Education',
-        'SelfEmployed'
+        'SelfEmployed',
+        'Married'
     ])
     
     # Ensure we have the correct number of features
