@@ -41,6 +41,11 @@ def make_prediction(input_data):
         input_data['Self_Employed']  # Self employed
     ]).reshape(1, -1)
     
+    # Print debug information
+    print(f"Model expects {dt_model.n_features_in_} features")
+    print(f"We are providing {features.shape[1]} features")
+    print("Feature values:", features[0])
+    
     return dt_model.predict(features)[0], dt_model.predict_proba(features)[0][1]
 
 # Main function
