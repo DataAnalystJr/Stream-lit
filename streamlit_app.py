@@ -21,24 +21,8 @@ def predict_loan_status(input_data):
     # Create a DataFrame from the input data
     input_df = pd.DataFrame([input_data])
     
-    # Create a full feature set with all possible features
-    all_features = pd.DataFrame(columns=[
-        'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
-        'ApplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History',
-        'Property_Area', 'ApplicantIncome_log', 'LoanAmount_log', 'Loan_Amount_Term_log',
-        'ApplicantIncome_log_2', 'LoanAmount_log_2', 'Loan_Amount_Term_log_2',
-        'EMI', 'EMI_log', 'Balance_Income', 'Balance_Income_log'
-    ])
-    
-    # Fill in the features we have
-    for feature in input_df.columns:
-        all_features[feature] = input_df[feature]
-    
-    # Fill missing features with 0
-    all_features = all_features.fillna(0)
-    
     # Make prediction using the loaded model
-    prediction = decision_tree_smote_model.predict(all_features)[0]
+    prediction = decision_tree_smote_model.predict(input_df)[0]
     return prediction
 
 # Center the title using HTML
@@ -124,7 +108,7 @@ with col1:
         emi_log = np.log1p(emi)
         balance_income_log = np.log1p(balance_income)
         
-        # Prepare input data for prediction
+        # Prepare input data for prediction with exactly 20 features in the correct order
         input_data = {
             'Gender': gender_options[gender],
             'Married': marital_status_options[married],
