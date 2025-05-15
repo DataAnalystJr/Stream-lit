@@ -25,8 +25,7 @@ def predict_loan_status(input_data):
     all_features = pd.DataFrame(columns=[
         'Gender', 'Married', 'Dependents', 'Education', 'Self_Employed',
         'ApplicantIncome', 'LoanAmount', 'Loan_Amount_Term', 'Credit_History',
-        'Property_Area', 'LoanAmount_log', 'EMI', 'Balance_Income', 
-        'LoanAmount_log_2', 'ApplicantIncome_log', 'Loan_Amount_Term_log'
+        'Property_Area', 'EMI', 'Balance_Income'
     ])
     
     # Fill in the features we have
@@ -129,11 +128,7 @@ with col1:
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area],
             'EMI': emi,
-            'Balance_Income': balance_income,
-            'LoanAmount_log': np.log1p(float(loan_amount)),
-            'ApplicantIncome_log': np.log1p(float(applicant_income)),
-            'Loan_Amount_Term_log': np.log1p(float(loan_term)),
-            'LoanAmount_log_2': np.log1p(float(loan_amount)) ** 2
+            'Balance_Income': balance_income
         }
 
         # Display the input data as text
