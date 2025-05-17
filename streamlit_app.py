@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
+# Set the page configuration to wide layout
+st.set_page_config(layout="wide")
+
 # Initialize session state variables
 if 'clear_triggered' not in st.session_state:
     st.session_state.clear_triggered = False
@@ -152,62 +155,61 @@ with col1:
 
             # Visualization with minimalist aesthetic
             plt.style.use('seaborn-v0_8-whitegrid')
-            plt.figure(figsize=(8, 4))  # Increased size for better visibility
-            
+            plt.figure(figsize=(14, 7))  # Significantly increased size
+
             # Use a modern color palette
             colors = ['#4CAF50', '#FF5252']  # Modern green and red
-            
+
             # Create bars with subtle transparency
-            bars = plt.bar(['Repayment', 'Default'], 
-                         [probability, 1 - probability], 
+            bars = plt.bar(['Repayment', 'Default'],
+                         [probability, 1 - probability],
                          color=colors,
                          alpha=0.8,
-                         width=0.6)  # Increased bar width
-            
+                         width=0.9)  # Increased bar width
+
             # Add value labels with clean typography
             for bar in bars:
                 height = bar.get_height()
                 plt.text(bar.get_x() + bar.get_width()/2., height,
                         f'{height:.1%}',
                         ha='center', va='bottom',
-                        fontsize=10,  # Increased font size
+                        fontsize=16,  # Increased font size
                         fontweight='medium',
                         color='#2C3E50')
-            
+
             # Clean up the plot
             plt.gca().spines['top'].set_visible(False)
             plt.gca().spines['right'].set_visible(False)
             plt.gca().spines['left'].set_visible(False)
             plt.gca().spines['bottom'].set_visible(False)
-            
+
             # Remove y-axis ticks and labels
             plt.yticks([])
             plt.ylabel('')
-            
+
             # Style the x-axis
-            plt.xticks(fontsize=10, color='#2C3E50')  # Increased font size
-            
+            plt.xticks(fontsize=16, color='#2C3E50')  # Increased font size
+
             # Add a subtle grid
             plt.grid(axis='y', linestyle='-', alpha=0.1, color='#2C3E50')
-            
+
             # Set background color to white
             plt.gca().set_facecolor('white')
             plt.gcf().set_facecolor('white')
-            
+
             # Add a title with modern typography
             plt.title('Loan Repayment Probability',
-                     fontsize=12,  # Increased font size
+                     fontsize=18,  # Increased font size
                      fontweight='medium',
                      color='#2C3E50',
-                     pad=15)  # Adjusted padding
-            
-            # Adjust layout to be more compact
-            plt.tight_layout(pad=1.2)  # Adjusted padding
-            
-            # Display the plot in a container with specific width
-            col1, col2, col3 = st.columns([0.5,2,0.5]) # Adjusted column ratio
-            with col2:
-                st.pyplot(plt, use_container_width=True)
+                     pad=30)  # Adjusted padding
+
+            # Adjust layout
+            plt.tight_layout(pad=2.5) # Adjusted padding
+
+            # Display the plot
+            # Removed centering columns as page layout is now wide
+            st.pyplot(plt, use_container_width=True)
             plt.clf()
         except Exception as e:
             st.error(f"Error making prediction: {str(e)}")
