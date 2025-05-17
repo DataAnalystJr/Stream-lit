@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import os
 import numpy as np
 
+# Initialize session state variables
+if 'clear_triggered' not in st.session_state:
+    st.session_state.clear_triggered = False
 
 # Get the current directory of the script
 current_dir = os.path.dirname(__file__)
@@ -158,9 +161,13 @@ with col1:
                 st.write(f"The applicant is classified as high risk. (Probability: {1 - probability:.2f})")
 
             # Visualization
-            plt.figure(figsize=(6, 4))
-            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=['gray', 'gray'])
+            plt.figure(figsize=(8, 5))
+            colors = ['#2ecc71', '#e74c3c']  # Green for repayment, Red for default
+            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=colors)
+            plt.title('Loan Repayment Probability')
             plt.ylabel('Probability')
+            plt.ylim(0, 1)
+            plt.grid(axis='y', linestyle='--', alpha=0.7)
             st.pyplot(plt)
             plt.clf()
         except Exception as e:
