@@ -150,14 +150,60 @@ with col1:
             else:
                 st.write(f"The applicant is classified as high risk. (Probability: {1 - probability:.2f})")
 
-            # Visualization
-            plt.figure(figsize=(8, 5))
-            colors = ['#2ecc71', '#e74c3c']  # Green for repayment, Red for default
-            plt.bar(['Repayment', 'Default'], [probability, 1 - probability], color=colors)
-            plt.title('Loan Repayment Probability')
-            plt.ylabel('Probability')
-            plt.ylim(0, 1)
-            plt.grid(axis='y', linestyle='--', alpha=0.7)
+            # Visualization with minimalist aesthetic
+            plt.style.use('seaborn-v0_8-whitegrid')
+            plt.figure(figsize=(8, 4))
+            
+            # Use a modern color palette
+            colors = ['#4CAF50', '#FF5252']  # Modern green and red
+            
+            # Create bars with subtle transparency
+            bars = plt.bar(['Repayment', 'Default'], 
+                         [probability, 1 - probability], 
+                         color=colors,
+                         alpha=0.8,
+                         width=0.6)
+            
+            # Add value labels with clean typography
+            for bar in bars:
+                height = bar.get_height()
+                plt.text(bar.get_x() + bar.get_width()/2., height,
+                        f'{height:.1%}',
+                        ha='center', va='bottom',
+                        fontsize=10,
+                        fontweight='medium',
+                        color='#2C3E50')
+            
+            # Clean up the plot
+            plt.gca().spines['top'].set_visible(False)
+            plt.gca().spines['right'].set_visible(False)
+            plt.gca().spines['left'].set_visible(False)
+            plt.gca().spines['bottom'].set_visible(False)
+            
+            # Remove y-axis ticks and labels
+            plt.yticks([])
+            plt.ylabel('')
+            
+            # Style the x-axis
+            plt.xticks(fontsize=10, color='#2C3E50')
+            
+            # Add a subtle grid
+            plt.grid(axis='y', linestyle='-', alpha=0.1, color='#2C3E50')
+            
+            # Set background color to white
+            plt.gca().set_facecolor('white')
+            plt.gcf().set_facecolor('white')
+            
+            # Add a title with modern typography
+            plt.title('Loan Repayment Probability',
+                     fontsize=12,
+                     fontweight='medium',
+                     color='#2C3E50',
+                     pad=20)
+            
+            # Adjust layout
+            plt.tight_layout()
+            
             st.pyplot(plt)
             plt.clf()
         except Exception as e:
