@@ -152,7 +152,7 @@ with col1:
 
             # Visualization with minimalist aesthetic
             plt.style.use('seaborn-v0_8-whitegrid')
-            plt.figure(figsize=(6, 3))  # Reduced size to fit better
+            plt.figure(figsize=(8, 4))  # Increased size for better visibility
             
             # Use a modern color palette
             colors = ['#4CAF50', '#FF5252']  # Modern green and red
@@ -162,7 +162,7 @@ with col1:
                          [probability, 1 - probability], 
                          color=colors,
                          alpha=0.8,
-                         width=0.5)  # Slightly thinner bars
+                         width=0.6)  # Increased bar width
             
             # Add value labels with clean typography
             for bar in bars:
@@ -170,7 +170,7 @@ with col1:
                 plt.text(bar.get_x() + bar.get_width()/2., height,
                         f'{height:.1%}',
                         ha='center', va='bottom',
-                        fontsize=9,  # Slightly smaller font
+                        fontsize=10,  # Increased font size
                         fontweight='medium',
                         color='#2C3E50')
             
@@ -185,7 +185,7 @@ with col1:
             plt.ylabel('')
             
             # Style the x-axis
-            plt.xticks(fontsize=9, color='#2C3E50')  # Slightly smaller font
+            plt.xticks(fontsize=10, color='#2C3E50')  # Increased font size
             
             # Add a subtle grid
             plt.grid(axis='y', linestyle='-', alpha=0.1, color='#2C3E50')
@@ -196,16 +196,16 @@ with col1:
             
             # Add a title with modern typography
             plt.title('Loan Repayment Probability',
-                     fontsize=10,  # Slightly smaller font
+                     fontsize=12,  # Increased font size
                      fontweight='medium',
                      color='#2C3E50',
-                     pad=10)  # Reduced padding
+                     pad=15)  # Adjusted padding
             
             # Adjust layout to be more compact
-            plt.tight_layout(pad=1.0)  # Reduced padding
+            plt.tight_layout(pad=1.2)  # Adjusted padding
             
             # Display the plot in a container with specific width
-            col1, col2, col3 = st.columns([1,2,1])
+            col1, col2, col3 = st.columns([0.5,2,0.5]) # Adjusted column ratio
             with col2:
                 st.pyplot(plt, use_container_width=True)
             plt.clf()
