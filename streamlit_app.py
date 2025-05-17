@@ -102,13 +102,7 @@ with col1:
     # Submit button
     if st.button("Submit", disabled=not is_valid_input()):
         # Calculate derived features
-        emi = float(loan_amount) / float(loan_term) if float(loan_term) > 0 else 0
-        balance_income = float(applicant_income) - emi if float(applicant_income) > 0 else 0
-        
-        # Calculate log-transformed features
-        applicant_income_log = np.log1p(float(applicant_income))
-        loan_amount_log = np.log1p(float(loan_amount))
-        loan_term_log = np.log1p(float(loan_term))
+        loan_to_income_ratio = float(loan_amount) / float(applicant_income) if float(applicant_income) > 0 else 0
         
         # Prepare input data for prediction with exactly 15 features
         input_data = {
@@ -122,11 +116,11 @@ with col1:
             'Loan_Amount_Term': float(loan_term),
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area],
-            'ApplicantIncome_log': applicant_income_log,
-            'LoanAmount_log': loan_amount_log,
-            'Loan_Amount_Term_log': loan_term_log,
-            'EMI': emi,
-            'Balance_Income': balance_income
+            'ApplicantIncomeLog': np.log1p(float(applicant_income)),
+            'LoanAmountLog': np.log1p(float(loan_amount)),
+            'Loan_Amount_TermLog': np.log1p(float(loan_term)),
+            'Loan_to_Income_RatioLog': np.log1p(loan_to_income_ratio),
+            'Monthly_Loan_Amount_TermLog': np.log1p(float(loan_term) / 12)
         }
 
         # Display the input data as text
@@ -141,7 +135,7 @@ with col1:
         st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
         st.write(f"Property Area: {property_area}")
-        st.write(f"Loan to Income Ratio: {float(loan_amount) / float(applicant_income):.2f}")
+        st.write(f"Loan to Income Ratio: {loan_to_income_ratio:.2f}")
 
         try:
             # Make predictions
