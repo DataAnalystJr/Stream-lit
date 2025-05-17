@@ -41,7 +41,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Streamlit app layout
-st.title(" ")
 st.title("Loan Application Input Form")
 
 # Create a mapping for user-friendly labels
@@ -53,17 +52,22 @@ employment_status_options = {'No': 0, 'Yes': 1}
 credit_history_options = {'Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Urban': 1}
 
-# Input Fields
-gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
-married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
-dependents = st.selectbox("Select Number of Dependents:", options=[""] + list(dependents_options.keys()), index=0)
-education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
-self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
-applicant_income = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
-loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
-loan_term = st.number_input("Enter Monthly Loan Term:", min_value=0.0, value=None)
-credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
-property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
+# Input Fields arranged in columns
+col1, col2 = st.columns(2)
+
+with col1:
+    gender = st.selectbox("Select Gender:", options=[""] + list(gender_options.keys()), index=0)
+    married = st.selectbox("Select Marital Status:", options=[""] + list(marital_status_options.keys()), index=0)
+    dependents = st.selectbox("Select Number of Dependents:", options=[""] + list(dependents_options.keys()), index=0)
+    education = st.selectbox("Select Education Level:", options=[""] + list(education_options.keys()), index=0)
+    self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
+
+with col2:
+    applicant_income = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
+    loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
+    loan_term = st.number_input("Enter Monthly Loan Term:", min_value=0.0, value=None)
+    credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
+    property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
 
 # Validation function
 def is_valid_input():
