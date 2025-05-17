@@ -104,7 +104,7 @@ with col1:
         # Calculate derived features
         loan_to_income_ratio = float(loan_amount) / float(applicant_income) if float(applicant_income) > 0 else 0
         
-        # Prepare input data for prediction with exactly 15 features
+        # Prepare input data for prediction with exactly the columns the model was trained on
         input_data = {
             'Gender': gender_options[gender],
             'Married': marital_status_options[married],
@@ -113,10 +113,9 @@ with col1:
             'Self_Employed': employment_status_options[self_employed],
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area],
-            'ApplicantIncome_log': np.log1p(float(applicant_income)),
-            'LoanAmount_log': np.log1p(float(loan_amount)),
-            'Loan_Amount_Term_log': np.log1p(float(loan_term)),
+            'ApplicantIncomeLog': np.log1p(float(applicant_income)),
             'Loan_to_Income_RatioLog': np.log1p(loan_to_income_ratio),
+            'LoanAmountLog': np.log1p(float(loan_amount)),
             'Monthly_Loan_Amount_TermLog': np.log1p(float(loan_term) / 12)
         }
 
