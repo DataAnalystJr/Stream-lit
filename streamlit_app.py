@@ -113,8 +113,8 @@ with col1:
             'Self_Employed': employment_status_options[self_employed],
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area],
-            'ApplicantIncome_log': np.log1p(float(applicant_income)),
-            'LoanAmount_log': np.log1p(float(loan_amount)),
+            'ApplicantIncomeLog': np.log1p(float(applicant_income)),
+            'LoanAmountLog': np.log1p(float(loan_amount)),
             'Loan_Amount_Term_log': np.log1p(float(loan_term)),
             'Loan_to_Income_RatioLog': np.log1p(loan_to_income_ratio),
             'Monthly_Loan_Amount_TermLog': np.log1p(float(loan_term) / 12)
