@@ -115,7 +115,7 @@ with col1:
             'Property_Area': property_area_options[property_area],
             'ApplicantIncomeLog': np.log1p(float(applicant_income)),
             'LoanAmountLog': np.log1p(float(loan_amount)),
-            'Loan_Amount_Term_log': np.log1p(float(loan_term)),
+            'Loan_Amount_TermLog': np.log1p(float(loan_term)),
             'Loan_to_Income_RatioLog': np.log1p(loan_to_income_ratio),
             'Monthly_Loan_Amount_TermLog': np.log1p(float(loan_term) / 12)
         }
