@@ -152,7 +152,7 @@ with col1:
 
             # Visualization with minimalist aesthetic
             plt.style.use('seaborn-v0_8-whitegrid')
-            plt.figure(figsize=(8, 4))
+            plt.figure(figsize=(6, 3))  # Reduced size to fit better
             
             # Use a modern color palette
             colors = ['#4CAF50', '#FF5252']  # Modern green and red
@@ -162,7 +162,7 @@ with col1:
                          [probability, 1 - probability], 
                          color=colors,
                          alpha=0.8,
-                         width=0.6)
+                         width=0.5)  # Slightly thinner bars
             
             # Add value labels with clean typography
             for bar in bars:
@@ -170,7 +170,7 @@ with col1:
                 plt.text(bar.get_x() + bar.get_width()/2., height,
                         f'{height:.1%}',
                         ha='center', va='bottom',
-                        fontsize=10,
+                        fontsize=9,  # Slightly smaller font
                         fontweight='medium',
                         color='#2C3E50')
             
@@ -185,7 +185,7 @@ with col1:
             plt.ylabel('')
             
             # Style the x-axis
-            plt.xticks(fontsize=10, color='#2C3E50')
+            plt.xticks(fontsize=9, color='#2C3E50')  # Slightly smaller font
             
             # Add a subtle grid
             plt.grid(axis='y', linestyle='-', alpha=0.1, color='#2C3E50')
@@ -196,15 +196,18 @@ with col1:
             
             # Add a title with modern typography
             plt.title('Loan Repayment Probability',
-                     fontsize=12,
+                     fontsize=10,  # Slightly smaller font
                      fontweight='medium',
                      color='#2C3E50',
-                     pad=20)
+                     pad=10)  # Reduced padding
             
-            # Adjust layout
-            plt.tight_layout()
+            # Adjust layout to be more compact
+            plt.tight_layout(pad=1.0)  # Reduced padding
             
-            st.pyplot(plt)
+            # Display the plot in a container with specific width
+            col1, col2, col3 = st.columns([1,2,1])
+            with col2:
+                st.pyplot(plt, use_container_width=True)
             plt.clf()
         except Exception as e:
             st.error(f"Error making prediction: {str(e)}")
