@@ -7,7 +7,7 @@ import numpy as np
 current_dir = os.path.dirname(__file__)
 
 # Construct the path for the decision tree SMOTE model
-model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'dtree2.joblib')
+model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'dtree_sop2.joblib')
 
 # Load the model
 model = joblib.load(model_path)
