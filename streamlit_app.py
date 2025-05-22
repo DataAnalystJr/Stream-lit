@@ -18,7 +18,7 @@ if 'clear_triggered' not in st.session_state:
 current_dir = os.path.dirname(__file__)
 
 # Construct the path for the decision tree SMOTE model
-decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info.joblib.joblib')
+decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info.joblib')
 
 # Load the model
 decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
