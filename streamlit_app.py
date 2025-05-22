@@ -31,7 +31,8 @@ if not os.path.exists(decision_tree_smote_model_path):
 
 # Load the model
 try:
-    decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
+    model_info = joblib.load(decision_tree_smote_model_path)
+    decision_tree_smote_model = model_info['model']  # Extract the model from the dictionary
     print("Model loaded successfully!")
 except Exception as e:
     st.error(f"Error loading model: {str(e)}")
@@ -162,7 +163,7 @@ with col1:
             prediction = predict_loan_status(input_data)
             probability = decision_tree_smote_model.predict_proba(pd.DataFrame([input_data]))[0][1]
             
-            st.title("Decision Tree SMOTE Model Prediction")
+            st.title("Random Forest Model Prediction")  # Updated title
             if prediction == 1:
                 st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
             else:
