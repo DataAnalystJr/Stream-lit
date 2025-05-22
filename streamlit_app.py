@@ -18,7 +18,7 @@ if 'clear_triggered' not in st.session_state:
 current_dir = os.path.dirname(__file__)
 
 # Construct the path for the decision tree SMOTE model
-decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'dtree_sop2.joblib')
+decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info.joblib.joblib')
 
 # Load the model
 decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
@@ -63,7 +63,10 @@ with col1:
     self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
 
 with col2:
-    applicant_income = st.number_input("Enter Applicant Income (Monthly):", min_value=0.0, value=None)
+    applicant_income = st.number_input("Enter Applicant Income (Monthly):", 
+                                     min_value=0.0, 
+                                     value=None,
+                                     help="Enter your monthly income before any deductions")
     loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
     loan_term = st.number_input("Enter Monthly Loan Term:", min_value=0.0, value=None)
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
