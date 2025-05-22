@@ -15,13 +15,27 @@ if 'clear_triggered' not in st.session_state:
     st.session_state.clear_triggered = False
 
 # Get the current directory of the script
-current_dir = os.path.dirname(__file__)
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Construct the path for the decision tree SMOTE model
 decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info.joblib')
 
+# Print the path for debugging
+print(f"Looking for model at: {decision_tree_smote_model_path}")
+print(f"Current directory: {current_dir}")
+
+# Check if file exists before loading
+if not os.path.exists(decision_tree_smote_model_path):
+    st.error(f"Model file not found at: {decision_tree_smote_model_path}")
+    st.stop()
+
 # Load the model
-decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
+try:
+    decision_tree_smote_model = joblib.load(decision_tree_smote_model_path)
+    print("Model loaded successfully!")
+except Exception as e:
+    st.error(f"Error loading model: {str(e)}")
+    st.stop()
 
 # Function to predict loan status
 def predict_loan_status(input_data):
