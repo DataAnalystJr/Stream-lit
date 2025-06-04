@@ -11,16 +11,25 @@ if %errorlevel% neq 0 (
 
 REM Check if virtual environment exists, create if not
 if not exist "venv" (
-    echo Creating virtual environment...
+    echo Creating new virtual environment...
     python -m venv venv
+    
+    REM Activate virtual environment
+    call venv\Scripts\activate
+    
+    REM Upgrade pip first
+    python -m pip install --upgrade pip
+    
+    REM Install numpy first to avoid dependency issues
+    pip install numpy==1.24.3
+    
+    REM Install other dependencies
+    echo Installing required packages...
+    pip install -r requirements.txt
+) else (
+    REM Just activate the existing virtual environment
+    call venv\Scripts\activate
 )
-
-REM Activate virtual environment
-call venv\Scripts\activate
-
-REM Install dependencies if not already installed
-echo Installing required packages...
-pip install -r requirements.txt
 
 REM Run the application
 echo Starting Streamlit application...
