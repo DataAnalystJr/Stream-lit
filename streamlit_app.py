@@ -18,21 +18,21 @@ if 'clear_triggered' not in st.session_state:
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-decision_tree_smote_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'knn_model_with_info.joblib')
+rf_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info.joblib')
 
 # Print the path for debugging
-print(f"Looking for model at: {decision_tree_smote_model_path}")
+print(f"Looking for model at: {rf_model_path}")
 print(f"Current directory: {current_dir}")
 
 # Check if file exists before loading
-if not os.path.exists(decision_tree_smote_model_path):
-    st.error(f"Model file not found at: {decision_tree_smote_model_path}")
+if not os.path.exists(rf_model_path):
+    st.error(f"Model file not found at: {rf_model_path}")
     st.stop()
 
 # Load the model
 try:
-    model_info = joblib.load(decision_tree_smote_model_path)
-    decision_tree_smote_model = model_info['model']  # Extract the model from the dictionary
+    model_info = joblib.load(rf_model_path)
+    rf_model = model_info['model']  # Extract the model from the dictionary
     print("Model loaded successfully!")
 except Exception as e:
     st.error(f"Error loading model: {str(e)}")
@@ -44,14 +44,14 @@ def predict_loan_status(input_data):
     input_df = pd.DataFrame([input_data])
     
     # Make prediction using the loaded model
-    prediction = decision_tree_smote_model.predict(input_df)[0]
+    prediction = rf_model.predict(input_df)[0]
     return prediction
 
 # Center the title using HTML
 # Center the title with a border using HTML and CSS
 st.markdown("""
     <div style='text-align: center; border: 2px solid white; padding: 10px; border-radius: 15px; background-color: #333;'>
-        <h1 style='color: white;'>Loan Repayment Prediction</h1>
+        <h1 style='color: white;'>Loan Approval Prediction</h1>
     </div>
 """, unsafe_allow_html=True)
 
@@ -161,7 +161,7 @@ with col1:
         try:
             # Make predictions
             prediction = predict_loan_status(input_data)
-            probability = decision_tree_smote_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+            probability = rf_model.predict_proba(pd.DataFrame([input_data]))[0][1]
             
             st.title("Random Forest Model Prediction")  # Updated title
             if prediction == 1:
