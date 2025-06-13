@@ -169,11 +169,6 @@ with col1:
             else:
                 st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
 
-            threshold = 0.7  # Define your threshold
-            if probability > threshold:
-                st.write(f"The applicant is classified as low risk. (Probability: {probability:.2f})")
-            else:
-                st.write(f"The applicant is classified as high risk. (Probability: {1 - probability:.2f})")
 
             # Visualization with minimalist aesthetic
             plt.style.use('seaborn-v0_8-whitegrid')
