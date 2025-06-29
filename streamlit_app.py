@@ -83,7 +83,7 @@ with col2:
                                      value=None,
                                      help="Enter your monthly income before any deductions")
     loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
-    loan_term = st.number_input("Enter Monthly Loan Term:", min_value=0.0, value=None)
+    loan_term = st.slider("Select Monthly Loan Term (Months):", min_value=1, max_value=100, value=12, help="Select the loan term in months (1-100)")
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
 
