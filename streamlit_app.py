@@ -78,7 +78,43 @@ with col1:
     self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
 
 with col2:
-    # Use text_input for formatted input with commas, but parse to float for calculations
+    # Inject JavaScript for real-time comma formatting
+    st.markdown("""
+        <script>
+        function addCommas(nStr) {
+            nStr += '';
+            var x = nStr.split('.');
+            var x1 = x[0];
+            var x2 = x.length > 1 ? '.' + x[1] : '';
+            var rgx = /(\d+)(\d{3})/;
+            while (rgx.test(x1)) {
+                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+            }
+            return x1 + x2;
+        }
+        // Applicant Income
+        const incomeInput = window.parent.document.querySelector('input[aria-label="Enter Applicant Income (Monthly):"]');
+        if (incomeInput) {
+            incomeInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/,/g, '');
+                if (!isNaN(value) && value !== '') {
+                    this.value = addCommas(value);
+                }
+            });
+        }
+        // Loan Amount
+        const loanInput = window.parent.document.querySelector('input[aria-label="Enter Loan Amount:"]');
+        if (loanInput) {
+            loanInput.addEventListener('input', function(e) {
+                let value = this.value.replace(/,/g, '');
+                if (!isNaN(value) && value !== '') {
+                    this.value = addCommas(value);
+                }
+            });
+        }
+        </script>
+    """, unsafe_allow_html=True)
+
     applicant_income_str = st.text_input("Enter Applicant Income (Monthly):", value="" if 'applicant_income' not in st.session_state or st.session_state.applicant_income is None else f"{int(st.session_state.applicant_income):,}", help="Enter your monthly income before any deductions (commas allowed)")
     try:
         applicant_income = float(applicant_income_str.replace(",", "")) if applicant_income_str else None
