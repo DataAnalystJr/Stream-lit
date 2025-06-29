@@ -3,7 +3,7 @@ import sys
 import streamlit as st
 import pandas as pd
 import joblib
-import matplotlib.pyplot as plt
+importasdsad matplotlib.pyplot as plt
 import os
 import numpy as np
 
@@ -78,57 +78,12 @@ with col1:
     self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
 
 with col2:
-    # Inject JavaScript for real-time comma formatting
-    st.markdown("""
-        <script>
-        function addCommas(nStr) {
-            nStr += '';
-            var x = nStr.split('.');
-            var x1 = x[0];
-            var x2 = x.length > 1 ? '.' + x[1] : '';
-            var rgx = /(\d+)(\d{3})/;
-            while (rgx.test(x1)) {
-                x1 = x1.replace(rgx, '$1' + ',' + '$2');
-            }
-            return x1 + x2;
-        }
-        // Applicant Income
-        const incomeInput = window.parent.document.querySelector('input[aria-label="Enter Applicant Income (Monthly):"]');
-        if (incomeInput) {
-            incomeInput.addEventListener('input', function(e) {
-                let value = this.value.replace(/,/g, '');
-                if (!isNaN(value) && value !== '') {
-                    this.value = addCommas(value);
-                }
-            });
-        }
-        // Loan Amount
-        const loanInput = window.parent.document.querySelector('input[aria-label="Enter Loan Amount:"]');
-        if (loanInput) {
-            loanInput.addEventListener('input', function(e) {
-                let value = this.value.replace(/,/g, '');
-                if (!isNaN(value) && value !== '') {
-                    this.value = addCommas(value);
-                }
-            });
-        }
-        </script>
-    """, unsafe_allow_html=True)
-
-    applicant_income_str = st.text_input("Enter Applicant Income (Monthly):", value="" if 'applicant_income' not in st.session_state or st.session_state.applicant_income is None else f"{int(st.session_state.applicant_income):,}", help="Enter your monthly income before any deductions (commas allowed)")
-    try:
-        applicant_income = float(applicant_income_str.replace(",", "")) if applicant_income_str else None
-    except ValueError:
-        applicant_income = None
-        st.warning("Please enter a valid number for Applicant Income.")
-
-    loan_amount_str = st.text_input("Enter Loan Amount:", value="" if 'loan_amount' not in st.session_state or st.session_state.loan_amount is None else f"{int(st.session_state.loan_amount):,}")
-    try:
-        loan_amount = float(loan_amount_str.replace(",", "")) if loan_amount_str else None
-    except ValueError:
-        loan_amount = None
-        st.warning("Please enter a valid number for Loan Amount.")
-
+    # Revert to original number_input fields for Applicant Income and Loan Amount
+    applicant_income = st.number_input("Enter Applicant Income (Monthly):", 
+                                     min_value=0.0, 
+                                     value=None,
+                                     help="Enter your monthly income before any deductions")
+    loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
     loan_term = st.slider("Select Monthly Loan Term (Months):", min_value=1, max_value=100, value=12, help="Select the loan term in months (1-100)")
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
