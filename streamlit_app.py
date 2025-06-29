@@ -78,11 +78,21 @@ with col1:
     self_employed = st.selectbox("Are you Self Employed?", options=[""] + list(employment_status_options.keys()), index=0)
 
 with col2:
-    applicant_income = st.number_input("Enter Applicant Income (Monthly):", 
-                                     min_value=0.0, 
-                                     value=None,
-                                     help="Enter your monthly income before any deductions")
-    loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
+    # Use text_input for formatted input with commas, but parse to float for calculations
+    applicant_income_str = st.text_input("Enter Applicant Income (Monthly):", value="" if 'applicant_income' not in st.session_state or st.session_state.applicant_income is None else f"{int(st.session_state.applicant_income):,}", help="Enter your monthly income before any deductions (commas allowed)")
+    try:
+        applicant_income = float(applicant_income_str.replace(",", "")) if applicant_income_str else None
+    except ValueError:
+        applicant_income = None
+        st.warning("Please enter a valid number for Applicant Income.")
+
+    loan_amount_str = st.text_input("Enter Loan Amount:", value="" if 'loan_amount' not in st.session_state or st.session_state.loan_amount is None else f"{int(st.session_state.loan_amount):,}")
+    try:
+        loan_amount = float(loan_amount_str.replace(",", "")) if loan_amount_str else None
+    except ValueError:
+        loan_amount = None
+        st.warning("Please enter a valid number for Loan Amount.")
+
     loan_term = st.slider("Select Monthly Loan Term (Months):", min_value=1, max_value=100, value=12, help="Select the loan term in months (1-100)")
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
@@ -151,8 +161,8 @@ with col1:
         st.write(f"Number of Dependents: {dependents}")
         st.write(f"Education: {education}")
         st.write(f"Self Employed: {self_employed}")
-        st.write(f"Applicant Income: {applicant_income}")
-        st.write(f"Loan Amount: {loan_amount}")
+        st.write(f"Applicant Income: {int(applicant_income):,}")
+        st.write(f"Loan Amount: {int(loan_amount):,}")
         st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
         st.write(f"Property Area: {property_area}")
