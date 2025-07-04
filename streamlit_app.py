@@ -174,6 +174,20 @@ with col1:
             else:
                 st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
 
+            st.info("""
+            **Why this result?**  
+            This prediction is based on the applicant's income, loan amount, number of dependents, and credit history, as these are key factors used by the model to assess loan repayment likelihood.
+            """)
+
+            # Add dynamic explanation for the output percentages
+            yes_percent = probability * 100
+            no_percent = (1 - probability) * 100
+            st.markdown(f"""
+            <span style='color:#2C3E50;'>
+            <b>What do these percentages mean?</b><br>
+            The model estimates there is a <b>{yes_percent:.0f}%</b> chance the applicant will repay the loan, and a <b>{no_percent:.0f}%</b> chance they will not.
+            </span>
+            """, unsafe_allow_html=True)
 
             # Visualization with minimalist aesthetic
             plt.style.use('seaborn-v0_8-whitegrid')
