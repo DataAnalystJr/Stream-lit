@@ -156,7 +156,7 @@ with col1:
         st.write(f"Number of Dependents: {dependents}")
         st.write(f"Education: {education}")
         st.write(f"Self Employed: {self_employed}")
-        st.write(f"Applicant Income: {int(applicant_income):,}")
+        st.write(f"Applicant Income: ₱{int(applicant_income):,}")
         st.write(f"Loan Amount: {int(loan_amount):,}")
         st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
