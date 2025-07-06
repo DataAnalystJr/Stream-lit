@@ -79,13 +79,13 @@ with col1:
 
 with col2:
     applicant_income = st.number_input("Enter Applicant Income (Monthly):", 
-                                     min_value=0.0, 
+                                     min_value=15000.0, 
                                      value=None,
                                      help="Enter your monthly income before any deductions")
     if applicant_income is not None and applicant_income != 0:
         st.markdown(f"<span style='color: #2C3E50;'>Formatted: <b>{int(applicant_income):,}</b></span>", unsafe_allow_html=True)
 
-    loan_amount = st.number_input("Enter Loan Amount:", min_value=0.0, value=None)
+    loan_amount = st.number_input("Enter Loan Amount:", min_value=50000.0, max_value=500000.0, value=None, help="Enter loan amount (maximum: ₱500,000)")
     if loan_amount is not None and loan_amount != 0:
         st.markdown(f"<span style='color: #2C3E50;'>Formatted: <b>{int(loan_amount):,}</b></span>", unsafe_allow_html=True)
     loan_term = st.slider("Select Monthly Loan Term (Months):", min_value=1, max_value=50, value=12, help="Select the loan term in months (1-50)")
