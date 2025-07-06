@@ -158,7 +158,7 @@ with col1:
         st.write(f"Self Employed: {self_employed}")
         st.write(f"Applicant Income: ₱{int(applicant_income):,}")
         st.write(f"Loan Amount: {int(loan_amount):,}")
-        st.write(f"Loan Term: {loan_term} months")
+        st.write(f"Monthly Loan Term: {loan_term}")
         st.write(f"Credit History: {credit_history}")
         st.write(f"Property Area: {property_area}")
         st.write(f"Loan to Income Ratio: {loan_to_income_ratio:.2f}")
