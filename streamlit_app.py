@@ -79,7 +79,7 @@ with col1:
 
 with col2:
     applicant_income = st.number_input("Enter Applicant Income (Monthly):", 
-                                     min_value=15000.0, 
+                                     min_value=5000.0, 
                                      value=None,
                                      help="Enter your monthly income before any deductions")
     if applicant_income is not None and applicant_income != 0:
