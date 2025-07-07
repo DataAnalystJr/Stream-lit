@@ -88,7 +88,7 @@ with col2:
     loan_amount = st.number_input("Enter Loan Amount:", min_value=50000.0, max_value=500000.0, value=None, help="Enter loan amount (maximum: ₱500,000)")
     if loan_amount is not None and loan_amount != 0:
         st.markdown(f"<span style='color: #2C3E50;'>Formatted: <b>{int(loan_amount):,}</b></span>", unsafe_allow_html=True)
-    loan_term = st.slider("Select Monthly Loan Term (Months):", min_value=1, max_value=50, value=12, help="Select the loan term in months (1-50)")
+    loan_term = st.slider("Select Monthly Loan Term (Months):", min_value=1, max_value=120, value=12, help="Select the loan term in months (1-120)")
     credit_history = st.selectbox("Select Credit History:", options=[""] + list(credit_history_options.keys()), index=0)
     property_area = st.selectbox("Select Property Area:", options=[""] + list(property_area_options.keys()), index=0)
 
