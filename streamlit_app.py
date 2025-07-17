@@ -18,7 +18,7 @@ if 'clear_triggered' not in st.session_state:
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
-rf_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info_2.joblib')
+rf_model_path = os.path.join(current_dir, 'SWIFT', 'Models', 'rf_model_with_info.joblib')
 
 # Print the path for debugging
 print(f"Looking for model at: {rf_model_path}")
