@@ -176,7 +176,7 @@ with col1:
 
             # Post-prediction adjustment for property area
             if property_area == "Urban":
-                probability = min(probability + 0.05, 1.0)
+                probability = min(probability + 0.08, 1.0)
             elif property_area == "Rural":
                 probability = max(probability - 0.05, 0.0)
             
