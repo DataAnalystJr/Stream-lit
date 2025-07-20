@@ -173,6 +173,12 @@ with col1:
                 probability = min(probability + 0.10, 1.0)
             elif education == "High School Graduate":
                 probability = max(probability - 0.05, 0.0)
+
+            # Post-prediction adjustment for property area
+            if property_area == "Urban":
+                probability = min(probability + 0.05, 1.0)
+            elif property_area == "Rural":
+                probability = max(probability - 0.05, 0.0)
             
             st.title("Random Forest Model Prediction")  # Updated title
             if prediction == 1:
