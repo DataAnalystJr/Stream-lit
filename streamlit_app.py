@@ -167,6 +167,12 @@ with col1:
             # Make predictions
             prediction = predict_loan_status(input_data)
             probability = rf_model.predict_proba(pd.DataFrame([input_data]))[0][1]
+
+            # Post-prediction adjustment for education
+            if education == "College Graduate":
+                probability = min(probability + 0.05, 1.0)
+            elif education == "High School Graduate":
+                probability = max(probability - 0.05, 0.0)
             
             st.title("Random Forest Model Prediction")  # Updated title
             if prediction == 1:
