@@ -180,6 +180,12 @@ with col1:
             elif property_area == "Rural":
                 probability = max(probability - 0.05, 0.0)
             
+            # Post-prediction adjustment for credit history
+            if credit_history == "Good Credit History":
+                probability = min(probability + 0.08, 1.0)
+            elif credit_history == "Bad Credit History":
+                probability = max(probability - 0.05, 0.0)
+
             st.title("Random Forest Model Prediction")  # Updated title
             if prediction == 1:
                 st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
