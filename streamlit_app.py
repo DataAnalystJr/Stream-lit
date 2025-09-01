@@ -101,6 +101,8 @@ def load_models_from_dir(directory_path):
             
         except Exception as e:
             st.error(f"Failed to load {filename}: {str(e)}")
+            # Log the specific error for debugging
+            st.error(f"Error details: {type(e).__name__}: {str(e)}")
             continue
     
     st.info(f"Total models loaded: {len(loaded_models)}")
