@@ -53,12 +53,25 @@ def format_model_name(filename):
 # Load all models from the models directory
 def load_models_from_dir(directory_path):
     loaded_models = {}
-    for filename in os.listdir(directory_path):
+    st.info(f"Looking for models in: {directory_path}")
+    
+    # List all files in directory
+    try:
+        all_files = os.listdir(directory_path)
+        st.info(f"Files found in directory: {all_files}")
+    except Exception as e:
+        st.error(f"Error listing directory: {str(e)}")
+        return loaded_models
+    
+    for filename in all_files:
         if not filename.lower().endswith('.joblib'):
             continue
         file_path = os.path.join(directory_path, filename)
+        st.info(f"Trying to load: {filename}")
+        
         try:
             obj = joblib.load(file_path)
+            st.success(f"Successfully loaded: {filename}")
             
             # Extract model from object
             model = obj
@@ -70,19 +83,27 @@ def load_models_from_dir(directory_path):
             
             # Check if model is valid
             if not hasattr(model, 'predict'):
+                st.warning(f"Model {filename} has no predict method")
                 continue
                 
             # Check if model is fitted
             try:
                 check_is_fitted(model)
-            except Exception:
+                st.success(f"Model {filename} is fitted and ready")
+            except Exception as e:
+                st.warning(f"Model {filename} is not fitted: {str(e)}")
                 continue
 
             # Create display name and store model
             name = format_model_name(filename)
             loaded_models[name] = model
-        except Exception:
+            st.success(f"Added model: {name}")
+            
+        except Exception as e:
+            st.error(f"Failed to load {filename}: {str(e)}")
             continue
+    
+    st.info(f"Total models loaded: {len(loaded_models)}")
     return loaded_models
 
 models_dict = load_models_from_dir(models_dir)
