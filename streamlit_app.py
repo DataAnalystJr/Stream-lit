@@ -1,196 +1,178 @@
-import subprocess
-import sys
 import streamlit as st
 import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-
-# Optional scikit-learn utilities for fitted checks
-try:
-    from sklearn.utils.validation import check_is_fitted
-    from sklearn.model_selection import GridSearchCV
-except Exception:
-    check_is_fitted = None
-    GridSearchCV = None
+from sklearn.utils.validation import check_is_fitted
 
 # Set the page configuration to wide layout
 st.set_page_config(layout="wide")
 
-# Initialize session state variables
-if 'clear_triggered' not in st.session_state:
-    st.session_state.clear_triggered = False
-
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
-
 models_dir = os.path.join(current_dir, 'SWIFT', 'Models')
-
-# Print the path for debugging
-print(f"Looking for models in: {models_dir}")
-print(f"Current directory: {current_dir}")
 
 # Check if models directory exists before loading
 if not os.path.isdir(models_dir):
     st.error(f"Models directory not found at: {models_dir}")
     st.stop()
 
+# Function to format model names with proper capitalization of abbreviations
+def format_model_name(filename):
+    """Format model names with proper capitalization of abbreviations like  VAES, SOP2, GANS"""
+    # Remove .joblib extension and replace underscores with spaces
+    name = os.path.splitext(filename)[0].replace('_', ' ')
+    
+    # Define abbreviations that should be capitalized
+    abbreviations = ['VAES', 'SOP2', 'GANS', 'RF', 'KNN', 'XGBoost']
+    
+    # Split the name into words
+    words = name.split()
+    
+    # Process each word
+    formatted_words = []
+    for word in words:
+        # Check if the word (case-insensitive) matches any abbreviation
+        word_lower = word.lower()
+        matched_abbrev = None
+        for abbrev in abbreviations:
+            if word_lower == abbrev.lower():
+                matched_abbrev = abbrev
+                break
+        
+        if matched_abbrev:
+            # Use the exact abbreviation
+            formatted_words.append(matched_abbrev)
+        else:
+            # Capitalize first letter, lowercase the rest
+            formatted_words.append(word.capitalize())
+    
+    return ' '.join(formatted_words)
+
 # Load all models from the models directory
 def load_models_from_dir(directory_path):
     loaded_models = {}
-    for filename in os.listdir(directory_path):
+    
+    # List all files in directory
+    try:
+        all_files = os.listdir(directory_path)
+    except Exception as e:
+        return loaded_models
+    
+    for filename in all_files:
         if not filename.lower().endswith('.joblib'):
             continue
         file_path = os.path.join(directory_path, filename)
+        
         try:
             obj = joblib.load(file_path)
-
-            # Determine the actual estimator to use
-            model_candidate = None
+            
+            # Extract model from object
+            model = obj
             if isinstance(obj, dict):
                 if 'model' in obj:
-                    model_candidate = obj['model']
+                    model = obj['model']
                 elif 'best_estimator_' in obj:
-                    model_candidate = obj['best_estimator_']
-                else:
-                    # Try to find any estimator-like object in the dict
-                    for k, v in obj.items():
-                        if hasattr(v, 'predict') or hasattr(v, 'best_estimator_'):
-                            model_candidate = v
-                            break
-            else:
-                model_candidate = obj
-
-            # Unwrap GridSearchCV/Pipeline-like objects when fitted
-            if hasattr(model_candidate, 'best_estimator_') and getattr(model_candidate, 'best_estimator_', None) is not None:
-                model_candidate = model_candidate.best_estimator_
-
-            model = model_candidate
-            if model is None:
-                print(f"Skipped {filename}: could not identify a model object")
-                continue
+                    model = obj['best_estimator_']
+            
+            # Check if model is valid
             if not hasattr(model, 'predict'):
-                print(f"Skipped {filename}: loaded object has no predict()")
+                continue
+                
+            # Check if model is fitted
+            try:
+                check_is_fitted(model)
+            except Exception:
                 continue
 
-            # Robust fitted check: prefer sklearn's check_is_fitted, fallback to heuristics
-            is_unfitted = False
-            if check_is_fitted is not None:
-                try:
-                    check_is_fitted(model)
-                except Exception:
-                    is_unfitted = True
-            else:
-                # Heuristic fallback
-                is_unfitted = not any(
-                    hasattr(model, attr) for attr in ['n_features_in_', 'classes_', 'feature_names_in_']
-                )
-
-            if is_unfitted:
-                print(f"Skipped {filename}: estimator appears unfitted (e.g., GridSearchCV not yet fit). Re-save a fitted estimator (best_estimator_).")
-                continue
-
-            # Create a friendly display name
-            name = os.path.splitext(filename)[0].replace('_', ' ').title()
+            # Create display name and store model
+            name = format_model_name(filename)
             loaded_models[name] = model
-            print(f"Loaded model: {name} from {filename}")
-        except Exception as e:
-            print(f"Failed to load {filename}: {e}")
+            
+        except Exception:
+            continue
+    
     return loaded_models
 
 models_dict = load_models_from_dir(models_dir)
 if not models_dict:
-    st.error("No valid models could be loaded from the models directory.")
     st.stop()
 
-# Helper to find a likely Random Forest model name for preserving the original heading
-def find_random_forest_name(models):
-    for name in models.keys():
-        lname = name.lower()
-        if 'random forest' in lname or lname.startswith('rf') or 'rf' in lname:
-            return name
-    return None
+# Helper to find Random Forest models and create proper display names
+def get_model_display_name(model_name):
+    """Get the proper display name for a model, handling Random Forest variants"""
+    lname = model_name.lower()
+    
+    # Check if it's a Random Forest variant
+    if 'random forest' in lname:
+        # Handle specific Random Forest variants
+        if 'smote' in lname:
+            return "Random Forest SMOTE"
+        elif 'vaes' in lname:
+            return "Random Forest VAES"
+        elif 'sop2' in lname:
+            return "Random Forest (Recommended)"
+        elif 'gans' in lname:
+            return "Random Forest GANS"
+        else:
+            return "Random Forest"
+    elif lname.startswith('rf') or 'rf' in lname:
+        return "Random Forest"
+    else:
+        return model_name
 
-random_forest_display_name = find_random_forest_name(models_dict)
+# No need for random_forest_display_name variable anymore
 
-# Function to robustly get positive-class probability
+# Function to get positive-class probability
 def get_positive_probability(model, input_df):
     try:
         proba = model.predict_proba(input_df)
-        # Binary classifier: take class 1 probability
-        if proba is not None:
-            return float(proba[0][1])
+        return float(proba[0][1])
     except Exception:
-        pass
-    try:
-        # Some models expose decision_function; squash via sigmoid
-        decision = model.decision_function(input_df)
-        score = float(np.atleast_1d(decision)[0])
-        return 1.0 / (1.0 + np.exp(-score))
-    except Exception:
-        pass
-    try:
-        pred = model.predict(input_df)
-        return float(np.atleast_1d(pred)[0])
-    except Exception:
-        return 0.0
+        try:
+            decision = model.decision_function(input_df)
+            score = float(np.atleast_1d(decision)[0])
+            return 1.0 / (1.0 + np.exp(-score))
+        except Exception:
+            return 0.5
 
-# Post-prediction probability adjustments (same rules as existing code)
+# Post-prediction probability adjustments
 def adjust_probability(probability, education, property_area, credit_history):
     prob = float(probability)
-    # Education
+    
+    # Education adjustments
     if education == "College Graduate":
         prob = min(prob + 0.10, 1.0)
-    elif education == "High School Graduate":
-        prob = max(prob - 0.05, 0.0)
-    # Property area
+    elif education == "Elementary Graduate":
+        prob = max(prob - 0.15, 0.0)
+    
+    # Property area adjustments
     if property_area == "Urban":
         prob = min(prob + 0.08, 1.0)
-    elif property_area == "Rural":
-        prob = max(prob - 0.05, 0.0)
-    # Credit history
+    
+    # Credit history adjustments
     if credit_history == "Good Credit History":
         prob = min(prob + 0.08, 1.0)
-    elif credit_history == "Bad Credit History":
-        prob = max(prob - 0.05, 0.0)
+    
     return prob
 
-# Unified plotting for probability (identical look and feel)
+# Plot probability chart
 def render_probability_chart(probability):
-    plt.style.use('seaborn-v0_8-whitegrid')
     plt.figure(figsize=(14, 7))
     colors = ['#4CAF50', '#FF5252']
-    bars = plt.bar(['Repayment', 'Default'],
-                   [probability, 1 - probability],
-                   color=colors,
-                   alpha=0.8,
-                   width=0.9)
+    bars = plt.bar(['Yes', 'No'], [probability, 1 - probability], color=colors, alpha=0.8)
+    
     for bar in bars:
         height = bar.get_height()
-        plt.text(bar.get_x() + bar.get_width()/2., height,
-                 f'{height:.1%}',
-                 ha='center', va='bottom',
-                 fontsize=16,
-                 fontweight='medium',
-                 color='#2C3E50')
-    plt.gca().spines['top'].set_visible(False)
-    plt.gca().spines['right'].set_visible(False)
-    plt.gca().spines['left'].set_visible(False)
-    plt.gca().spines['bottom'].set_visible(False)
+        plt.text(bar.get_x() + bar.get_width()/2., height, f'{height:.1%}',
+                 ha='center', va='bottom', fontsize=16, fontweight='medium')
+    
+    plt.gca().spines[:].set_visible(False)
     plt.yticks([])
-    plt.ylabel('')
-    plt.xticks(fontsize=16, color='#2C3E50')
-    plt.grid(axis='y', linestyle='-', alpha=0.1, color='#2C3E50')
-    plt.gca().set_facecolor('white')
-    plt.gcf().set_facecolor('white')
-    plt.title('Loan Repayment Probability',
-              fontsize=18,
-              fontweight='medium',
-              color='#2C3E50',
-              pad=30)
-    plt.tight_layout(pad=2.5)
+    plt.xticks(fontsize=16)
+    plt.title('Loan Repayment Probability', fontsize=18, fontweight='medium', pad=30)
+    plt.tight_layout()
     st.pyplot(plt, use_container_width=True)
     plt.clf()
 
@@ -209,7 +191,7 @@ st.title("Loan Application Input Form")
 gender_options = {'Female': 0, 'Male': 1}
 marital_status_options = {'Single': 0, 'Married': 1}
 dependents_options = {'0': 0, '1': 1, '2': 2, '3+': 3}
-education_options = {'High School Graduate': 0, 'College Graduate': 1}
+education_options = {'Elementary Graduate': 0, 'High School Graduate': 1, 'College Graduate': 2}
 employment_status_options = {'No': 0, 'Yes': 1}
 credit_history_options = {'Bad Credit History': 0, 'Good Credit History': 1}
 property_area_options = {'Rural': 0, 'Urban': 1}
@@ -256,20 +238,7 @@ def is_valid_input():
 
 # Function to reset all fields
 def clear_fields():
-    # Reset all session state variables to default values
-    st.session_state.gender = ""
-    st.session_state.married = ""
-    st.session_state.dependents = ""
-    st.session_state.education = ""
-    st.session_state.self_employed = ""
-    st.session_state.credit_history = ""
-    st.session_state.property_area = ""
-    st.session_state.applicant_income = None
-    st.session_state.loan_amount = None
-    st.session_state.loan_term = None
-    
-    # Set the flag for triggering a rerun
-    st.session_state.clear_triggered = True
+    st.rerun()
 
     
 # Action buttons
@@ -282,11 +251,14 @@ with col1:
         loan_to_income_ratio = float(loan_amount) / float(applicant_income) if float(applicant_income) > 0 else 0
         
         # Prepare input data for prediction with exactly the columns the model was trained on
+        # Map education to original binary values: Elementary=0, High School=0, College=1
+        education_mapping = {'Elementary Graduate': 0, 'High School Graduate': 0, 'College Graduate': 1}
+        
         input_data = {
             'Gender': gender_options[gender],
             'Married': marital_status_options[married],
             'Dependents': dependents_options[dependents],
-            'Education': education_options[education],
+            'Education': education_mapping[education],  # Use the mapping for model compatibility
             'Self_Employed': employment_status_options[self_employed],
             'Credit_History': credit_history_options[credit_history],
             'Property_Area': property_area_options[property_area],
@@ -296,60 +268,93 @@ with col1:
             'Monthly_Loan_Amount_TermLog': np.log1p(float(loan_term) / 12)
         }
 
-        # Display the input data as text
-        st.write("Collected Input Data:")
-        st.write(f"Gender: {gender}")
-        st.write(f"Marital Status: {married}")
-        st.write(f"Number of Dependents: {dependents}")
-        st.write(f"Education: {education}")
-        st.write(f"Self Employed: {self_employed}")
-        st.write(f"Applicant Income: ₱{int(applicant_income):,}")
-        st.write(f"Loan Amount: {int(loan_amount):,}")
-        st.write(f"Monthly Loan Term: {loan_term}")
-        st.write(f"Credit History: {credit_history}")
-        st.write(f"Property Area: {property_area}")
-        st.write(f"Loan to Income Ratio: {loan_to_income_ratio:.2f}")
-
         try:
             input_df = pd.DataFrame([input_data])
 
-            # Iterate over all loaded models and render identical outputs
-            for model_name, model in models_dict.items():
-                try:
-                    # Preserve original RF heading if applicable
-                    if random_forest_display_name and model_name == random_forest_display_name:
-                        st.title("Random Forest Model Prediction")
-                    else:
-                        st.title(f"{model_name} Prediction")
+            # Display input summary
+            col1, col2 = st.columns(2)
+            with col1:
+                st.write(f"**Income:** ₱{int(applicant_income):,}")
+                st.write(f"**Loan:** {int(loan_amount):,}")
+                st.write(f"**Term:** {loan_term} months")
+            with col2:
+                st.write(f"**Education:** {education}")
+                st.write(f"**Credit:** {credit_history}")
+                st.write(f"**Area:** {property_area}")
 
-                    probability = get_positive_probability(model, input_df)
-                    probability = adjust_probability(probability, education, property_area, credit_history)
-                    prediction = int(model.predict(input_df)[0]) if hasattr(model, 'predict') else (1 if probability >= 0.5 else 0)
+            # Add explanation for the results (only once)
+            st.info("""
+            **Why these results?**  
+            These predictions are based on the applicant's income, loan amount, number of dependents, and credit history, as these are key factors used by the models to assess loan repayment likelihood.
+            """)
 
-                    if prediction == 1:
-                        st.write(f"The applicant is likely to pay the loan. (Probability: {probability:.2f})")
-                    else:
-                        st.write(f"The applicant is unlikely to pay the loan. (Probability: {1 - probability:.2f})")
+            # Model predictions
+            st.info("**Model Predictions**")
+            
+            def display_model_prediction(model_name, model, column):
+                with column:
+                    try:
+                        display_name = get_model_display_name(model_name)
+                        st.subheader(f"{display_name} Prediction")
 
-                    st.info("""
-                    **Why this result?**  
-                    This prediction is based on the applicant's income, loan amount, number of dependents, and credit history, as these are key factors used by the model to assess loan repayment likelihood.
-                    """)
+                        probability = get_positive_probability(model, input_df)
+                        probability = adjust_probability(probability, education, property_area, credit_history)
+                        prediction = 1 if probability >= 0.5 else 0
 
-                    # Percentages explanation under each model
-                    yes_percent = probability * 100
-                    no_percent = (1 - probability) * 100
-                    st.markdown(f"""
-                    <span style='color:#2C3E50;'>
-                    <b>What do these percentages mean?</b><br>
-                    The model estimates there is a <b>{yes_percent:.0f}%</b> chance the applicant will repay the loan, and a <b>{no_percent:.0f}%</b> chance they will not.
-                    </span>
-                    """, unsafe_allow_html=True)
-
-                    # Plot
-                    render_probability_chart(probability)
-                except Exception as model_err:
-                    st.warning(f"Skipping {model_name} due to error: {model_err}")
+                        if prediction == 1:
+                            st.success(f"✅ **APPROVED** - {probability:.1%}")
+                        else:
+                            st.error(f"❌ **REJECTED** - {1 - probability:.1%}")
+                        
+                        st.markdown(f"**Repayment:** {probability:.0%} | **Default:** {1 - probability:.0%}")
+                        render_probability_chart(probability)
+                        
+                    except Exception:
+                        st.warning(f"Error with {model_name}")
+            
+            # Custom sorting for specific model order
+            def custom_model_sort_key(model_name):
+                lname = model_name.lower()
+                
+                # Row 1: Decision Tree and Gradient Boosting
+                if 'decision tree' in lname:
+                    return 1
+                elif 'gradient boosting' in lname:
+                    return 2
+                
+                # Row 2: KNN and Logistic Regression
+                elif 'knn' in lname:
+                    return 3
+                elif 'logistic regression' in lname:
+                    return 4
+                
+                # Row 3: XGBoost and Random Forest (Recommended)
+                elif 'xgboost' in lname:
+                    return 5
+                elif 'sop2' in lname:
+                    return 6
+                
+                # Row 4: VAES, SMOTE, and GANS
+                elif 'vaes' in lname:
+                    return 7
+                elif 'smote' in lname:
+                    return 8
+                elif 'gans' in lname:
+                    return 9
+                
+                # Any other models
+                else:
+                    return 0
+            
+            # Display models in custom order
+            model_names = sorted(list(models_dict.keys()), key=custom_model_sort_key)
+            for i in range(0, len(model_names), 2):
+                col1, col2 = st.columns(2)
+                display_model_prediction(model_names[i], models_dict[model_names[i]], col1)
+                if i + 1 < len(model_names):
+                    display_model_prediction(model_names[i + 1], models_dict[model_names[i + 1]], col2)
+                if i + 2 < len(model_names):
+                    st.markdown("---")
 
         except Exception as e:
             st.error(f"Error making prediction: {str(e)}")
